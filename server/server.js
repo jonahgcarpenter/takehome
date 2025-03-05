@@ -3,6 +3,8 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
+const http = require("http");
+const socketIo = require("socket.io");
 
 // Create the app
 const app = express();
@@ -34,6 +36,22 @@ if (!mongoURI) {
   );
   process.exit(1);
 }
+
+// Create the http server
+const server = http.createServer(app);
+
+// Attach socket.io to the server
+const io = socketIo(server);
+
+// Websocket connection event handling
+io.on("connection", (socket) => {
+  console.log("New client connected");
+
+  // Disconnect event handling
+  socket.on("disconnect", () => {
+    console.log("Client disconnected");
+  });
+});
 
 // Connect database and start server
 mongoose
