@@ -1,13 +1,27 @@
 require("dotenv").config();
+require("./utils/oauth");
 
 const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
 const http = require("http");
 const socketIo = require("socket.io");
+const session = require("express-session");
+const passport = require("passport");
+
+// TEMPORARY FOR PROTECTED ROUTE TESTING
+const isAuthenticated = require("./utils/oauth");
+
+// Import the routes
+const authRoutes = require("./routes/authRoutes");
 
 // Create the app
 const app = express();
+
+// Use session and passport middleware
+app.use(session({ secret: process.env.SESSION_SECRET }));
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Middleware
 app.use(express.json());
@@ -16,6 +30,22 @@ app.use(express.json());
 app.use((req, _res, next) => {
   console.log(req.path, req.method);
   next();
+});
+
+// Use imported routes
+app.use("/api/auth", authRoutes);
+
+//TEMPORARY ROUTES FOR TESTING LOGIN
+app.get("/", (_req, res) => {
+  res.send('<a href="/api/auth/login">Login with Google</a>');
+});
+
+// TEMPORARY ROUTE FOR TESTING PROTECTED ROUTE
+app.get("/protected", isAuthenticated, (req, res) => {
+  res.send(`
+    <h1>Hello ${req.user.displayName}</h1>
+    <a href="/api/auth/logout">Logout</a>
+  `);
 });
 
 // Serve the static files from Vite
