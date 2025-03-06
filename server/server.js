@@ -2,7 +2,6 @@ require("dotenv").config();
 require("./utils/oauth");
 
 const express = require("express");
-const mongoose = require("mongoose");
 const path = require("path");
 const http = require("http");
 const socketIo = require("socket.io");
@@ -10,10 +9,13 @@ const session = require("express-session");
 const passport = require("passport");
 
 // TEMPORARY FOR PROTECTED ROUTE TESTING
-const isAuthenticated = require("./utils/oauth");
+const { isAuthenticated } = require("./utils/oauth");
 
 // Import the routes
 const authRoutes = require("./routes/authRoutes");
+
+// Import the database connection
+const connectDB = require("./config/db");
 
 // Create the app
 const app = express();
@@ -43,7 +45,8 @@ app.get("/", (_req, res) => {
 // TEMPORARY ROUTE FOR TESTING PROTECTED ROUTE
 app.get("/protected", isAuthenticated, (req, res) => {
   res.send(`
-    <h1>Hello ${req.user.displayName}</h1>
+    <h1>Current User Data</h1>
+    <pre>${JSON.stringify(req.user, null, 2)}</pre>
     <a href="/api/auth/logout">Logout</a>
   `);
 });
@@ -59,8 +62,7 @@ app.get("*", (_req, res) => {
 const port = process.env.PORT || 3000;
 
 // Ensure the MongoDB URI is defined
-const mongoURI = process.env.MONGODB_URI;
-if (!mongoURI) {
+if (!process.env.MONGODB_URI) {
   console.error(
     "Error: MONGODB_URI is not defined in your environment variables.",
   );
@@ -84,10 +86,9 @@ io.on("connection", (socket) => {
 });
 
 // Connect database and start server
-mongoose
-  .connect(mongoURI)
+connectDB()
   .then(() => {
-    app.listen(port, () => {
+    server.listen(port, () => {
       console.log("Connected to database, server listening on port:", port);
     });
   })

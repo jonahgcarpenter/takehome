@@ -1,7 +1,8 @@
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth2").Strategy;
+const User = require("../models/userModel");
+const Role = require("../models/roleModel");
 
-//TODO: save user details to the database
 // Configure the Google Strategy
 passport.use(
   new GoogleStrategy(
@@ -11,24 +12,91 @@ passport.use(
       callbackURL: process.env.GOOGLE_CALLBACK_URL,
       passReqToCallback: true,
     },
-    function (request, accessToken, refreshToken, profile, done) {
-      return done(null, profile);
+    async function (request, accessToken, refreshToken, profile, done) {
+      try {
+        // Find the default role (Customer) for new users
+        const defaultRole = await Role.findOne({ name: "Customer" });
+
+        if (!defaultRole) {
+          return done(
+            new Error("Default role not found. Please initialize roles."),
+          );
+        }
+
+        // Look for existing user
+        let user = await User.findOne({ googleId: profile.id });
+
+        if (user) {
+          // Update user's information and last login date
+          user.displayName = profile.displayName;
+          user.firstName = profile.name.givenName;
+          user.lastName = profile.name.familyName;
+          user.profilePhoto =
+            profile.photos && profile.photos[0]
+              ? profile.photos[0].value
+              : null;
+          user.lastLogin = new Date();
+          await user.save();
+        } else {
+          // Create new user
+          user = await User.create({
+            googleId: profile.id,
+            email: profile.email,
+            displayName: profile.displayName,
+            firstName: profile.name.givenName,
+            lastName: profile.name.familyName,
+            profilePhoto:
+              profile.photos && profile.photos[0]
+                ? profile.photos[0].value
+                : null,
+            role: defaultRole._id,
+          });
+        }
+
+        // Pass the user object to the next middleware
+        return done(null, user);
+      } catch (error) {
+        return done(error);
+      }
     },
   ),
 );
 
-// serialize and deserialize the user
+// Serialize the user for the session
 passport.serializeUser(function (user, done) {
-  done(null, user);
+  done(null, user.id);
 });
 
-passport.deserializeUser(function (user, done) {
-  done(null, user);
+// Deserialize the user from the session
+passport.deserializeUser(async function (id, done) {
+  try {
+    const user = await User.findById(id).populate("role");
+    done(null, user);
+  } catch (error) {
+    done(error);
+  }
 });
 
-// Middleware to check if the user is isAuthenticated
+// Middleware to check if the user is authenticated
 const isAuthenticated = (req, res, next) => {
   req.user ? next() : res.sendStatus(401);
 };
 
-module.exports = isAuthenticated;
+// Middleware to check if the user has a specific role
+const hasRole = (roles) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (!req.user.role || !roles.includes(req.user.role.name)) {
+      return res
+        .status(403)
+        .json({ message: "Forbidden: Insufficient permissions" });
+    }
+
+    next();
+  };
+};
+
+module.exports = { isAuthenticated, hasRole };
