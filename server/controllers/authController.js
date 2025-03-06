@@ -6,20 +6,16 @@ const authService = require("../services/authService");
 exports.googleCallback = (req, res) => {
   // If the user hasn't set up TOTP at all, force them to the setup process
   if (!req.user.totpSecret) {
-    return res.redirect("/api/auth/2fa/setup");
+    return res.redirect("http://localhost:5173/2fa/setup");
   }
   // If the user has a TOTP secret but hasn't verified it, prompt for token verification
   if (!req.user.totpEnabled) {
-    return res.status(401).json({
-      message: "Please finish your setup by verifying your 2FA code",
-    });
+    return res.redirect("http://localhost:5173/2fa/setup");
   }
 
   // If the user hasn't completed 2FA verification for this session, prompt for token input
   if (!req.session.totpVerified) {
-    return res.status(401).json({
-      message: "Please enter your 2FA code",
-    });
+    return res.redirect("http://localhost:5173/2fa/verify");
   }
   // If TOTP is set up and verified, allow access to protected routes
   res.redirect("/");
@@ -66,7 +62,7 @@ exports.verifyTOTP = async (req, res) => {
 
       // Mark the session as verified
       req.session.totpVerified = true;
-      return res.redirect("/");
+      return res.redirect("http://localhost:5173/dashboard");
     }
     res.status(401).json({ message: "Invalid TOTP token" });
   } catch (error) {
@@ -85,7 +81,7 @@ exports.logout = (req, res, next) => {
       if (err) {
         return next(err);
       }
-      res.redirect("/");
+      res.redirect("http://localhost:5173/");
     });
   });
 };

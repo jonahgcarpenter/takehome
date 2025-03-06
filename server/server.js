@@ -40,12 +40,11 @@ app.use((req, _res, next) => {
 app.use("/api/auth", authRoutes);
 
 // TEMPORARY ROUTE FOR TESTING PROTECTED ROUTE
-app.get("/", isAuthenticated, (req, res) => {
-  res.send(`
-    <h1>Current User Data</h1>
-    <pre>${JSON.stringify(req.user, null, 2)}</pre>
-    <a href="/api/auth/logout">Logout</a>
-  `);
+app.get("/api/me", isAuthenticated, (req, res) => {
+  res.json({
+    displayName: req.user.displayName,
+    profilePhoto: req.user.profilePhoto,
+  });
 });
 
 // Serve the static files from Vite
