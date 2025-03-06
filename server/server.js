@@ -1,15 +1,15 @@
+// Entry point: sets up Express, Socket.io, and loads all routes/middlewares
 require("dotenv").config();
-require("./utils/oauth");
 
 const express = require("express");
 const path = require("path");
 const http = require("http");
 const socketIo = require("socket.io");
 const session = require("express-session");
-const passport = require("passport");
+const passport = require("./config/oauth");
 
 // TEMPORARY FOR PROTECTED ROUTE TESTING
-const { isAuthenticated } = require("./utils/oauth");
+const isAuthenticated = require("./middlewares/authMiddelware");
 
 // Import the routes
 const authRoutes = require("./routes/authRoutes");
@@ -20,21 +20,23 @@ const connectDB = require("./config/db");
 // Create the app
 const app = express();
 
-// Use session and passport middleware
+// Set up session middleware
 app.use(session({ secret: process.env.SESSION_SECRET }));
+
+// Initialize Passport and its session support
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Middleware
+// Parse JSON request bodies
 app.use(express.json());
 
-// Console log requested path and method
+// Log each request's path and method
 app.use((req, _res, next) => {
   console.log(req.path, req.method);
   next();
 });
 
-// Use imported routes
+// Mount the routes
 app.use("/api/auth", authRoutes);
 
 //TEMPORARY ROUTES FOR TESTING LOGIN
@@ -58,34 +60,20 @@ app.get("*", (_req, res) => {
   res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
-// Default port
+// Define the port and create the HTTP server
 const port = process.env.PORT || 3000;
-
-// Ensure the MongoDB URI is defined
-if (!process.env.MONGODB_URI) {
-  console.error(
-    "Error: MONGODB_URI is not defined in your environment variables.",
-  );
-  process.exit(1);
-}
-
-// Create the http server
 const server = http.createServer(app);
 
-// Attach socket.io to the server
+// Attach Socket.io for real-time updates
 const io = socketIo(server);
-
-// Websocket connection event handling
 io.on("connection", (socket) => {
   console.log("New client connected");
-
-  // Disconnect event handling
   socket.on("disconnect", () => {
     console.log("Client disconnected");
   });
 });
 
-// Connect database and start server
+// Connect to the database and start the server
 connectDB()
   .then(() => {
     server.listen(port, () => {

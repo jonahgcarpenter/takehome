@@ -1,6 +1,8 @@
+// Endpoints for authentication (login, logout, TOTP setup/verify)
 const express = require("express");
 const passport = require("passport");
 const router = express.Router();
+const authController = require("../controllers/authController");
 
 // login route using google strategy
 router.get(
@@ -13,27 +15,14 @@ router.get(
 // callback route after google has authenticated the user
 router.get(
   "/google/callback",
-  passport.authenticate("google", {
-    successRedirect: "/protected",
-    failureRedirect: "/api/auth/failure",
-  }),
+  passport.authenticate("google", { failureRedirect: "/api/auth/failure" }),
+  authController.googleCallback,
 );
 
-// logout route to destory the session
-router.get("/logout", (req, res, next) => {
-  req.logout(function (err) {
-    if (err) {
-      return next(err);
-    }
-    req.session.destroy();
-    res.redirect("/");
-  });
-});
+// logout route to destroy the session
+router.get("/logout", authController.logout);
 
-// TODO: update to because this failure will be displayed in the frontend
 // failure route if the user fails to login
-router.get("/failure", (_req, res) => {
-  res.send("Failed to login");
-});
+router.get("/failure", authController.failure);
 
 module.exports = router;

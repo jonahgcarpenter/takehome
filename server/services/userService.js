@@ -1,3 +1,4 @@
+// Business logic for user profile and permissions
 const Role = require("../models/roleModel");
 
 const initializeRoles = async () => {

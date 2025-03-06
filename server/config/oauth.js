@@ -1,3 +1,4 @@
+// Passport configuration and OAuth strategy definitions
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth2").Strategy;
 const User = require("../models/userModel");
@@ -77,26 +78,4 @@ passport.deserializeUser(async function (id, done) {
   }
 });
 
-// Middleware to check if the user is authenticated
-const isAuthenticated = (req, res, next) => {
-  req.user ? next() : res.sendStatus(401);
-};
-
-// Middleware to check if the user has a specific role
-const hasRole = (roles) => {
-  return (req, res, next) => {
-    if (!req.user) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    if (!req.user.role || !roles.includes(req.user.role.name)) {
-      return res
-        .status(403)
-        .json({ message: "Forbidden: Insufficient permissions" });
-    }
-
-    next();
-  };
-};
-
-module.exports = { isAuthenticated, hasRole };
+module.exports = passport;

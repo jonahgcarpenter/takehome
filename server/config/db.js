@@ -1,5 +1,6 @@
+// Database connection logic
 const mongoose = require("mongoose");
-const { initializeRoles } = require("../services/roleService");
+const { initializeRoles } = require("../services/userService");
 
 const connectDB = async () => {
   try {
