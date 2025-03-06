@@ -4,21 +4,25 @@ const authService = require("../services/authService");
 
 // Called after successful Google OAuth authentication
 exports.googleCallback = (req, res) => {
-  // If the user hasn't set up TOTP at all, force them to the setup process
+  // If the user hasn't set up TOTP at all, instruct the frontend to show the setup page
   if (!req.user.totpSecret) {
-    return res.redirect("http://localhost:5173/2fa/setup");
+    return res.status(200).json({
+      status: "2fa_setup_required",
+      message: "Please finish your setup by verifying your 2FA code",
+    });
   }
-  // If the user has a TOTP secret but hasn't verified it, prompt for token verification
-  if (!req.user.totpEnabled) {
-    return res.redirect("http://localhost:5173/2fa/setup");
+  // If the user has a TOTP secret but hasn't verified it, instruct the frontend to prompt for token verification
+  if (!req.user.totpEnabled || !req.session.totpVerified) {
+    return res.status(200).json({
+      status: "2fa_verification_required",
+      message: "Please enter your 2FA code",
+    });
   }
-
-  // If the user hasn't completed 2FA verification for this session, prompt for token input
-  if (!req.session.totpVerified) {
-    return res.redirect("http://localhost:5173/2fa/verify");
-  }
-  // If TOTP is set up and verified, allow access to protected routes
-  res.redirect("/");
+  // If TOTP is set up and verified, return success
+  res.status(200).json({
+    status: "authenticated",
+    message: "Authentication successful",
+  });
 };
 
 // TOTP Setup: Generate a secret, store it on the user, and return a QR code URL
@@ -38,7 +42,8 @@ exports.totpSetup = async (req, res) => {
     const qrCodeDataURL = await qrcode.toDataURL(secret.otpauth_url);
 
     // Send QR code to the frontend (or render a view)
-    res.json({
+    res.status(200).json({
+      status: "2fa_setup",
       message: "TOTP setup successful",
       qrCodeDataURL,
     });
@@ -62,7 +67,10 @@ exports.verifyTOTP = async (req, res) => {
 
       // Mark the session as verified
       req.session.totpVerified = true;
-      return res.redirect("http://localhost:5173/dashboard");
+      return res.status(200).json({
+        status: "authenticated",
+        message: "TOTP verification successful",
+      });
     }
     res.status(401).json({ message: "Invalid TOTP token" });
   } catch (error) {
@@ -81,7 +89,9 @@ exports.logout = (req, res, next) => {
       if (err) {
         return next(err);
       }
-      res.redirect("http://localhost:5173/");
+      res
+        .status(200)
+        .json({ status: "logged_out", message: "Logout successful" });
     });
   });
 };

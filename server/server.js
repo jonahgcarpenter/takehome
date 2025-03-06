@@ -41,10 +41,7 @@ app.use("/api/auth", authRoutes);
 
 // TEMPORARY ROUTE FOR TESTING PROTECTED ROUTE
 app.get("/api/me", isAuthenticated, (req, res) => {
-  res.json({
-    displayName: req.user.displayName,
-    profilePhoto: req.user.profilePhoto,
-  });
+  res.json(req.user);
 });
 
 // Serve the static files from Vite

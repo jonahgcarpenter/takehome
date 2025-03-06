@@ -35,5 +35,4 @@ const verifyTOTPToken = (user, token) => {
 module.exports = {
   generateTOTPSecret,
   verifyTOTPToken,
-  // ... other auth-related functions
 };
