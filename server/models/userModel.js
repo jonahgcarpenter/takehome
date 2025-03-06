@@ -24,6 +24,14 @@ const userSchema = new mongoose.Schema({
     ref: "Role",
     required: true,
   },
+  totpSecret: {
+    type: String,
+    default: null,
+  },
+  totpEnabled: {
+    type: Boolean,
+    default: false,
+  },
   lastLogin: {
     type: Date,
     default: Date.now,

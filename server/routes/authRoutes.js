@@ -19,10 +19,16 @@ router.get(
   authController.googleCallback,
 );
 
-// logout route to destroy the session
+// TOTP setup route: generates a secret and returns a QR code for the user to scan
+router.get("/2fa/setup", authController.totpSetup);
+
+// TOTP verification route: user posts token for verification
+router.post("/2fa/verify", authController.verifyTOTP);
+
+// Logout route
 router.get("/logout", authController.logout);
 
-// failure route if the user fails to login
+// Failure route for unsuccessful login attempts
 router.get("/failure", authController.failure);
 
 module.exports = router;

@@ -39,13 +39,8 @@ app.use((req, _res, next) => {
 // Mount the routes
 app.use("/api/auth", authRoutes);
 
-//TEMPORARY ROUTES FOR TESTING LOGIN
-app.get("/", (_req, res) => {
-  res.send('<a href="/api/auth/login">Login with Google</a>');
-});
-
 // TEMPORARY ROUTE FOR TESTING PROTECTED ROUTE
-app.get("/protected", isAuthenticated, (req, res) => {
+app.get("/", isAuthenticated, (req, res) => {
   res.send(`
     <h1>Current User Data</h1>
     <pre>${JSON.stringify(req.user, null, 2)}</pre>
