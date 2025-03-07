@@ -1,8 +1,8 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./components/Login";
-import TwoFASetup from "./components/TwoFASetup";
-import TwoFAVerify from "./components/TwoFAVerify";
+import Login from "./pages/auth/Login";
+import TwoFASetup from "./pages/auth/TwoFASetup";
+import TwoFAVerify from "./pages/auth/TwoFAVerify";
 import Dashboard from "./pages/Dashboard";
 
 export default function App() {

@@ -2,27 +2,20 @@
 const qrcode = require("qrcode");
 const authService = require("../services/authService");
 
+const BASE_URL = process.env.FRONTEND_BASE_URL || "";
+
 // Called after successful Google OAuth authentication
 exports.googleCallback = (req, res) => {
-  // If the user hasn't set up TOTP at all, instruct the frontend to show the setup page
+  // If the user hasn't set up TOTP at all, redirect to the setup page
   if (!req.user.totpSecret) {
-    return res.status(200).json({
-      status: "2fa_setup_required",
-      message: "Please finish your setup by verifying your 2FA code",
-    });
+    return res.redirect(`${BASE_URL}/2fa/setup`);
   }
-  // If the user has a TOTP secret but hasn't verified it, instruct the frontend to prompt for token verification
+  // If the user has a TOTP secret but hasn't verified it, redirect to verification page
   if (!req.user.totpEnabled || !req.session.totpVerified) {
-    return res.status(200).json({
-      status: "2fa_verification_required",
-      message: "Please enter your 2FA code",
-    });
+    return res.redirect(`${BASE_URL}/2fa/verify`);
   }
-  // If TOTP is set up and verified, return success
-  res.status(200).json({
-    status: "authenticated",
-    message: "Authentication successful",
-  });
+  // If TOTP is set up and verified, redirect to dashboard
+  res.redirect(`${BASE_URL}/dashboard`);
 };
 
 // TOTP Setup: Generate a secret, store it on the user, and return a QR code URL
@@ -41,10 +34,8 @@ exports.totpSetup = async (req, res) => {
     // Generate a QR code data URL for the otpauth URL
     const qrCodeDataURL = await qrcode.toDataURL(secret.otpauth_url);
 
-    // Send QR code to the frontend (or render a view)
+    // We still need to send the QR code data to the frontend
     res.status(200).json({
-      status: "2fa_setup",
-      message: "TOTP setup successful",
       qrCodeDataURL,
     });
   } catch (error) {
@@ -67,11 +58,11 @@ exports.verifyTOTP = async (req, res) => {
 
       // Mark the session as verified
       req.session.totpVerified = true;
-      return res.status(200).json({
-        status: "authenticated",
-        message: "TOTP verification successful",
-      });
+
+      // Redirect to dashboard after successful verification
+      return res.redirect(`${BASE_URL}/dashboard`);
     }
+    // In case of invalid token, send back to verification page with error
     res.status(401).json({ message: "Invalid TOTP token" });
   } catch (error) {
     console.error("Error in TOTP verification:", error);
@@ -89,9 +80,8 @@ exports.logout = (req, res, next) => {
       if (err) {
         return next(err);
       }
-      res
-        .status(200)
-        .json({ status: "logged_out", message: "Logout successful" });
+      // Redirect to login after successful logout
+      return res.redirect(`${BASE_URL}/`);
     });
   });
 };
