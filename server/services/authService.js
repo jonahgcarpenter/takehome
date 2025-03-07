@@ -8,8 +8,8 @@ const speakeasy = require("speakeasy");
 const generateTOTPSecret = (userEmail) => {
   const secret = speakeasy.generateSecret({
     length: 20,
-    name: `MyApp (${userEmail})`,
-    issuer: "MyApp",
+    name: `Takehome (${userEmail})`,
+    issuer: "Takehome",
   });
   return secret;
 };
