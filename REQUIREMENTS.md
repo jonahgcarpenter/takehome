@@ -1,98 +1,104 @@
-# Task Overview: Develop a basic B2B e-commerce web application focusing on security, real-time updates, and role-based functionality. This project will assess your ability to build a full-stack application using modern technologies while adhering to best practices.
+# B2B E-Commerce Web Application
 
-# Requirements:
+## Task Overview:
 
-## Frontend:
+Develop a basic B2B e-commerce web application focusing on security, real-time updates, and role-based functionality. This project will assess your ability to build a full-stack application using modern technologies while adhering to best practices.
 
-Framework: React.js
-UI Library: Use MUI UI components.
-Real-Time Updates: Implement real-time UI updates (via WebSockets) to reflect CRUD operations instantly.
+## Requirements:
 
-## Backend:
+### Frontend:
 
-Language/Framework: Node.js with Express.
-API: Develop RESTful APIs for all database tables.
+- **Framework**: React.js
+- **UI Library**: Use MUI UI components.
+- **Real-Time Updates**: Implement real-time UI updates (via WebSockets) to reflect CRUD operations instantly.
 
-## Security:
+### Backend:
 
-Implement OAuth 2.0 to secure all API endpoints.
-Integrate TOTP-based login for multi-factor authentication.
+- **Language/Framework**: Node.js with Express.
+- **API**: Develop RESTful APIs for all database tables.
 
-## Database:
+### Security:
 
-Options: MariaDB.
-Data Model: Design tables to support users, roles, products, and necessary audit logs.
-User Roles (RBAC):
+- Implement OAuth 2.0 to secure all API endpoints.
+- Integrate TOTP-based login for multi-factor authentication.
 
-## Roles: Admin, Staff, Customer.
+### Database:
 
-Permissions:
-Admin: Full access, including viewing audit logs and managing user roles.
-Staff: Ability to add products, update inventory, and manage orders.
-Customer: Ability to browse products, view available quantities, and raise RFQs and POs.
-Core Features:
+- **Options**: MariaDB.
+- **Data Model**: Design tables to support users, roles, products, and necessary audit logs.
 
-## Authentication & Authorization:
+### User Roles (RBAC)
 
-Secure login using TOTP.
-OAuth 2.0 secured endpoints.
-Role-Based Access Control (RBAC) implementation.
+- **Roles**:
+  - Admin
+  - Staff
+  - Customer
+- **Permissions**:
+  - **Admin**: Full access, including viewing audit logs and managing user roles
+  - **Staff**: Ability to add products, update inventory, and manage orders
+  - **Customer**: Ability to browse products, view available quantities, and raise RFQs and POs
 
-## Product Management:
+## Core Features:
 
-Staff: Add new products, update inventory levels, manage orders, and handle POs.
-Customers: Browse products and check real-time inventory status.
+### Authentication & Authorization:
 
-## CRUD Operations & Logging:
+- Secure login using TOTP.
+- OAuth 2.0 secured endpoints.
+- Role-Based Access Control (RBAC) implementation.
 
-Build RESTful APIs for all tables (users, products, etc.).
-Every CRUD operation should trigger a real-time update on the UI.
-Maintain detailed logs of all CRUD operations performed by any user (e.g., timestamp, user, operation).
+### Product Management:
 
-# Task Breakdown:
+- **Staff**: Add new products, update inventory levels, manage orders, and handle POs.
+- **Customers**: Browse products and check real-time inventory status.
 
-## Data Modelling:
+### CRUD Operations & Logging:
 
-Design and implement the database schema (e.g., Users, Roles, Products, Audit Logs).
-Ensure proper relationships and constraints are in place.
+- Build RESTful APIs for all tables (users, products, etc.).
+- Every CRUD operation should trigger a real-time update on the UI.
+- Maintain detailed logs of all CRUD operations performed by any user (e.g., timestamp, user, operation).
 
-## API Development:
+## Task Breakdown:
 
-Develop secure RESTful APIs for CRUD operations on all tables.
-Apply OAuth 2.0 to protect these endpoints.
-Ensure proper error handling and data validation.
+### Data Modelling:
 
-## Authentication:
+- Design and implement the database schema (e.g., Users, Roles, Products, Audit Logs).
+- Ensure proper relationships and constraints are in place.
 
-Implement TOTP-based login for secure user authentication.
-Ensure that login sessions and token management are handled securely.
+### API Development:
 
-## Frontend Implementation:
+- Develop secure RESTful APIs for CRUD operations on all tables.
+- Apply OAuth 2.0 to protect these endpoints.
+- Ensure proper error handling and data validation.
 
-Build the user interface using React.js and MUI components.
+### Authentication:
 
-## Create views for different roles:
+- Implement TOTP-based login for secure user authentication.
+- Ensure that login sessions and token management are handled securely.
 
-Admin: Access to audit logs and user management.
-Staff: Interfaces for product addition and inventory updates.
-Customer: A product browsing interface showing real-time inventory.
-Implement real-time updates on the UI whenever a CRUD operation occurs.
+### Frontend Implementation
 
-## Real-Time Functionality:
+- Build the user interface using React.js and MUI components
+- Create views for different roles:
+  - **Admin**: Access to audit logs and user management
+  - **Staff**: Interfaces for product addition and inventory updates
+  - **Customer**: A product browsing interface showing real-time inventory
+- Implement real-time updates on the UI whenever a CRUD operation occurs
 
-Use WebSockets to push updates to the frontend.
-Ensure that all users see the most recent data without needing to refresh the page.
+### Real-Time Functionality:
 
-## Logging:
+- Use WebSockets to push updates to the frontend.
+- Ensure that all users see the most recent data without needing to refresh the page.
 
-Record every CRUD operation with necessary details (user, timestamp, action type, etc.).
-Provide an interface (for Admin) to view these logs.
+### Logging:
 
-# Evaluation Criteria:
+- Record every CRUD operation with necessary details (user, timestamp, action type, etc.).
+- Provide an interface (for Admin) to view these logs.
 
-Code Quality: Readability, modularity, and documentation.
-Security: Robust implementation of OAuth 2.0, TOTP authentication, and RBAC.
-Functionality: Working RESTful APIs, real-time UI updates, and comprehensive logging.
-User Experience: Clean, intuitive UI with effective use of MUI components.
-Problem Solving: Clear and efficient solutions to meet the requirements.
-Documentation: Clear setup instructions and code comments.
+## Evaluation Criteria
+
+- **Code Quality**: Readability, modularity, and documentation
+- **Security**: Robust implementation of OAuth 2.0, TOTP authentication, and RBAC
+- **Functionality**: Working RESTful APIs, real-time UI updates, and comprehensive logging
+- **User Experience**: Clean, intuitive UI with effective use of MUI components
+- **Problem Solving**: Clear and efficient solutions to meet the requirements
+- **Documentation**: Clear setup instructions and code comments
