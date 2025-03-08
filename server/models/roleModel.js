@@ -8,11 +8,6 @@ const roleSchema = new mongoose.Schema({
     enum: ["Admin", "Staff", "Customer"],
     unique: true,
   },
-  permissions: [
-    {
-      type: String,
-    },
-  ],
   createdAt: {
     type: Date,
     default: Date.now,

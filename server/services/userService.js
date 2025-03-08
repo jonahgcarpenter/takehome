@@ -7,20 +7,12 @@ const initializeRoles = async () => {
     const defaultRoles = [
       {
         name: "Admin",
-        permissions: [
-          "manage_all",
-          "manage_users",
-          "manage_roles",
-          "manage_content",
-        ],
       },
       {
         name: "Staff",
-        permissions: ["manage_content"],
       },
       {
         name: "Customer",
-        permissions: ["view_content"],
       },
     ];
 
