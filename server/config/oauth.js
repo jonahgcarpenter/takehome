@@ -5,6 +5,7 @@ const User = require("../models/userModel");
 const Role = require("../models/roleModel");
 
 // Configure the Google Strategy
+// The first created user is Admin, while subsequent users are Customers by default
 passport.use(
   new GoogleStrategy(
     {
@@ -15,14 +16,7 @@ passport.use(
     },
     async function (request, accessToken, refreshToken, profile, done) {
       try {
-        // Find the default role (Customer) for new users
-        const defaultRole = await Role.findOne({ name: "Customer" });
-
-        if (!defaultRole) {
-          return done(new Error("Default role not found."));
-        }
-
-        // Look for existing user
+        // Look for an existing user by their Google ID
         let user = await User.findOne({ googleId: profile.id });
 
         if (user) {
@@ -37,7 +31,17 @@ passport.use(
           user.lastLogin = new Date();
           await user.save();
         } else {
-          // Create new user
+          // Determine which role to assign
+          const userCount = await User.countDocuments({});
+          let roleName = userCount === 0 ? "Admin" : "Customer";
+
+          // Retrieve the role document based on the determined role name
+          const role = await Role.findOne({ name: roleName });
+          if (!role) {
+            return done(new Error(`${roleName} role not found.`));
+          }
+
+          // Create new user with the determined role
           user = await User.create({
             googleId: profile.id,
             email: profile.email,
@@ -48,7 +52,7 @@ passport.use(
               profile.photos && profile.photos[0]
                 ? profile.photos[0].value
                 : null,
-            role: defaultRole._id,
+            role: role._id,
           });
         }
 
