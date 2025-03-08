@@ -19,9 +19,7 @@ passport.use(
         const defaultRole = await Role.findOne({ name: "Customer" });
 
         if (!defaultRole) {
-          return done(
-            new Error("Default role not found. Please initialize roles."),
-          );
+          return done(new Error("Default role not found."));
         }
 
         // Look for existing user
