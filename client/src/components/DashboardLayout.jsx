@@ -91,6 +91,7 @@ export default function DashboardLayout() {
   return (
     <div>
       <Navbar
+        photo={user.profilePhoto}
         links={navLinks}
         activeLink={window.location.pathname.split("/").pop()}
         onLinkChange={(link) => navigate(`/dashboard/${link}`)}

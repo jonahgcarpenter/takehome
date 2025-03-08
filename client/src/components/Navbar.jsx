@@ -1,13 +1,40 @@
-import React from "react";
-import { AppBar, Toolbar, Typography, Button } from "@mui/material";
+import React, { useState } from "react";
+import {
+  AppBar,
+  Toolbar,
+  Button,
+  Avatar,
+  Box,
+  Menu,
+  MenuItem,
+} from "@mui/material";
 
-const Navbar = ({ links, activeLink, onLinkChange }) => {
+const Navbar = ({ photo, links, activeLink, onLinkChange }) => {
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleAvatarClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    // Perform logout action (e.g., redirect to logout endpoint)
+    window.location.href = "/api/auth/logout";
+  };
+
   return (
     <AppBar position="static">
       <Toolbar>
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          Dashboard
-        </Typography>
+        <Avatar
+          src={photo}
+          alt="Profile Photo"
+          sx={{ mr: 2, cursor: "pointer" }}
+          onClick={handleAvatarClick}
+        />
+        <Box sx={{ flexGrow: 1 }} />
         {links.map((link) => (
           <Button
             key={link.key}
@@ -17,9 +44,28 @@ const Navbar = ({ links, activeLink, onLinkChange }) => {
             {link.label}
           </Button>
         ))}
-        <Button color="inherit" href="/api/auth/logout">
-          Logout
-        </Button>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleMenuClose}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "right",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "right",
+          }}
+        >
+          <MenuItem
+            onClick={() => {
+              handleLogout();
+              handleMenuClose();
+            }}
+          >
+            Logout
+          </MenuItem>
+        </Menu>
       </Toolbar>
     </AppBar>
   );
