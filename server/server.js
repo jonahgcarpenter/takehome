@@ -13,12 +13,16 @@ const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
+const logRoutes = require("./routes/logRoutes");
 
 // Import the database connection
 const connectDB = require("./config/db");
 
 // Create the app
 const app = express();
+
+// Import the logger middleware
+const logMiddleware = require("./middlewares/logMiddleware");
 
 // Set up session middleware
 app.use(session({ secret: process.env.SESSION_SECRET }));
@@ -30,17 +34,15 @@ app.use(passport.session());
 // Parse JSON request bodies
 app.use(express.json());
 
-// Log each request's path and method
-app.use((req, _res, next) => {
-  console.log(req.path, req.method);
-  next();
-});
+// Use the logger middleware
+app.use(logMiddleware);
 
 // Mount the routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/logs", logRoutes);
 
 // Serve the static files from Vite
 app.use(express.static(path.join(__dirname, "dist")));

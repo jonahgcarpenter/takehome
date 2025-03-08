@@ -31,8 +31,6 @@ const initializeRoles = async () => {
         new: true,
       });
     }
-
-    console.log("Roles initialized successfully");
   } catch (error) {
     console.error("Error initializing roles:", error);
   }

@@ -19,7 +19,7 @@ exports.googleCallback = (req, res) => {
 };
 
 // GET /api/auth/2fa/setup
-// TOTP Setup: Generate a secret, store it on the user, and return a QR code URL
+// Generate a secret, store it on the user, and return a QR code URL
 exports.totpSetup = async (req, res) => {
   try {
     // Ensure the user is authenticated (middleware already does this)
@@ -46,7 +46,7 @@ exports.totpSetup = async (req, res) => {
 };
 
 // POST /api/auth/2fa/verify
-// TOTP Verification: Verify the token and enable TOTP for the user
+// Verify the token and enable TOTP for the user
 exports.verifyTOTP = async (req, res) => {
   try {
     const user = req.user;

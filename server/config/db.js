@@ -8,7 +8,6 @@ const connectDB = async () => {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.log("MongoDB connected");
 
     // Initialize roles on database connection
     await initializeRoles();
