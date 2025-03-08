@@ -3,6 +3,8 @@ const express = require("express");
 const passport = require("passport");
 const router = express.Router();
 const authController = require("../controllers/authController");
+const isAuthenticated = require("../middlewares/authMiddleware");
+const isPartiallyAuthenticated = require("../middlewares/partialAuthMiddleware");
 
 // login route using google strategy
 router.get(
@@ -19,14 +21,12 @@ router.get(
   authController.googleCallback,
 );
 
-// TOTP setup route: generates a secret and returns a QR code for the user to scan
-router.get("/2fa/setup", authController.totpSetup);
+// TOTP routes for setting up and verifying 2FA (requires partial authentication)
+router.get("/2fa/setup", isPartiallyAuthenticated, authController.totpSetup);
+router.post("/2fa/verify", isPartiallyAuthenticated, authController.verifyTOTP);
 
-// TOTP verification route: user posts token for verification
-router.post("/2fa/verify", authController.verifyTOTP);
-
-// Logout route
-router.get("/logout", authController.logout);
+// Logout route (requires authentication)
+router.get("/logout", isAuthenticated, authController.logout);
 
 // Failure route for unsuccessful login attempts
 router.get("/failure", authController.failure);

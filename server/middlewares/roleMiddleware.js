@@ -1,5 +1,4 @@
 // Checks user roles and permissions
-
 const hasRole = (roles) => {
   return (req, res, next) => {
     // Check if user is authenticated (cookie/session data is available)

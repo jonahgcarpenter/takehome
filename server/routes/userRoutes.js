@@ -1,7 +1,7 @@
 // Endpoints for user management
 const express = require("express");
 const router = express.Router();
-const isAuthenticated = require("../middlewares/authMiddelware");
+const isAuthenticated = require("../middlewares/authMiddleware");
 const hasRole = require("../middlewares/roleMiddleware");
 const userController = require("../controllers/userController");
 
