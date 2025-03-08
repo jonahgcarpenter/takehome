@@ -1,5 +1,6 @@
 // Manages orders, RFQs, and POs
 const Order = require("../models/orderModel");
+const orderService = require("../services/orderService");
 
 // GET /api/orders
 // Retrieve all orders (Admin/Staff only)
@@ -41,15 +42,13 @@ exports.getOrderById = async (req, res) => {
 // Create a new order
 exports.createOrder = async (req, res) => {
   try {
-    // Assume req.user contains the authenticated user.
     const customer = req.user?._id;
     const orderData = req.body;
     if (customer) {
       orderData.customer = customer;
     }
-    const newOrder = new Order(orderData);
-    const savedOrder = await newOrder.save();
-    return res.status(201).json(savedOrder);
+    const newOrder = await orderService.createOrder(orderData);
+    return res.status(201).json(newOrder);
   } catch (error) {
     return res
       .status(500)
@@ -81,11 +80,10 @@ exports.updateOrderById = async (req, res) => {
 // Delete an order (Admin/Staff only)
 exports.deleteOrderById = async (req, res) => {
   try {
-    const deletedOrder = await Order.findByIdAndDelete(req.params.id);
-    if (!deletedOrder) {
-      return res.status(404).json({ message: "Order not found" });
-    }
-    return res.status(200).json({ message: "Order deleted successfully" });
+    const deletedOrder = await orderService.deleteOrder(req.params.id);
+    return res
+      .status(200)
+      .json({ message: "Order deleted successfully", deletedOrder });
   } catch (error) {
     return res
       .status(500)
