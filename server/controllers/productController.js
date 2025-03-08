@@ -45,6 +45,11 @@ exports.createProduct = async (req, res) => {
     });
     // Save the new product to the database.
     const savedProduct = await newProduct.save();
+
+    // Emit event via WebSocket
+    const io = req.app.get("socketio");
+    io.emit("product-created", savedProduct);
+
     return res.status(201).json(savedProduct);
   } catch (error) {
     return res
@@ -66,6 +71,11 @@ exports.updateProductById = async (req, res) => {
     if (!updatedProduct) {
       return res.status(404).json({ message: "Product not found" });
     }
+
+    // Emit event via WebSocket
+    const io = req.app.get("socketio");
+    io.emit("product-updated", updatedProduct);
+
     return res.status(200).json(updatedProduct);
   } catch (error) {
     return res
@@ -83,6 +93,11 @@ exports.deleteProductById = async (req, res) => {
     if (!deletedProduct) {
       return res.status(404).json({ message: "Product not found" });
     }
+
+    // Emit event via WebSocket
+    const io = req.app.get("socketio");
+    io.emit("product-deleted", { id });
+
     return res.status(200).json({ message: "Product deleted successfully" });
   } catch (error) {
     return res

@@ -79,6 +79,11 @@ exports.updateUserById = async (req, res) => {
     Object.assign(user, req.body);
     const updatedUser = await user.save();
     const transformedUser = await transformUser(updatedUser);
+
+    // Emit update via WebSocket
+    const io = req.app.get("socketio");
+    io.emit("user-updated", transformedUser);
+
     return res.status(200).json(transformedUser);
   } catch (error) {
     return res
@@ -95,6 +100,10 @@ exports.deleteUserById = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+    // Emit delete via WebSocket
+    const io = req.app.get("socketio");
+    io.emit("user-deleted", { id: req.params.id });
+
     return res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
     return res
@@ -121,6 +130,11 @@ exports.updateUserRoleById = async (req, res) => {
     await user.save();
     // Optionally transform the user to replace the role with its name and remove totpSecret before returning
     user = await transformUser(user);
+
+    // Emit update via WebSocket
+    const io = req.app.get("socketio");
+    io.emit("user-role-updated", user);
+
     return res.status(200).json(user);
   } catch (error) {
     return res

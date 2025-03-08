@@ -46,6 +46,11 @@ exports.getLogsByRole = async (req, res) => {
 exports.clearLogs = async (req, res) => {
   try {
     await Log.deleteMany({});
+
+    // Emit event via WebSocket
+    const io = req.app.get("socketio");
+    io.emit("logs-cleared", { message: "All logs cleared" });
+
     res.status(200).json({ message: "All logs cleared" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });

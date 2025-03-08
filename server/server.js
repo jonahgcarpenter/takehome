@@ -69,6 +69,8 @@ const server = http.createServer(app);
 
 // Attach Socket.io for real-time updates
 const io = socketIo(server);
+app.set("socketio", io);
+
 io.on("connection", (socket) => {
   console.log("New client connected");
   socket.on("disconnect", () => {

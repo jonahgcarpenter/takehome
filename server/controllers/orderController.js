@@ -48,6 +48,11 @@ exports.createOrder = async (req, res) => {
       orderData.customer = customer;
     }
     const newOrder = await orderService.createOrder(orderData);
+
+    // Emit event via WebSocket
+    const io = req.app.get("socketio");
+    io.emit("order-created", newOrder);
+
     return res.status(201).json(newOrder);
   } catch (error) {
     return res
@@ -68,6 +73,11 @@ exports.updateOrderById = async (req, res) => {
     if (!updatedOrder) {
       return res.status(404).json({ message: "Order not found" });
     }
+
+    // Emit event via WebSocket
+    const io = req.app.get("socketio");
+    io.emit("order-updated", updatedOrder);
+
     return res.status(200).json(updatedOrder);
   } catch (error) {
     return res
@@ -81,6 +91,11 @@ exports.updateOrderById = async (req, res) => {
 exports.deleteOrderById = async (req, res) => {
   try {
     const deletedOrder = await orderService.deleteOrder(req.params.id);
+
+    // Emit event via WebSocket
+    const io = req.app.get("socketio");
+    io.emit("order-deleted", { id: req.params.id, deletedOrder });
+
     return res
       .status(200)
       .json({ message: "Order deleted successfully", deletedOrder });
