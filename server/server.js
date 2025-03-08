@@ -12,6 +12,7 @@ const passport = require("./config/oauth");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const productRoutes = require("./routes/productRoutes");
+const orderRoutes = require("./routes/orderRoutes");
 
 // Import the database connection
 const connectDB = require("./config/db");
@@ -39,6 +40,7 @@ app.use((req, _res, next) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/orders", orderRoutes);
 
 // Serve the static files from Vite
 app.use(express.static(path.join(__dirname, "dist")));

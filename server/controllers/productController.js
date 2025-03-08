@@ -2,7 +2,7 @@
 const Product = require("../models/productModel");
 
 // GET /api/products
-// Retrieve all products
+// Retrieve all products (Admin/Staff/Customer)
 exports.getAllProducts = async (req, res) => {
   try {
     const products = await Product.find({});
@@ -15,7 +15,7 @@ exports.getAllProducts = async (req, res) => {
 };
 
 // GET /api/products/:id
-// Retrieve a single product by its ID
+// Retrieve a single product by its ID (Admin/Staff/Customer)
 exports.getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);

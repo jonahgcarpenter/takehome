@@ -5,13 +5,22 @@ const isAuthenticated = require("../middlewares/authMiddelware");
 const hasRole = require("../middlewares/roleMiddleware");
 const userController = require("../controllers/userController");
 
+// Retrieve the currently logged in user
 router.get("/me", isAuthenticated, userController.getMe);
 
-// Only Admins can access the following routes
+// Retrieve all users (Admin only)
 router.get("/", hasRole(["Admin"]), userController.getAllUsers);
+
+// Retrieve a specific user by ID (Admin only)
 router.get("/:id", hasRole(["Admin"]), userController.getUserById);
+
+// Update a user by ID (Admin only)
 router.put("/:id", hasRole(["Admin"]), userController.updateUserById);
+
+// Delete a user by ID (Admin only)
 router.delete("/:id", hasRole(["Admin"]), userController.deleteUserById);
+
+// Update a user's role by ID (Admin only)
 router.put("/:id/role", hasRole(["Admin"]), userController.updateUserRoleById);
 
 module.exports = router;

@@ -16,6 +16,8 @@ const transformUser = async (userDoc) => {
   return user;
 };
 
+// GET /api/users/me
+// Retrieve the currently logged in user
 exports.getMe = async (req, res) => {
   try {
     let user = await User.findById(req.user.id);
@@ -31,6 +33,8 @@ exports.getMe = async (req, res) => {
   }
 };
 
+// GET /api/users
+// Retrieve all users (Admin only)
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.find({});
@@ -46,6 +50,8 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
+// GET /api/users/:id
+// Retrieve a specific user by ID (Admin only)
 exports.getUserById = async (req, res) => {
   try {
     let user = await User.findById(req.params.id);
@@ -61,6 +67,8 @@ exports.getUserById = async (req, res) => {
   }
 };
 
+// PUT /api/users/:id
+// Update a user by ID (Admin only)
 exports.updateUserById = async (req, res) => {
   try {
     let user = await User.findById(req.params.id);
@@ -79,6 +87,8 @@ exports.updateUserById = async (req, res) => {
   }
 };
 
+// DELETE /api/users/:id
+// Delete a user by ID (Admin only)
 exports.deleteUserById = async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.params.id);
@@ -93,6 +103,8 @@ exports.deleteUserById = async (req, res) => {
   }
 };
 
+// PUT /api/users/:id/role
+// Update a user's role by ID (Admin only)
 exports.updateUserRoleById = async (req, res) => {
   try {
     let user = await User.findById(req.params.id);

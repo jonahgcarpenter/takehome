@@ -18,6 +18,7 @@ exports.googleCallback = (req, res) => {
   res.redirect(`${BASE_URL}/dashboard`);
 };
 
+// GET /api/auth/2fa/setup
 // TOTP Setup: Generate a secret, store it on the user, and return a QR code URL
 exports.totpSetup = async (req, res) => {
   try {
@@ -44,6 +45,7 @@ exports.totpSetup = async (req, res) => {
   }
 };
 
+// POST /api/auth/2fa/verify
 // TOTP Verification: Verify the token and enable TOTP for the user
 exports.verifyTOTP = async (req, res) => {
   try {
@@ -70,6 +72,7 @@ exports.verifyTOTP = async (req, res) => {
   }
 };
 
+// GET /api/auth/logout
 // Handles user logout
 exports.logout = (req, res, next) => {
   req.logout((err) => {
@@ -86,6 +89,7 @@ exports.logout = (req, res, next) => {
   });
 };
 
+// GET /api/auth/failure
 // Returns an error response if authentication fails
 exports.failure = (req, res) => {
   res.status(401).send("Failed to login");
