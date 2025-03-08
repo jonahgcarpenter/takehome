@@ -25,7 +25,19 @@ const app = express();
 const logMiddleware = require("./middlewares/logMiddleware");
 
 // Set up session middleware
-app.use(session({ secret: process.env.SESSION_SECRET }));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false, // Don't resave session if unmodified
+    saveUninitialized: false, // Don't create session until something is stored
+    cookie: {
+      secure: process.env.NODE_ENV === "production", // In production, set to true (requires HTTPS)
+      httpOnly: true, // Helps prevent client side JS from reading the cookie
+      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+      maxAge: 1000 * 60 * 60 * 24, // Cookie expiry: 1 day
+    },
+  }),
+);
 
 // Initialize Passport and its session support
 app.use(passport.initialize());

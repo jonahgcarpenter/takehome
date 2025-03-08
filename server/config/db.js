@@ -4,10 +4,7 @@ const { initializeRoles } = require("../services/userService");
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(process.env.MONGODB_URI);
 
     // Initialize roles on database connection
     await initializeRoles();

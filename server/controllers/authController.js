@@ -2,7 +2,9 @@
 const qrcode = require("qrcode");
 const authService = require("../services/authService");
 
-const BASE_URL = process.env.FRONTEND_BASE_URL || "";
+// Set BASE_URL based on NODE_ENV
+const BASE_URL =
+  process.env.NODE_ENV === "development" ? "http://localhost:5173" : "";
 
 // Called after successful Google OAuth authentication
 exports.googleCallback = (req, res) => {
