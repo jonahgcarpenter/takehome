@@ -8,11 +8,9 @@ const socketIo = require("socket.io");
 const session = require("express-session");
 const passport = require("./config/oauth");
 
-// TEMPORARY FOR PROTECTED ROUTE TESTING
-const isAuthenticated = require("./middlewares/authMiddelware");
-
 // Import the routes
 const authRoutes = require("./routes/authRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 // Import the database connection
 const connectDB = require("./config/db");
@@ -38,11 +36,7 @@ app.use((req, _res, next) => {
 
 // Mount the routes
 app.use("/api/auth", authRoutes);
-
-// TEMPORARY ROUTE FOR TESTING PROTECTED ROUTE
-app.get("/api/me", isAuthenticated, (req, res) => {
-  res.json(req.user);
-});
+app.use("/api/users", userRoutes);
 
 // Serve the static files from Vite
 app.use(express.static(path.join(__dirname, "dist")));

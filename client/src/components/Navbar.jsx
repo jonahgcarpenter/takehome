@@ -17,6 +17,9 @@ const Navbar = ({ links, activeLink, onLinkChange }) => {
             {link.label}
           </Button>
         ))}
+        <Button color="inherit" href="/api/auth/logout">
+          Logout
+        </Button>
       </Toolbar>
     </AppBar>
   );
