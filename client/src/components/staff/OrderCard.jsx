@@ -40,7 +40,7 @@ const OrderCard = ({ order, onUpdateStatus, onDelete, onEdit }) => {
             </Typography>
             {order.products.map((item, idx) => (
               <Typography variant="body2" key={idx}>
-                - {item.product} (x{item.quantity})
+                - {item.product.name} (x{item.quantity})
               </Typography>
             ))}
           </div>
