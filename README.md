@@ -1,6 +1,8 @@
 # Takehome Assignment
 
-# Stack
+Please see the [project requirements](REQUIREMENTS.md) for detailed specifications.
+
+## Stack
 
 - MongoDB
 - Express.js
