@@ -104,17 +104,37 @@ const OrderCard = ({ order, onDelete, onEdit }) => {
                 }}
               >
                 <Box>
-                  <Typography variant="subtitle2">
-                    {item.product.name}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Quantity: {item.quantity} <br />
-                    Price per unit: ${item.product.price}
-                  </Typography>
+                  {typeof item.product === "object" ? (
+                    <>
+                      <Typography variant="subtitle2">
+                        {item.product.name}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Quantity: {item.quantity} <br />
+                        Price per unit: ${item.product.price}
+                      </Typography>
+                    </>
+                  ) : (
+                    <>
+                      <Typography variant="subtitle2">
+                        {item.product}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Quantity: {item.quantity} <br />
+                        Price per unit: N/A
+                      </Typography>
+                    </>
+                  )}
                 </Box>
-                <Typography variant="subtitle2" color="primary.main">
-                  Cost: ${formatPrice(item.product.price * item.quantity)}
-                </Typography>
+                {typeof item.product === "object" ? (
+                  <Typography variant="subtitle2" color="primary.main">
+                    Cost: ${formatPrice(item.product.price * item.quantity)}
+                  </Typography>
+                ) : (
+                  <Typography variant="subtitle2" color="primary.main">
+                    Cost: N/A
+                  </Typography>
+                )}
               </Box>
             </Grid>
           ))}

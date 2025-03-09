@@ -98,6 +98,8 @@ exports.deleteProductById = async (req, res) => {
     const io = req.app.get("socketio");
     io.emit("products-updated", { id });
 
+    io.emit("orders-updated");
+
     return res.status(200).json({ message: "Product deleted successfully" });
   } catch (error) {
     return res

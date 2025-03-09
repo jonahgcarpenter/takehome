@@ -6,13 +6,28 @@ const useOrders = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Helper function to transform an order by replacing any null product field
+  const transformOrder = (order) => {
+    if (order.products && Array.isArray(order.products)) {
+      order.products = order.products.map((item) => {
+        if (item.product === null) {
+          return { ...item, product: "DELETED PRODUCT" };
+        }
+        return item;
+      });
+    }
+    return order;
+  };
+
   // Fetch all orders (Admin/Staff only)
   const fetchOrders = async () => {
     setLoading(true);
     setError(null);
     try {
       const response = await axios.get("/api/orders");
-      setOrders(response.data);
+      // Transform each order before setting state
+      const transformedOrders = response.data.map(transformOrder);
+      setOrders(transformedOrders);
     } catch (err) {
       setError(err.response?.data?.message || err.message);
     } finally {
@@ -26,7 +41,8 @@ const useOrders = () => {
     setError(null);
     try {
       const response = await axios.get(`/api/orders/${id}`);
-      return response.data;
+      // Transform the order before returning it
+      return transformOrder(response.data);
     } catch (err) {
       setError(err.response?.data?.message || err.message);
       throw err;

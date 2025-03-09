@@ -36,10 +36,19 @@ const Orders = () => {
     setError(null);
     try {
       const response = await axios.get("/api/orders/myorders");
-      // Sort orders by date, newest first
-      const sortedOrders = response.data.sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
-      );
+      // Sort orders by date, newest first, and replace null product fields inline
+      const sortedOrders = response.data
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .map((order) => {
+          if (order.products && Array.isArray(order.products)) {
+            order.products = order.products.map((item) =>
+              item.product === null
+                ? { ...item, product: "DELETED PRODUCT" }
+                : item,
+            );
+          }
+          return order;
+        });
       setOrders(sortedOrders);
     } catch (err) {
       setError(err.response?.data?.message || err.message);
@@ -54,6 +63,12 @@ const Orders = () => {
 
   // WebSocket handlers
   const handleOrderUpdated = (updatedOrder) => {
+    // If no payload was provided, simply refresh all orders.
+    if (!updatedOrder || Object.keys(updatedOrder).length === 0) {
+      fetchOrders();
+      return;
+    }
+
     // Check if this event indicates a deletion.
     if (updatedOrder.deletedOrder) {
       // Extract orderNumber from deletedOrder, fallback to the id if not available.
