@@ -92,7 +92,7 @@ exports.updateUserById = async (req, res) => {
 
     // Emit update via WebSocket
     const io = req.app.get("socketio");
-    io.emit("user-updated", transformedUser);
+    io.emit("users-updated", transformedUser);
 
     return res.status(200).json(transformedUser);
   } catch (error) {
@@ -112,7 +112,7 @@ exports.deleteUserById = async (req, res) => {
     }
     // Emit delete via WebSocket
     const io = req.app.get("socketio");
-    io.emit("user-updated", { id: req.params.id });
+    io.emit("users-updated", { id: req.params.id });
 
     return res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
@@ -121,3 +121,4 @@ exports.deleteUserById = async (req, res) => {
       .json({ message: "Server error", error: error.message });
   }
 };
+

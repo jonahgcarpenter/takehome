@@ -57,7 +57,7 @@ passport.use(
 
           // Emit event via WebSocket
           const io = request.app.get("socketio");
-          io.emit("user-updated", user);
+          io.emit("users-updated", user);
         }
 
         // Pass the user object to the next middleware

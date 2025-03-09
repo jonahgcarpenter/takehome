@@ -78,6 +78,97 @@ async function createOrder(orderData) {
 }
 
 /**
+ * Updates an order and adjusts product stock accordingly.
+ * Compares the existing order's products to the new order data, and
+ * updates product quantities based on the differences.
+ * Uses transactions if supported.
+ * @param {String} orderId - The ID of the order to update.
+ * @param {Object} updatedData - The updated order data (including products array).
+ * @returns {Object} - The updated order.
+ * @throws Will throw an error if the order is not found or if stock is insufficient.
+ */
+async function updateOrder(orderId, updatedData) {
+  let session = null;
+  const useTransaction = canUseTransactions();
+
+  if (useTransaction) {
+    session = await mongoose.startSession();
+    session.startTransaction();
+  }
+
+  try {
+    // Retrieve the existing order
+    const existingOrder = await Order.findById(orderId).session(session);
+    if (!existingOrder) {
+      throw new Error("Order not found");
+    }
+
+    // Build lookup maps for existing and updated products
+    const oldProducts = {};
+    existingOrder.products.forEach((item) => {
+      oldProducts[item.product.toString()] = item.quantity;
+    });
+    const newProducts = {};
+    updatedData.products.forEach((item) => {
+      newProducts[item.product] = item.quantity;
+    });
+
+    // Create a set of all product IDs involved in the change
+    const productIds = new Set([
+      ...Object.keys(oldProducts),
+      ...Object.keys(newProducts),
+    ]);
+
+    // Adjust product quantities based on differences
+    for (const prodId of productIds) {
+      const product = await Product.findById(prodId).session(session);
+      if (!product) {
+        throw new Error(`Product with id ${prodId} not found`);
+      }
+
+      const oldQty = oldProducts[prodId] || 0;
+      const newQty = newProducts[prodId] || 0;
+      const diff = newQty - oldQty; // positive: additional units required, negative: units to be returned
+
+      if (diff > 0) {
+        // Ensure there is enough stock for the additional units
+        if (product.quantity < diff) {
+          throw new Error(`Not enough stock for product: ${product.name}`);
+        }
+        product.quantity -= diff;
+      } else if (diff < 0) {
+        // Return stock for reduced quantity
+        product.quantity += Math.abs(diff);
+      }
+      await product.save({ session });
+    }
+
+    // Update order's products and any other fields in updatedData (except products)
+    existingOrder.products = updatedData.products;
+    for (const key in updatedData) {
+      if (key !== "products") {
+        existingOrder[key] = updatedData[key];
+      }
+    }
+    await existingOrder.save({ session });
+
+    if (useTransaction) {
+      await session.commitTransaction();
+    }
+    return existingOrder;
+  } catch (error) {
+    if (useTransaction && session) {
+      await session.abortTransaction();
+    }
+    throw error;
+  } finally {
+    if (useTransaction && session) {
+      session.endSession();
+    }
+  }
+}
+
+/**
  * Deletes an order and adds back the ordered quantities to the corresponding products.
  * Uses transactions only if supported.
  * @param {String} orderId - The ID of the order to be deleted.
@@ -144,5 +235,6 @@ async function deleteOrder(orderId) {
 
 module.exports = {
   createOrder,
+  updateOrder,
   deleteOrder,
 };

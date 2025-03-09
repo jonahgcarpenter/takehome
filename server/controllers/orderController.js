@@ -51,7 +51,9 @@ exports.createOrder = async (req, res) => {
 
     // Emit event via WebSocket
     const io = req.app.get("socketio");
-    io.emit("order-created", newOrder);
+    io.emit("orders-updated", newOrder);
+
+    io.emit("products-updated");
 
     return res.status(201).json(newOrder);
   } catch (error) {
@@ -65,19 +67,23 @@ exports.createOrder = async (req, res) => {
 // Update an existing order (Admin/Staff only)
 exports.updateOrderById = async (req, res) => {
   try {
-    const updatedOrder = await Order.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    ).populate("products.product", "name price");  // Add populate here
-    
+    // Call the service function with the order ID and updated data
+    let updatedOrder = await orderService.updateOrder(req.params.id, req.body);
+
     if (!updatedOrder) {
       return res.status(404).json({ message: "Order not found" });
     }
 
+    // Optionally, populate the products field for better readability
+    updatedOrder = await updatedOrder.populate(
+      "products.product",
+      "name price",
+    );
+
     // Emit event via WebSocket
     const io = req.app.get("socketio");
-    io.emit("order-updated", updatedOrder);
+    io.emit("orders-updated", updatedOrder);
+    io.emit("products-updated");
 
     return res.status(200).json(updatedOrder);
   } catch (error) {
@@ -95,7 +101,9 @@ exports.deleteOrderById = async (req, res) => {
 
     // Emit event via WebSocket
     const io = req.app.get("socketio");
-    io.emit("order-deleted", { id: req.params.id, deletedOrder });
+    io.emit("orders-updated", { id: req.params.id, deletedOrder });
+
+    io.emit("products-updated");
 
     return res
       .status(200)

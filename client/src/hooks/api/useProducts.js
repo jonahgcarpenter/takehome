@@ -20,6 +20,21 @@ const useProducts = () => {
     }
   };
 
+  // Fetch a specific product by ID (Admin/Staff/Customer)
+  const fetchProductById = async (id) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await axios.get(`/api/products/${id}`);
+      return response.data;
+    } catch (err) {
+      setError(err.response?.data?.message || err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Create a new product (Admin/Staff only)
   const createProduct = async (productData) => {
     setLoading(true);
@@ -78,10 +93,10 @@ const useProducts = () => {
     loading,
     error,
     fetchProducts: useCallback(fetchProducts, []),
+    fetchProductById: useCallback(fetchProductById, []),
     createProduct: useCallback(createProduct, []),
     updateProduct: useCallback(updateProduct, []),
     deleteProduct: useCallback(deleteProduct, []),
-    setProducts,
   };
 };
 

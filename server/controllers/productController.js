@@ -48,7 +48,7 @@ exports.createProduct = async (req, res) => {
 
     // Emit event via WebSocket
     const io = req.app.get("socketio");
-    io.emit("product-created", savedProduct);
+    io.emit("products-updated", savedProduct);
 
     return res.status(201).json(savedProduct);
   } catch (error) {
@@ -74,7 +74,7 @@ exports.updateProductById = async (req, res) => {
 
     // Emit event via WebSocket
     const io = req.app.get("socketio");
-    io.emit("product-updated", updatedProduct);
+    io.emit("products-updated", updatedProduct);
 
     return res.status(200).json(updatedProduct);
   } catch (error) {
@@ -96,7 +96,7 @@ exports.deleteProductById = async (req, res) => {
 
     // Emit event via WebSocket
     const io = req.app.get("socketio");
-    io.emit("product-deleted", { id });
+    io.emit("products-updated", { id });
 
     return res.status(200).json({ message: "Product deleted successfully" });
   } catch (error) {

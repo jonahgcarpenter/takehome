@@ -1,18 +1,16 @@
 import { useEffect } from "react";
 import { socket } from "../../services/socketService";
 
-const useUserSocket = ({
-  onUserUpdated,
-}) => {
+const useUserSocket = ({ onUsersUpdated }) => {
   useEffect(() => {
     // Listen to user-related events
-    socket.on("user-updated", onUserUpdated);
+    socket.on("users-updated", onUsersUpdated);
 
     // Cleanup listeners when component unmounts
     return () => {
-      socket.off("user-updated", onUserUpdated);
+      socket.off("users-updated", onUsersUpdated);
     };
-  }, [onUserUpdated]);
+  }, [onUsersUpdated]);
 };
 
 export default useUserSocket;

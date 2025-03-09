@@ -1,9 +1,7 @@
 import { useEffect } from "react";
 import { socket } from "../../services/socketService";
 
-const useLogSocket = ({ 
-  onLogsUpdated,
-}) => {
+const useLogSocket = ({ onLogsUpdated }) => {
   useEffect(() => {
     // Listen to log-related events
     socket.on("logs-updated", onLogsUpdated);

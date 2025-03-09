@@ -16,7 +16,12 @@ import ProductDisplayCard from "../../components/customer/ProductDisplayCard";
 import Cart from "../../components/customer/Cart";
 
 const Buy = () => {
-  const { products, loading: productsLoading, error: productsError, setProducts } = useProducts();
+  const {
+    products,
+    loading: productsLoading,
+    error: productsError,
+    fetchProducts,
+  } = useProducts();
   const [cartItems, setCartItems] = useState([]);
   const [notification, setNotification] = useState({
     open: false,
@@ -25,66 +30,47 @@ const Buy = () => {
   });
   const [orderLoading, setOrderLoading] = useState(false);
 
-  // WebSocket event handlers - simplified to remove notifications
-  const handleProductCreated = (newProduct) => {
-    setProducts((prev) => [...prev, newProduct]);
-  };
-
-  const handleProductUpdated = (updatedProduct) => {
-    setProducts((prev) =>
-      prev.map((product) =>
-        product._id === updatedProduct._id ? updatedProduct : product,
-      ),
-    );
-  };
-
-  const handleProductDeleted = (data) => {
-    setProducts((prev) => prev.filter((product) => product._id !== data.id));
-  };
-
-  // Order WebSocket handlers
-  const handleOrderCreated = (newOrder) => {
-    showNotification(`Order ${newOrder._id} created successfully`, "success");
-  };
-
-  // Initialize WebSocket listeners for product events
   useProductSocket({
-    onProductCreated: handleProductCreated,
-    onProductUpdated: handleProductUpdated,
-    onProductDeleted: handleProductDeleted,
+    onProductsUpdated: fetchProducts,
   });
 
   useOrderSocket({
-    onOrderCreated: handleOrderCreated,
+    onOrderCreated: (newOrder) => {
+      setNotification({
+        open: true,
+        message: `Order ${newOrder._id} created successfully`,
+        type: "success",
+      });
+    },
     onOrderUpdated: () => {},
     onOrderDeleted: () => {},
   });
 
   const totalPrice = cartItems.reduce(
-    (sum, item) => sum + (item.product.price * item.quantity),
-    0
+    (sum, item) => sum + item.product.price * item.quantity,
+    0,
   );
 
   const addToCart = (product, qty) => {
     const validQty = Math.min(qty, product.quantity);
-    const existing = cartItems.find(item => item.product._id === product._id);
-    
+    const existing = cartItems.find((item) => item.product._id === product._id);
+
     if (existing) {
       const newQty = existing.quantity + validQty;
       if (newQty > product.quantity) {
         setNotification({
           open: true,
           message: `Cannot add more than ${product.quantity} units`,
-          type: "error"
+          type: "error",
         });
         return;
       }
       setCartItems(
-        cartItems.map(item =>
+        cartItems.map((item) =>
           item.product._id === product._id
             ? { ...item, quantity: newQty }
-            : item
-        )
+            : item,
+        ),
       );
     } else {
       setCartItems([...cartItems, { product, quantity: validQty }]);
@@ -93,30 +79,27 @@ const Buy = () => {
 
   return (
     <Container maxWidth="xl" sx={{ mt: 4, mb: 8 }}>
-      <Typography variant="h4" gutterBottom sx={{ 
-        fontWeight: 'bold',
-        color: 'primary.main',
-        mb: 4 
-      }}>
+      <Typography
+        variant="h4"
+        gutterBottom
+        sx={{ fontWeight: "bold", color: "primary.main", mb: 4 }}
+      >
         Buy Products
       </Typography>
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={8}>
           {productsLoading && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+            <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
               <CircularProgress />
             </Box>
           )}
           {productsError && <Alert severity="error">{productsError}</Alert>}
-          
+
           <Grid container spacing={2}>
             {products.map((product) => (
               <Grid item xs={12} sm={6} key={product._id}>
-                <ProductDisplayCard
-                  product={product}
-                  onAddToCart={addToCart}
-                />
+                <ProductDisplayCard product={product} onAddToCart={addToCart} />
               </Grid>
             ))}
           </Grid>
@@ -136,24 +119,26 @@ const Buy = () => {
               setOrderLoading(true);
               try {
                 const orderData = {
-                  products: cartItems.map(item => ({
+                  products: cartItems.map((item) => ({
                     product: item.product._id,
-                    quantity: item.quantity
+                    quantity: item.quantity,
                   })),
-                  totalPrice: totalPrice
+                  totalPrice: totalPrice,
                 };
                 const response = await axios.post("/api/orders", orderData);
                 setNotification({
                   open: true,
                   message: `Order #${response.data._id} placed successfully!`,
-                  type: "success"
+                  type: "success",
                 });
                 setCartItems([]);
               } catch (err) {
                 setNotification({
                   open: true,
-                  message: err.response?.data?.message || "Failed to place order. Please try again.",
-                  type: "error"
+                  message:
+                    err.response?.data?.message ||
+                    "Failed to place order. Please try again.",
+                  type: "error",
                 });
               } finally {
                 setOrderLoading(false);

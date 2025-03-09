@@ -19,16 +19,17 @@ import {
 } from "@mui/material";
 
 const UserManagement = () => {
-  const { users, loading, error, updateUser, deleteUser, fetchUsers } = useUsers();
+  const { users, loading, error, updateUser, deleteUser, fetchUsers } =
+    useUsers();
   const [notification, setNotification] = useState({
     open: false,
     message: "",
     type: "info",
   });
-  
+
   const [deleteDialog, setDeleteDialog] = useState({
     open: false,
-    userId: null
+    userId: null,
   });
 
   // Display notification
@@ -46,18 +47,21 @@ const UserManagement = () => {
   };
 
   // Handle WebSocket user updates
-  const handleUserUpdated = useCallback((updatedUser) => {
-    // Refresh the users list when we receive a WebSocket update
-    fetchUsers();
-    showNotification(
-      `User ${updatedUser.email || 'unknown'} has been updated`,
-      "info"
-    );
-  }, [fetchUsers]);
+  const handleUserUpdated = useCallback(
+    (updatedUser) => {
+      // Refresh the users list when we receive a WebSocket update
+      fetchUsers();
+      showNotification(
+        `User ${updatedUser.email || "unknown"} has been updated`,
+        "info",
+      );
+    },
+    [fetchUsers],
+  );
 
   // Set up WebSocket listeners with proper dependency
   useUserSocket({
-    onUserUpdated: handleUserUpdated,
+    onUsersUpdated: handleUserUpdated,
   });
 
   // Handler functions with improved error messages
@@ -68,7 +72,8 @@ const UserManagement = () => {
       await updateUser(userId, { role: formattedRole });
       showNotification("User role updated successfully", "success");
     } catch (err) {
-      const errorMessage = err.response?.data?.message || "Failed to update user role";
+      const errorMessage =
+        err.response?.data?.message || "Failed to update user role";
       showNotification(errorMessage, "error");
     }
   };
@@ -86,7 +91,8 @@ const UserManagement = () => {
       await deleteUser(deleteDialog.userId);
       showNotification("User deleted successfully", "success");
     } catch (err) {
-      const errorMessage = err.response?.data?.message || "Failed to delete user";
+      const errorMessage =
+        err.response?.data?.message || "Failed to delete user";
       showNotification(errorMessage, "error");
     } finally {
       setDeleteDialog({ open: false, userId: null });
@@ -111,17 +117,21 @@ const UserManagement = () => {
           </Alert>
         )}
         {!loading && !error && users.length === 0 && (
-          <Typography sx={{ textAlign: 'center', color: 'text.secondary', my: 4 }}>
+          <Typography
+            sx={{ textAlign: "center", color: "text.secondary", my: 4 }}
+          >
             No users found.
           </Typography>
         )}
-        <Box sx={{ 
-          backgroundColor: 'background.default',
-          borderRadius: 1,
-          py: 2,
-          '& > *': { mb: 2 },
-          '& > *:last-child': { mb: 0 }
-        }}>
+        <Box
+          sx={{
+            backgroundColor: "background.default",
+            borderRadius: 1,
+            py: 2,
+            "& > *": { mb: 2 },
+            "& > *:last-child": { mb: 0 },
+          }}
+        >
           {users.map((user) => (
             <UserCard
               key={user._id || user.id}
@@ -139,12 +149,11 @@ const UserManagement = () => {
         aria-labelledby="delete-dialog-title"
         aria-describedby="delete-dialog-description"
       >
-        <DialogTitle id="delete-dialog-title">
-          Confirm Delete
-        </DialogTitle>
+        <DialogTitle id="delete-dialog-title">Confirm Delete</DialogTitle>
         <DialogContent>
           <DialogContentText id="delete-dialog-description">
-            Are you sure you want to delete this user? This action cannot be undone.
+            Are you sure you want to delete this user? This action cannot be
+            undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
