@@ -25,9 +25,21 @@ const logMiddleware = async (req, res, next) => {
   res.send = function (data) {
     logEntry.responseStatus = res.statusCode;
     logEntry.details = { responseData: data };
+
+    // Save the log entry and emit a Socket.io event
     logEntry
       .save()
+      .then((savedLog) => {
+        // Access the Socket.io instance from the app
+        const io = req.app.get("socketio");
+        if (io) {
+          // Emit the 'log-created' event with the new log entry
+          io.emit("log-created", savedLog);
+        }
+      })
       .catch((err) => console.error("Error saving log entry:", err));
+
+    // Call the original send method
     originalSend.apply(res, arguments);
   };
 

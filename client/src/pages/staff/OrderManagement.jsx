@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { socket } from "../../services/socketService";
 import OrderCard from "../../components/staff/OrderCard";
 import OrderForm from "../../components/staff/OrderForm";
 import {
@@ -12,6 +13,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  Snackbar,
 } from "@mui/material";
 
 const OrderManagement = () => {
@@ -20,6 +22,11 @@ const OrderManagement = () => {
   const [error, setError] = useState(null);
   const [openForm, setOpenForm] = useState(false);
   const [editingOrder, setEditingOrder] = useState(null);
+  const [notification, setNotification] = useState({
+    open: false,
+    message: "",
+    type: "info", // "info", "success", "error"
+  });
 
   // Fetch orders from the API
   const fetchOrders = async () => {
@@ -35,11 +42,69 @@ const OrderManagement = () => {
     }
   };
 
+  // Setup socket event listeners for real-time updates
+  useEffect(() => {
+    // Listen for order creation events
+    socket.on("order-created", (newOrder) => {
+      console.log("Socket: New order created", newOrder);
+      setOrders((prevOrders) => [...prevOrders, newOrder]);
+      showNotification(
+        `New order #${newOrder._id || newOrder.id} created`,
+        "success",
+      );
+    });
+
+    // Listen for order update events
+    socket.on("order-updated", (updatedOrder) => {
+      console.log("Socket: Order updated", updatedOrder);
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order._id === updatedOrder._id ? updatedOrder : order,
+        ),
+      );
+      showNotification(
+        `Order #${updatedOrder._id || updatedOrder.id} updated`,
+        "info",
+      );
+    });
+
+    // Listen for order deletion events
+    socket.on("order-deleted", (data) => {
+      console.log("Socket: Order deleted", data);
+      setOrders((prevOrders) =>
+        prevOrders.filter((order) => order._id !== data.id),
+      );
+      showNotification(`Order #${data.id} deleted`, "info");
+    });
+
+    // Cleanup function to remove event listeners when component unmounts
+    return () => {
+      socket.off("order-created");
+      socket.off("order-updated");
+      socket.off("order-deleted");
+    };
+  }, []); // Empty dependency array means this effect runs once on mount
+
+  // Initial data fetch
   useEffect(() => {
     fetchOrders();
   }, []);
 
-  // Open OrderForm for editing an existing order (no add new functionality)
+  // Display notification
+  const showNotification = (message, type = "info") => {
+    setNotification({
+      open: true,
+      message,
+      type,
+    });
+  };
+
+  // Close notification
+  const handleCloseNotification = () => {
+    setNotification((prev) => ({ ...prev, open: false }));
+  };
+
+  // Open OrderForm for editing an existing order
   const handleOpenForm = (order) => {
     setEditingOrder(order);
     setOpenForm(true);
@@ -55,23 +120,17 @@ const OrderManagement = () => {
     try {
       if (editingOrder) {
         // Update existing order
-        const response = await axios.put(
+        await axios.put(
           `/api/orders/${editingOrder._id || editingOrder.id}`,
           orderData,
         );
-        setOrders((prev) =>
-          prev.map((order) =>
-            order._id === (editingOrder._id || editingOrder.id) ||
-            order.id === (editingOrder._id || editingOrder.id)
-              ? response.data
-              : order,
-          ),
-        );
+        // The UI update will happen through the WebSocket event
+        handleCloseForm();
       }
-      handleCloseForm();
     } catch (err) {
-      alert(
+      showNotification(
         "Error updating order: " + (err.response?.data?.message || err.message),
+        "error",
       );
     }
   };
@@ -79,17 +138,15 @@ const OrderManagement = () => {
   // Update order status inline from OrderCard
   const handleUpdateStatus = async (orderId, newStatus) => {
     try {
-      const response = await axios.put(`/api/orders/${orderId}`, {
+      await axios.put(`/api/orders/${orderId}`, {
         status: newStatus,
       });
-      setOrders((prev) =>
-        prev.map((order) =>
-          order._id === orderId || order.id === orderId ? response.data : order,
-        ),
-      );
+      // The UI update will happen through the WebSocket event
     } catch (err) {
-      alert(
-        "Error updating order: " + (err.response?.data?.message || err.message),
+      showNotification(
+        "Error updating order status: " +
+          (err.response?.data?.message || err.message),
+        "error",
       );
     }
   };
@@ -99,12 +156,11 @@ const OrderManagement = () => {
     if (!window.confirm("Are you sure you want to delete this order?")) return;
     try {
       await axios.delete(`/api/orders/${orderId}`);
-      setOrders((prev) =>
-        prev.filter((order) => (order._id || order.id) !== orderId),
-      );
+      // The UI update will happen through the WebSocket event
     } catch (err) {
-      alert(
+      showNotification(
         "Error deleting order: " + (err.response?.data?.message || err.message),
+        "error",
       );
     }
   };
@@ -150,6 +206,22 @@ const OrderManagement = () => {
           />
         </DialogContent>
       </Dialog>
+
+      {/* Notification for real-time updates */}
+      <Snackbar
+        open={notification.open}
+        autoHideDuration={5000}
+        onClose={handleCloseNotification}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert
+          onClose={handleCloseNotification}
+          severity={notification.type}
+          sx={{ width: "100%" }}
+        >
+          {notification.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };

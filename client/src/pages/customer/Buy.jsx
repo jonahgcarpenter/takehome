@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { socket } from "../../services/socketService";
 import {
   Container,
   Grid,
@@ -7,6 +8,7 @@ import {
   Box,
   CircularProgress,
   Alert,
+  Snackbar,
 } from "@mui/material";
 import ProductDisplayCard from "../../components/customer/ProductDisplayCard";
 import Cart from "../../components/customer/Cart";
@@ -17,6 +19,11 @@ const Buy = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [orderSuccess, setOrderSuccess] = useState("");
+  const [notification, setNotification] = useState({
+    open: false,
+    message: "",
+    type: "info", // "info", "success", "error", "warning"
+  });
 
   // Fetch products from the backend
   useEffect(() => {
@@ -35,25 +42,170 @@ const Buy = () => {
     fetchProducts();
   }, []);
 
+  // Set up WebSocket listeners for real-time product updates
+  useEffect(() => {
+    // Handle product creation
+    socket.on("product-created", (newProduct) => {
+      console.log("Socket: New product available:", newProduct);
+      setProducts((prevProducts) => [...prevProducts, newProduct]);
+      showNotification(`New product available: ${newProduct.name}`, "info");
+    });
+
+    // Handle product updates
+    socket.on("product-updated", (updatedProduct) => {
+      console.log("Socket: Product updated:", updatedProduct);
+
+      // Update products list
+      setProducts((prevProducts) =>
+        prevProducts.map((product) =>
+          product._id === updatedProduct._id ? updatedProduct : product,
+        ),
+      );
+
+      // If the updated product is in the cart, update it there too
+      setCartItems((prevCartItems) =>
+        prevCartItems.map((item) => {
+          if (item.product._id === updatedProduct._id) {
+            // If the product's price changed
+            if (item.product.price !== updatedProduct.price) {
+              showNotification(
+                `Price changed for ${updatedProduct.name} in your cart`,
+                "warning",
+              );
+            }
+            // If the product's quantity is now less than what's in cart
+            if (updatedProduct.quantity < item.quantity) {
+              const newQuantity = Math.min(
+                item.quantity,
+                updatedProduct.quantity,
+              );
+              showNotification(
+                `Only ${updatedProduct.quantity} units of ${updatedProduct.name} available`,
+                "warning",
+              );
+              return {
+                ...item,
+                product: updatedProduct,
+                quantity: newQuantity,
+              };
+            }
+            return { ...item, product: updatedProduct };
+          }
+          return item;
+        }),
+      );
+    });
+
+    // Handle product deletion
+    socket.on("product-deleted", (data) => {
+      console.log("Socket: Product removed:", data);
+
+      // Check if deleted product is in cart
+      const productInCart = cartItems.find(
+        (item) => item.product._id === data.id,
+      );
+      if (productInCart) {
+        showNotification(
+          `${productInCart.product.name} has been removed from the store and your cart`,
+          "error",
+        );
+        // Remove from cart
+        setCartItems((prevCartItems) =>
+          prevCartItems.filter((item) => item.product._id !== data.id),
+        );
+      }
+
+      // Remove from products list
+      setProducts((prevProducts) =>
+        prevProducts.filter((product) => product._id !== data.id),
+      );
+    });
+
+    // Handle order confirmation
+    socket.on("order-created", (order) => {
+      // Only show notification if it's the current user's order
+      // This would need to match the user ID if you have authentication
+      if (order._id && orderSuccess) {
+        showNotification(
+          `Order #${order._id.substring(0, 8)} confirmed!`,
+          "success",
+        );
+      }
+    });
+
+    // Clean up listeners on component unmount
+    return () => {
+      socket.off("product-created");
+      socket.off("product-updated");
+      socket.off("product-deleted");
+      socket.off("order-created");
+    };
+  }, [cartItems, orderSuccess]); // Dependencies include cartItems to access them in handlers
+
+  // Display notification
+  const showNotification = (message, type = "info") => {
+    setNotification({
+      open: true,
+      message,
+      type,
+    });
+  };
+
+  // Close notification
+  const handleCloseNotification = () => {
+    setNotification((prev) => ({ ...prev, open: false }));
+  };
+
   // Handle adding a product to the cart.
   // If the product is already in the cart, update its quantity.
   const handleAddToCart = (product, quantity) => {
+    // Check if there's enough quantity available
+    if (product.quantity < quantity) {
+      showNotification(
+        `Sorry, only ${product.quantity} units of ${product.name} are available`,
+        "error",
+      );
+      return;
+    }
+
     setCartItems((prev) => {
       const existing = prev.find((item) => item.product._id === product._id);
       if (existing) {
+        // Check if total quantity would exceed available stock
+        const newQuantity = existing.quantity + quantity;
+        if (newQuantity > product.quantity) {
+          showNotification(
+            `Sorry, only ${product.quantity} units of ${product.name} are available`,
+            "error",
+          );
+          return prev;
+        }
+
         return prev.map((item) =>
           item.product._id === product._id
-            ? { ...item, quantity: item.quantity + quantity }
+            ? { ...item, quantity: newQuantity }
             : item,
         );
       } else {
         return [...prev, { product, quantity }];
       }
     });
+
+    showNotification(`Added ${quantity} ${product.name} to cart`, "success");
   };
 
   // Remove an item from the cart
   const handleRemoveFromCart = (productId) => {
+    const itemToRemove = cartItems.find(
+      (item) => item.product._id === productId,
+    );
+    if (itemToRemove) {
+      showNotification(
+        `Removed ${itemToRemove.product.name} from cart`,
+        "info",
+      );
+    }
+
     setCartItems((prev) =>
       prev.filter((item) => item.product._id !== productId),
     );
@@ -61,6 +213,18 @@ const Buy = () => {
 
   // Update the quantity for a cart item
   const handleUpdateCartQuantity = (productId, newQuantity) => {
+    // Find the product to check available quantity
+    const product = products.find((p) => p._id === productId);
+    if (product && newQuantity > product.quantity) {
+      showNotification(
+        `Sorry, only ${product.quantity} units of ${product.name} are available`,
+        "error",
+      );
+
+      // Set to maximum available quantity instead
+      newQuantity = product.quantity;
+    }
+
     setCartItems((prev) =>
       prev.map((item) =>
         item.product._id === productId
@@ -79,7 +243,7 @@ const Buy = () => {
   // Handle placing an order using the current cart items.
   const handlePlaceOrder = async () => {
     if (cartItems.length === 0) {
-      alert("Your cart is empty.");
+      showNotification("Your cart is empty", "error");
       return;
     }
     try {
@@ -92,11 +256,13 @@ const Buy = () => {
       };
       await axios.post("/api/orders", orderPayload);
       setOrderSuccess("Order placed successfully!");
-      // Optionally, clear the cart after placing the order.
+      showNotification("Order placed successfully!", "success");
+      // Clear the cart after placing the order.
       setCartItems([]);
     } catch (err) {
-      alert(
+      showNotification(
         "Error placing order: " + (err.response?.data?.message || err.message),
+        "error",
       );
     }
   };
@@ -143,6 +309,22 @@ const Buy = () => {
           {orderSuccess}
         </Alert>
       )}
+
+      {/* Notification for real-time updates */}
+      <Snackbar
+        open={notification.open}
+        autoHideDuration={5000}
+        onClose={handleCloseNotification}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert
+          onClose={handleCloseNotification}
+          severity={notification.type}
+          sx={{ width: "100%" }}
+        >
+          {notification.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };

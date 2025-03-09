@@ -6,6 +6,7 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   server: {
     proxy: {
+      "/socket.io": "http://localhost:4000",
       "/api": "http://localhost:4000",
     },
   },

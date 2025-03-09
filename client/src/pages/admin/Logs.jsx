@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { socket } from "../../services/socketService";
 import LogEntry from "../../components/admin/LogEntry";
 import {
   Container,
@@ -14,6 +15,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Snackbar,
 } from "@mui/material";
 
 const Logs = () => {
@@ -23,6 +25,15 @@ const Logs = () => {
   const [filterRole, setFilterRole] = useState("All");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [notification, setNotification] = useState({
+    open: false,
+    message: "",
+    type: "info", // "info", "success", "error", "warning"
+  });
+  // Track if we're viewing filtered logs
+  const [isFiltered, setIsFiltered] = useState(false);
+  // Current filter URL to refresh with socket updates
+  const [currentFilterUrl, setCurrentFilterUrl] = useState("/api/logs");
 
   // Function to fetch logs from the API
   const fetchLogs = async (url = "/api/logs") => {
@@ -31,6 +42,10 @@ const Logs = () => {
     try {
       const response = await axios.get(url);
       setLogs(response.data);
+      // Store the current filter URL for refreshing when needed
+      setCurrentFilterUrl(url);
+      // Track if we're using filters or not
+      setIsFiltered(url !== "/api/logs");
     } catch (err) {
       setError(err.response?.data?.message || err.message);
       setLogs([]);
@@ -43,6 +58,58 @@ const Logs = () => {
   useEffect(() => {
     fetchLogs();
   }, []);
+
+  // Set up WebSocket listeners for real-time log updates
+  useEffect(() => {
+    // When logs-cleared event is received (All logs cleared)
+    socket.on("logs-cleared", (data) => {
+      console.log("Socket: Logs cleared", data);
+      setLogs([]);
+      showNotification("All logs have been cleared", "info");
+    });
+
+    // When a new log entry is created
+    // Note: This event might need to be added to your backend
+    socket.on("log-created", (newLog) => {
+      console.log("Socket: New log entry", newLog);
+
+      // If we're viewing all logs or the log matches our current filter
+      if (
+        !isFiltered ||
+        (filterUser && newLog.user === filterUser) ||
+        (filterRole !== "All" && newLog.role === filterRole)
+      ) {
+        setLogs((prevLogs) => [newLog, ...prevLogs]); // Add new log at the beginning
+        showNotification(`New log entry: ${newLog.action}`, "info");
+      } else if (isFiltered) {
+        // If filtered but doesn't match, notify but don't add
+        showNotification(
+          "New log entry received (not shown due to active filters)",
+          "info",
+        );
+      }
+    });
+
+    // Clean up listeners on component unmount
+    return () => {
+      socket.off("logs-cleared");
+      socket.off("log-created");
+    };
+  }, [isFiltered, filterUser, filterRole]); // Dependencies for filter-based decisions
+
+  // Display notification
+  const showNotification = (message, type = "info") => {
+    setNotification({
+      open: true,
+      message,
+      type,
+    });
+  };
+
+  // Close notification
+  const handleCloseNotification = () => {
+    setNotification((prev) => ({ ...prev, open: false }));
+  };
 
   // Handle filter form submission
   const handleFilterSubmit = (e) => {
@@ -73,13 +140,20 @@ const Logs = () => {
     if (!window.confirm("Are you sure you want to clear all logs?")) return;
     try {
       await axios.delete("/api/logs");
-      setLogs([]);
-      alert("All logs cleared successfully.");
+      // The UI will update automatically via the socket event
+      showNotification("All logs cleared successfully", "success");
     } catch (err) {
-      alert(
+      showNotification(
         "Error clearing logs: " + (err.response?.data?.message || err.message),
+        "error",
       );
     }
+  };
+
+  // Refresh logs based on current filter
+  const handleRefresh = () => {
+    fetchLogs(currentFilterUrl);
+    showNotification("Logs refreshed", "info");
   };
 
   return (
@@ -123,8 +197,21 @@ const Logs = () => {
             >
               Apply Filter
             </Button>
-            <Button type="button" variant="outlined" onClick={resetFilters}>
+            <Button
+              type="button"
+              variant="outlined"
+              onClick={resetFilters}
+              sx={{ mr: 1 }}
+            >
               Reset
+            </Button>
+            <Button
+              type="button"
+              variant="outlined"
+              color="secondary"
+              onClick={handleRefresh}
+            >
+              Refresh
             </Button>
           </Grid>
         </Grid>
@@ -152,6 +239,22 @@ const Logs = () => {
           <LogEntry key={log._id || log.id} log={log} />
         ))}
       </Box>
+
+      {/* Notification for real-time updates */}
+      <Snackbar
+        open={notification.open}
+        autoHideDuration={5000}
+        onClose={handleCloseNotification}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert
+          onClose={handleCloseNotification}
+          severity={notification.type}
+          sx={{ width: "100%" }}
+        >
+          {notification.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
