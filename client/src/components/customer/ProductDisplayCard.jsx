@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -7,52 +7,81 @@ import {
   Button,
   TextField,
   Box,
-} from "@mui/material";
+  Chip,
+  IconButton,
+  Paper,
+} from '@mui/material';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 
 const ProductDisplayCard = ({ product, onAddToCart }) => {
   const [quantity, setQuantity] = useState(1);
 
-  const handleAdd = () => {
-    if (quantity > 0) {
-      onAddToCart(product, quantity);
-      setQuantity(1); // Reset quantity after adding
-    }
+  const handleQuantityChange = (e) => {
+    const newValue = parseInt(e.target.value) || 0;
+    const validValue = Math.min(Math.max(1, newValue), product.quantity);
+    setQuantity(validValue);
   };
 
   return (
-    <Card>
-      <CardContent>
-        <Typography variant="h6">{product.name}</Typography>
-        <Typography variant="body2" color="text.secondary">
-          {product.description}
-        </Typography>
-        <Typography variant="body1" sx={{ mt: 1 }}>
-          Price: ${product.price.toFixed(2)}
-        </Typography>
-      </CardContent>
-      <CardActions>
-        <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
+    <Paper elevation={2}>
+      <Card>
+        <CardContent>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+              {product.name}
+            </Typography>
+            <Typography 
+              variant="body2" 
+              color={product.quantity > 0 ? "success.main" : "error.main"}
+              sx={{ fontWeight: 'medium' }}
+            >
+              {product.quantity > 0 ? `In Stock: ${product.quantity}` : 'Out of Stock'}
+            </Typography>
+          </Box>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            {product.description}
+          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
+            <Typography variant="h5" color="primary" sx={{ fontWeight: 'bold' }}>
+              ${product.price.toFixed(2)}
+            </Typography>
+          </Box>
+        </CardContent>
+        <CardActions sx={{ p: 2, pt: 0, justifyContent: 'space-between' }}>
           <TextField
             type="number"
-            label="Qty"
-            variant="outlined"
+            label="Quantity"
             size="small"
             value={quantity}
-            onChange={(e) => setQuantity(Number(e.target.value))}
-            sx={{ width: 80 }}
-            inputProps={{ min: 1 }}
+            onChange={handleQuantityChange}
+            sx={{ width: '100px' }}
+            inputProps={{ 
+              min: 1, 
+              max: product.quantity,
+              'aria-label': 'Quantity'
+            }}
+            helperText={`Max: ${product.quantity}`}
           />
-          <Button
-            variant="contained"
+          <IconButton
             color="primary"
-            onClick={handleAdd}
-            sx={{ ml: 1 }}
+            disabled={product.quantity === 0}
+            onClick={() => {
+              onAddToCart(product, quantity);
+              setQuantity(1);
+            }}
+            sx={{
+              backgroundColor: 'primary.main',
+              color: 'white',
+              '&.Mui-disabled': {
+                backgroundColor: 'action.disabledBackground',
+              },
+            }}
           >
-            Add to Cart
-          </Button>
-        </Box>
-      </CardActions>
-    </Card>
+            <AddShoppingCartIcon />
+          </IconButton>
+        </CardActions>
+      </Card>
+    </Paper>
   );
 };
 

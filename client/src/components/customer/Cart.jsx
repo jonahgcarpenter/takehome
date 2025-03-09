@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   Box,
   Typography,
@@ -6,80 +6,97 @@ import {
   ListItem,
   ListItemText,
   IconButton,
-  TextField,
   Divider,
   Button,
+  Paper,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 const Cart = ({
   cartItems,
-  totalPrice,
+  totalPrice: externalTotalPrice,
   onRemove,
-  onUpdateQuantity,
   onPlaceOrder,
 }) => {
+  const calculatedTotalPrice = useMemo(() =>
+    cartItems.reduce((sum, item) =>
+      sum + (item.product.price * item.quantity), 0
+    ), [cartItems]
+  );
+
+  const totalPrice = externalTotalPrice ?? calculatedTotalPrice;
+
   return (
-    <Box sx={{ border: "1px solid #ccc", borderRadius: 2, p: 2 }}>
-      <Typography variant="h6" gutterBottom>
+    <Paper elevation={3} sx={{ position: 'sticky', top: 20, p: 3, borderRadius: 2 }}>
+      <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', color: 'primary.main' }}>
         Your Cart
       </Typography>
       {cartItems.length === 0 ? (
-        <Typography variant="body1">Your cart is empty.</Typography>
+        <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+          Your cart is empty.
+        </Typography>
       ) : (
         <>
-          <List>
+          <List sx={{ maxHeight: '60vh', overflowY: 'auto' }}>
             {cartItems.map((item) => (
               <React.Fragment key={item.product._id}>
-                <ListItem alignItems="flex-start">
+                <ListItem
+                  alignItems="flex-start"
+                  sx={{
+                    backgroundColor: 'background.paper',
+                    borderRadius: 1,
+                    mb: 1,
+                  }}
+                >
                   <ListItemText
                     primary={item.product.name}
-                    secondary={`Price: $${item.product.price.toFixed(2)} | Total: $${(item.product.price * item.quantity).toFixed(2)}`}
-                  />
-                  <TextField
-                    label="Qty"
-                    type="number"
-                    variant="outlined"
-                    size="small"
-                    value={item.quantity}
-                    onChange={(e) =>
-                      onUpdateQuantity(
-                        item.product._id,
-                        parseInt(e.target.value, 10),
-                      )
+                    secondary={
+                      <Typography variant="body2" color="text.secondary">
+                        Price: <b>${item.product.price.toFixed(2)}</b> | 
+                        Quantity: <b>{item.quantity}</b> |
+                        Total: <b>${(item.product.price * item.quantity).toFixed(2)}</b>
+                      </Typography>
                     }
-                    sx={{ width: 80, mr: 1 }}
-                    inputProps={{ min: 1 }}
                   />
-                  <IconButton
-                    onClick={() => onRemove(item.product._id)}
-                    color="error"
-                  >
-                    <DeleteIcon />
-                  </IconButton>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <IconButton
+                      onClick={() => onRemove(item.product._id)}
+                      color="error"
+                      size="small"
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Box>
                 </ListItem>
-                <Divider />
               </React.Fragment>
             ))}
           </List>
-          <Box sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}>
-            <Typography variant="subtitle1">Total Price:</Typography>
-            <Typography variant="subtitle1">
+          <Divider sx={{ my: 2 }} />
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+            <Typography variant="h6">Total:</Typography>
+            <Typography variant="h6" color="primary.main" sx={{ fontWeight: 'bold' }}>
               ${totalPrice.toFixed(2)}
             </Typography>
           </Box>
           <Button
             variant="contained"
-            color="primary"
             fullWidth
-            sx={{ mt: 2 }}
+            size="large"
             onClick={onPlaceOrder}
+            sx={{
+              py: 1.5,
+              fontWeight: 'bold',
+              backgroundColor: 'success.main',
+              '&:hover': {
+                backgroundColor: 'success.dark',
+              },
+            }}
           >
             Place Order
           </Button>
         </>
       )}
-    </Box>
+    </Paper>
   );
 };
 

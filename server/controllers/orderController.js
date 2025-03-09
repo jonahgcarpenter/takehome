@@ -68,8 +68,9 @@ exports.updateOrderById = async (req, res) => {
     const updatedOrder = await Order.findByIdAndUpdate(
       req.params.id,
       req.body,
-      { new: true, runValidators: true },
-    );
+      { new: true, runValidators: true }
+    ).populate("products.product", "name price");  // Add populate here
+    
     if (!updatedOrder) {
       return res.status(404).json({ message: "Order not found" });
     }

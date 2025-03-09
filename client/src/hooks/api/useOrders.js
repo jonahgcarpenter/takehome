@@ -35,20 +35,6 @@ const useOrders = () => {
     }
   };
 
-  // Fetch all orders by the currently logged-in user
-  const fetchMyOrders = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await axios.get("/api/orders/myorders");
-      setOrders(response.data);
-    } catch (err) {
-      setError(err.response?.data?.message || err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Create a new order (Admin/Staff/Customer)
   const createOrder = async (orderData) => {
     setLoading(true);
@@ -108,7 +94,6 @@ const useOrders = () => {
     error,
     fetchOrders: useCallback(fetchOrders, []),
     fetchOrderById: useCallback(fetchOrderById, []),
-    fetchMyOrders: useCallback(fetchMyOrders, []),
     createOrder: useCallback(createOrder, []),
     updateOrder: useCallback(updateOrder, []),
     deleteOrder: useCallback(deleteOrder, []),

@@ -10,63 +10,169 @@ import {
   CardHeader,
   CardContent,
   Divider,
+  Chip,
 } from "@mui/material";
+
+const getStatusColor = (status) => {
+  const statusMap = {
+    pending: 'warning',
+    processing: 'info',
+    shipped: 'primary',
+    delivered: 'success',
+    cancelled: 'error',
+    default: 'default'
+  };
+  return statusMap[status?.toLowerCase()] || statusMap.default;
+};
+
+const formatPrice = (price) => {
+  return typeof price === 'number' ? price.toFixed(2) : '0.00';
+};
+
+const formatDate = (dateString) => {
+  const options = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  };
+  
+  try {
+    return new Date(dateString).toLocaleString('en-US', options);
+  } catch (e) {
+    return dateString;
+  }
+};
 
 const MyOrders = ({ orders, loading, error }) => {
   return (
-    <Container sx={{ marginTop: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        My Orders
+    <Box>
+      <Typography 
+        variant="h4" 
+        gutterBottom 
+        sx={{ 
+          fontWeight: 'bold',
+          color: 'primary.main',
+          mb: 4
+        }}
+      >
+        Order History
       </Typography>
+
       {loading && (
-        <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
-          <CircularProgress />
+        <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+          <CircularProgress size={40} />
         </Box>
       )}
+
       {error && (
-        <Alert severity="error" sx={{ my: 2 }}>
+        <Alert 
+          severity="error" 
+          sx={{ 
+            my: 2,
+            boxShadow: 1,
+            borderRadius: 2
+          }}
+        >
           {error}
         </Alert>
       )}
+
       {!loading && orders.length === 0 && !error && (
-        <Typography>No orders found.</Typography>
+        <Alert 
+          severity="info"
+          sx={{ 
+            my: 2,
+            boxShadow: 1,
+            borderRadius: 2
+          }}
+        >
+          You haven't placed any orders yet.
+        </Alert>
       )}
-      <Grid container spacing={2}>
+
+      <Grid container spacing={3}>
         {orders.map((order) => (
-          <Grid item xs={12} md={6} key={order._id || order.id}>
-            <Card sx={{ marginBottom: 2 }}>
+          <Grid item xs={12} key={order._id || order.id}>
+            <Card 
+              sx={{ 
+                borderRadius: 2,
+                boxShadow: 2,
+                '&:hover': { boxShadow: 3 },
+                transition: 'box-shadow 0.3s ease-in-out'
+              }}
+            >
               <CardHeader
-                title={`Order ${order.orderNumber || `#${order._id || order.id}`}`}
-                subheader={`Placed on ${new Date(order.createdAt).toLocaleString()}`}
-              />
-              <CardContent>
-                <Typography variant="body2">
-                  <strong>Total Price:</strong> ${order.totalPrice}
-                </Typography>
-                <Typography variant="body2">
-                  <strong>Status:</strong> {order.status}
-                </Typography>
-                {order.products && order.products.length > 0 && (
-                  <Box sx={{ mt: 1 }}>
-                    <Typography variant="subtitle2">Products:</Typography>
-                    {order.products.map((item, idx) => (
-                      <Typography variant="body2" key={idx}>
-                        - {item.product.name} (x{item.quantity})
-                      </Typography>
-                    ))}
+                title={
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Typography variant="h6">
+                      Order #{(order._id || order.id).substring(0, 8)}
+                    </Typography>
+                    <Chip 
+                      label={order.status}
+                      color={getStatusColor(order.status)}
+                      size="small"
+                      sx={{ fontWeight: 'medium' }}
+                    />
                   </Box>
-                )}
-                <Divider sx={{ my: 1 }} />
-                <Typography variant="body2">
-                  <strong>Last Updated:</strong>{" "}
-                  {new Date(order.updatedAt).toLocaleString()}
-                </Typography>
+                }
+                subheader={formatDate(order.createdAt)}
+                sx={{
+                  bgcolor: 'background.paper',
+                  borderBottom: 1,
+                  borderColor: 'divider'
+                }}
+              />
+              <CardContent sx={{ pt: 3 }}>
+                <Grid container spacing={2}>
+                  {order.products?.map((item, idx) => (
+                    <Grid item xs={12} key={idx}>
+                      <Box sx={{ 
+                        p: 2, 
+                        bgcolor: 'background.default',
+                        borderRadius: 1,
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}>
+                        <Box>
+                          <Typography variant="subtitle2">
+                            {item.product.name}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Quantity: {item.quantity}
+                          </Typography>
+                        </Box>
+                        <Typography variant="subtitle2" color="primary.main">
+                          ${formatPrice(item.product.price * item.quantity)}
+                        </Typography>
+                      </Box>
+                    </Grid>
+                  ))}
+                </Grid>
+
+                <Box sx={{ 
+                  mt: 3,
+                  pt: 2,
+                  borderTop: 1,
+                  borderColor: 'divider',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
+                  <Typography variant="subtitle1">Total Amount:</Typography>
+                  <Typography variant="h6" color="primary.main" sx={{ fontWeight: 'bold' }}>
+                    ${formatPrice(order.totalPrice)}
+                  </Typography>
+                </Box>
               </CardContent>
             </Card>
           </Grid>
         ))}
       </Grid>
-    </Container>
+    </Box>
   );
 };
 
