@@ -6,6 +6,7 @@ const path = require("path");
 const http = require("http");
 const socketIo = require("socket.io");
 const session = require("express-session");
+const MongoStore = require("connect-mongo");
 const passport = require("./config/oauth");
 
 // Import the routes
@@ -30,6 +31,11 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false, // Don't resave session if unmodified
     saveUninitialized: false, // Don't create session until something is stored
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGODB_URI, // Using existing MongoDB connection URL
+      collectionName: 'sessions', // Optional: customize collection name
+      ttl: 24 * 60 * 60, // Session TTL (1 day)
+    }),
     cookie: {
       secure: process.env.NODE_ENV === "production", // In production, set to true (requires HTTPS)
       httpOnly: true, // Helps prevent client side JS from reading the cookie
