@@ -75,7 +75,17 @@ exports.updateUserById = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    // Update user fields with data from req.body.
+
+    // If role is being updated, validate and convert role name to ID
+    if (req.body.role) {
+      const role = await Role.findOne({ name: req.body.role });
+      if (!role) {
+        return res.status(400).json({ message: "Invalid role specified" });
+      }
+      req.body.role = role._id;
+    }
+
+    // Update user fields with data from req.body
     Object.assign(user, req.body);
     const updatedUser = await user.save();
     const transformedUser = await transformUser(updatedUser);
@@ -102,40 +112,9 @@ exports.deleteUserById = async (req, res) => {
     }
     // Emit delete via WebSocket
     const io = req.app.get("socketio");
-    io.emit("user-deleted", { id: req.params.id });
+    io.emit("user-updated", { id: req.params.id });
 
     return res.status(200).json({ message: "User deleted successfully" });
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Server error", error: error.message });
-  }
-};
-
-// PUT /api/users/:id/role
-// Update a user's role by ID (Admin only)
-exports.updateUserRoleById = async (req, res) => {
-  try {
-    let user = await User.findById(req.params.id);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    // Look up the role document using the role name sent in the request body
-    const roleDoc = await Role.findOne({ name: req.body.role });
-    if (!roleDoc) {
-      return res.status(400).json({ message: "Invalid role provided" });
-    }
-    // Update the user's role with the role document's _id
-    user.role = roleDoc._id;
-    await user.save();
-    // Optionally transform the user to replace the role with its name and remove totpSecret before returning
-    user = await transformUser(user);
-
-    // Emit update via WebSocket
-    const io = req.app.get("socketio");
-    io.emit("user-role-updated", user);
-
-    return res.status(200).json(user);
   } catch (error) {
     return res
       .status(500)

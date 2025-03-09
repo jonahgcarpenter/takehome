@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import UserCard from "../../components/admin/UserCard";
 import useUsers from "../../hooks/api/useUsers";
 import useUserSocket from "../../hooks/websockets/useUserSockets";
@@ -9,14 +9,25 @@ import {
   CircularProgress,
   Alert,
   Snackbar,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  DialogContentText,
+  Button,
 } from "@mui/material";
 
 const UserManagement = () => {
-  const { users, loading, error, updateUserRole, deleteUser } = useUsers();
+  const { users, loading, error, updateUser, deleteUser, fetchUsers } = useUsers();
   const [notification, setNotification] = useState({
     open: false,
     message: "",
     type: "info",
+  });
+  
+  const [deleteDialog, setDeleteDialog] = useState({
+    open: false,
+    userId: null
   });
 
   // Display notification
@@ -33,54 +44,51 @@ const UserManagement = () => {
     setNotification((prev) => ({ ...prev, open: false }));
   };
 
-  // Socket handlers
-  const handleUserUpdated = (updatedUser) => {
+  // Handle WebSocket user updates
+  const handleUserUpdated = useCallback((updatedUser) => {
+    // Refresh the users list when we receive a WebSocket update
+    fetchUsers();
     showNotification(
-      `User "${updatedUser.name || updatedUser.email}" updated`,
+      `User ${updatedUser.email || 'unknown'} has been updated`,
       "info"
     );
-  };
+  }, [fetchUsers]);
 
-  const handleUserRoleUpdated = (updatedUser) => {
-    showNotification(
-      `User "${updatedUser.name || updatedUser.email}" role changed to ${updatedUser.role}`,
-      "info"
-    );
-  };
-
-  const handleUserDeleted = () => {
-    showNotification("User has been deleted", "warning");
-  };
-
-  // Set up WebSocket listeners
+  // Set up WebSocket listeners with proper dependency
   useUserSocket({
     onUserUpdated: handleUserUpdated,
-    onUserRoleUpdated: handleUserRoleUpdated,
-    onUserDeleted: handleUserDeleted,
-    onUserCreated: () => {} // Not needed for this component
   });
 
-  // Handler functions
+  // Handler functions with improved error messages
   const handleUpdateRole = async (userId, newRole) => {
     try {
-      await updateUserRole(userId, newRole);
+      // Ensure the first letter is uppercase for the role
+      const formattedRole = newRole.charAt(0).toUpperCase() + newRole.slice(1);
+      await updateUser(userId, { role: formattedRole });
+      showNotification("User role updated successfully", "success");
     } catch (err) {
-      showNotification(
-        "Error updating role: " + (err.response?.data?.message || err.message),
-        "error"
-      );
+      const errorMessage = err.response?.data?.message || "Failed to update user role";
+      showNotification(errorMessage, "error");
     }
   };
 
-  const handleDeleteUser = async (userId) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
+  const handleDeleteClick = (userId) => {
+    setDeleteDialog({ open: true, userId });
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialog({ open: false, userId: null });
+  };
+
+  const handleDeleteConfirm = async () => {
     try {
-      await deleteUser(userId);
+      await deleteUser(deleteDialog.userId);
+      showNotification("User deleted successfully", "success");
     } catch (err) {
-      showNotification(
-        "Error deleting user: " + (err.response?.data?.message || err.message),
-        "error"
-      );
+      const errorMessage = err.response?.data?.message || "Failed to delete user";
+      showNotification(errorMessage, "error");
+    } finally {
+      setDeleteDialog({ open: false, userId: null });
     }
   };
 
@@ -109,10 +117,34 @@ const UserManagement = () => {
             key={user._id || user.id}
             user={user}
             onUpdateRole={handleUpdateRole}
-            onDelete={handleDeleteUser}
+            onDelete={handleDeleteClick}
           />
         ))}
       </Box>
+
+      <Dialog
+        open={deleteDialog.open}
+        onClose={handleDeleteCancel}
+        aria-labelledby="delete-dialog-title"
+        aria-describedby="delete-dialog-description"
+      >
+        <DialogTitle id="delete-dialog-title">
+          Confirm Delete
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="delete-dialog-description">
+            Are you sure you want to delete this user? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteCancel} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleDeleteConfirm} color="error" autoFocus>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Snackbar
         open={notification.open}

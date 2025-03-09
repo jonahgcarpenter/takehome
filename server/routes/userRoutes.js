@@ -20,7 +20,4 @@ router.put("/:id", hasRole(["Admin"]), userController.updateUserById);
 // Delete a user by ID (Admin only)
 router.delete("/:id", hasRole(["Admin"]), userController.deleteUserById);
 
-// Update a user's role by ID (Admin only)
-router.put("/:id/role", hasRole(["Admin"]), userController.updateUserRoleById);
-
 module.exports = router;

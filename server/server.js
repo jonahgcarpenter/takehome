@@ -32,8 +32,8 @@ app.use(
     resave: false, // Don't resave session if unmodified
     saveUninitialized: false, // Don't create session until something is stored
     store: MongoStore.create({
-      mongoUrl: process.env.MONGODB_URI, // Using existing MongoDB connection URL
-      collectionName: 'sessions', // Optional: customize collection name
+      mongoUrl: process.env.MONGODB_URI,
+      collectionName: 'sessions',
       ttl: 24 * 60 * 60, // Session TTL (1 day)
     }),
     cookie: {

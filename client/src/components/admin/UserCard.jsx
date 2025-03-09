@@ -15,6 +15,7 @@ import {
 
 const UserCard = ({ user, onDelete, onUpdateRole }) => {
   const handleRoleChange = (e) => {
+    if (e.target.value === user.role) return;
     onUpdateRole(user._id || user.id, e.target.value);
   };
 
@@ -43,9 +44,6 @@ const UserCard = ({ user, onDelete, onUpdateRole }) => {
           <strong>Updated At:</strong>{" "}
           {user.updatedAt ? new Date(user.updatedAt).toLocaleString() : "N/A"}
         </Typography>
-        <Typography variant="body2" sx={{ mt: 1 }}>
-          <strong>Current Role:</strong> {user.role}
-        </Typography>
       </CardContent>
       <CardActions>
         <FormControl variant="outlined" size="small">
@@ -54,7 +52,7 @@ const UserCard = ({ user, onDelete, onUpdateRole }) => {
           </InputLabel>
           <Select
             labelId={`role-select-label-${user._id || user.id}`}
-            value={user.role}
+            value={user.role || ''}
             onChange={handleRoleChange}
             label="Role"
           >
