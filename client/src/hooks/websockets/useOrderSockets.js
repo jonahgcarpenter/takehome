@@ -1,11 +1,7 @@
 import { useEffect } from "react";
 import { socket } from "../../services/socketService";
 
-const useOrderSocket = ({
-  onOrderCreated,
-  onOrderUpdated,
-  onOrderDeleted,
-}) => {
+const useOrderSocket = ({ onOrderCreated, onOrderUpdated, onOrderDeleted }) => {
   useEffect(() => {
     // Listen to product-related events
     socket.on("order-created", onOrderCreated);

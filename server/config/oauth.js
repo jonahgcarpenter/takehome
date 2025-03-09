@@ -54,6 +54,10 @@ passport.use(
                 : null,
             role: role._id,
           });
+
+          // Emit event via WebSocket
+          const io = request.app.get("socketio");
+          io.emit("user-created", user);
         }
 
         // Pass the user object to the next middleware
