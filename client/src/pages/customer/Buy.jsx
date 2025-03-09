@@ -8,10 +8,11 @@ import {
   Snackbar,
   Grid,
   Box,
+  Paper,
+  Divider,
 } from "@mui/material";
 import useProducts from "../../hooks/api/useProducts";
 import useProductSocket from "../../hooks/websockets/useProductSocket";
-import useOrderSocket from "../../hooks/websockets/useOrderSockets";
 import ProductDisplayCard from "../../components/customer/ProductDisplayCard";
 import Cart from "../../components/customer/Cart";
 
@@ -32,18 +33,6 @@ const Buy = () => {
 
   useProductSocket({
     onProductsUpdated: fetchProducts,
-  });
-
-  useOrderSocket({
-    onOrderCreated: (newOrder) => {
-      setNotification({
-        open: true,
-        message: `Order ${newOrder._id} created successfully`,
-        type: "success",
-      });
-    },
-    onOrderUpdated: () => {},
-    onOrderDeleted: () => {},
   });
 
   const totalPrice = cartItems.reduce(
@@ -78,34 +67,42 @@ const Buy = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ mt: 4, mb: 8 }}>
-      <Typography
-        variant="h4"
-        gutterBottom
-        sx={{ fontWeight: "bold", color: "primary.main", mb: 4 }}
-      >
-        Buy Products
-      </Typography>
-
+    <Container maxWidth="lg" sx={{ py: 4 }}>
       <Grid container spacing={3}>
+        {/* Products Section */}
         <Grid item xs={12} md={8}>
-          {productsLoading && (
-            <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
-              <CircularProgress />
-            </Box>
-          )}
-          {productsError && <Alert severity="error">{productsError}</Alert>}
+          <Paper elevation={2} sx={{ p: 3 }}>
+            <Typography
+              variant="h4"
+              gutterBottom
+              sx={{ mb: 3, fontWeight: 500, color: "primary.main" }}
+            >
+              Buy Products
+            </Typography>
+            <Divider sx={{ mb: 3 }} />
+            {productsLoading && (
+              <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+                <CircularProgress />
+              </Box>
+            )}
+            {productsError && <Alert severity="error">{productsError}</Alert>}
 
-          <Grid container spacing={2}>
-            {products.map((product) => (
-              <Grid item xs={12} sm={6} key={product._id}>
-                <ProductDisplayCard product={product} onAddToCart={addToCart} />
-              </Grid>
-            ))}
-          </Grid>
+            <Box>
+              {products.map((product) => (
+                <Box key={product._id} sx={{ mb: 2 }}>
+                  <ProductDisplayCard
+                    product={product}
+                    onAddToCart={addToCart}
+                  />
+                </Box>
+              ))}
+            </Box>
+          </Paper>
         </Grid>
 
+        {/* Cart Section */}
         <Grid item xs={12} md={4}>
+          {/* The Cart component already has its own Paper styling */}
           <Cart
             cartItems={cartItems}
             totalPrice={totalPrice}
@@ -128,7 +125,7 @@ const Buy = () => {
                 const response = await axios.post("/api/orders", orderData);
                 setNotification({
                   open: true,
-                  message: `Order #${response.data._id} placed successfully!`,
+                  message: `${response.data.orderNumber} placed successfully!`,
                   type: "success",
                 });
                 setCartItems([]);

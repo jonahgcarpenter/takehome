@@ -1,20 +1,16 @@
 import { useEffect } from "react";
 import { socket } from "../../services/socketService";
 
-const useOrderSocket = ({ onOrderCreated, onOrderUpdated, onOrderDeleted }) => {
+const useOrderSocket = ({ onOrdersUpdated }) => {
   useEffect(() => {
     // Listen to product-related events
-    socket.on("order-created", onOrderCreated);
-    socket.on("order-updated", onOrderUpdated);
-    socket.on("order-deleted", onOrderDeleted);
+    socket.on("orders-updated", onOrdersUpdated);
 
     // Cleanup listeners when component unmounts
     return () => {
-      socket.off("order-created", onOrderCreated);
-      socket.off("order-updated", onOrderUpdated);
-      socket.off("order-deleted", onOrderDeleted);
+      socket.off("orders-updated", onOrdersUpdated);
     };
-  }, [onOrderCreated, onOrderUpdated, onOrderDeleted]);
+  }, [onOrdersUpdated]);
 };
 
 export default useOrderSocket;

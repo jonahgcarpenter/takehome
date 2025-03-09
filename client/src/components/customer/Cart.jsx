@@ -18,32 +18,42 @@ const Cart = ({
   onRemove,
   onPlaceOrder,
 }) => {
-  const calculatedTotalPrice = useMemo(() =>
-    cartItems.reduce((sum, item) =>
-      sum + (item.product.price * item.quantity), 0
-    ), [cartItems]
+  const calculatedTotalPrice = useMemo(
+    () =>
+      cartItems.reduce(
+        (sum, item) => sum + item.product.price * item.quantity,
+        0,
+      ),
+    [cartItems],
   );
 
   const totalPrice = externalTotalPrice ?? calculatedTotalPrice;
 
   return (
-    <Paper elevation={3} sx={{ position: 'sticky', top: 20, p: 3, borderRadius: 2 }}>
-      <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+    <Paper
+      elevation={3}
+      sx={{ position: "sticky", top: 20, p: 3, borderRadius: 2 }}
+    >
+      <Typography
+        variant="h5"
+        gutterBottom
+        sx={{ fontWeight: "bold", color: "primary.main" }}
+      >
         Your Cart
       </Typography>
       {cartItems.length === 0 ? (
-        <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+        <Typography variant="body1" sx={{ color: "text.secondary" }}>
           Your cart is empty.
         </Typography>
       ) : (
         <>
-          <List sx={{ maxHeight: '60vh', overflowY: 'auto' }}>
+          <List sx={{ maxHeight: "60vh", overflowY: "auto" }}>
             {cartItems.map((item) => (
               <React.Fragment key={item.product._id}>
                 <ListItem
                   alignItems="flex-start"
                   sx={{
-                    backgroundColor: 'background.paper',
+                    backgroundColor: "background.paper",
                     borderRadius: 1,
                     mb: 1,
                   }}
@@ -52,13 +62,18 @@ const Cart = ({
                     primary={item.product.name}
                     secondary={
                       <Typography variant="body2" color="text.secondary">
-                        Price: <b>${item.product.price.toFixed(2)}</b> | 
-                        Quantity: <b>{item.quantity}</b> |
-                        Total: <b>${(item.product.price * item.quantity).toFixed(2)}</b>
+                        Price: <b>${item.product.price.toFixed(2)}</b>
+                        <br />
+                        Quantity: <b>{item.quantity}</b>
+                        <br />
+                        Total:{" "}
+                        <b>
+                          ${(item.product.price * item.quantity).toFixed(2)}
+                        </b>
                       </Typography>
                     }
                   />
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <IconButton
                       onClick={() => onRemove(item.product._id)}
                       color="error"
@@ -72,9 +87,13 @@ const Cart = ({
             ))}
           </List>
           <Divider sx={{ my: 2 }} />
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
             <Typography variant="h6">Total:</Typography>
-            <Typography variant="h6" color="primary.main" sx={{ fontWeight: 'bold' }}>
+            <Typography
+              variant="h6"
+              color="primary.main"
+              sx={{ fontWeight: "bold" }}
+            >
               ${totalPrice.toFixed(2)}
             </Typography>
           </Box>
@@ -85,10 +104,10 @@ const Cart = ({
             onClick={onPlaceOrder}
             sx={{
               py: 1.5,
-              fontWeight: 'bold',
-              backgroundColor: 'success.main',
-              '&:hover': {
-                backgroundColor: 'success.dark',
+              fontWeight: "bold",
+              backgroundColor: "success.main",
+              "&:hover": {
+                backgroundColor: "success.dark",
               },
             }}
           >

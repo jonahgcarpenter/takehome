@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import MyOrders from "../../components/customer/MyOrders";
-import { Alert, Snackbar, Container, Box } from "@mui/material";
+import {
+  Alert,
+  Snackbar,
+  Container,
+  Box,
+  Paper,
+  Typography,
+  Divider,
+  CircularProgress,
+} from "@mui/material";
 import useOrderSocket from "../../hooks/websockets/useOrderSockets";
 
 const Orders = () => {
@@ -28,8 +37,8 @@ const Orders = () => {
     try {
       const response = await axios.get("/api/orders/myorders");
       // Sort orders by date, newest first
-      const sortedOrders = response.data.sort((a, b) => 
-        new Date(b.createdAt) - new Date(a.createdAt)
+      const sortedOrders = response.data.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
       );
       setOrders(sortedOrders);
     } catch (err) {
@@ -44,77 +53,83 @@ const Orders = () => {
   }, []);
 
   // WebSocket handlers
-  const handleOrderCreated = (newOrder) => {
-    if (newOrder.customer === localStorage.getItem("userId")) {
-      setOrders(prev => [newOrder, ...prev]);
-      showNotification(`New order #${newOrder._id.substring(0, 8)} created`, "success");
-    }
-  };
-
   const handleOrderUpdated = (updatedOrder) => {
-    const existingOrder = orders.find(order => order._id === updatedOrder._id);
+    const existingOrder = orders.find(
+      (order) => order._id === updatedOrder._id,
+    );
     if (existingOrder) {
-      setOrders(prev => prev.map(order => 
-        order._id === updatedOrder._id ? updatedOrder : order
-      ));
-      
+      setOrders((prev) =>
+        prev.map((order) =>
+          order._id === updatedOrder._id ? updatedOrder : order,
+        ),
+      );
       if (existingOrder.status !== updatedOrder.status) {
         showNotification(
-          `Order #${updatedOrder._id.substring(0, 8)} status changed to ${updatedOrder.status}`,
-          "info"
+          `${updatedOrder.orderNumber} status changed to ${updatedOrder.status}`,
+          "info",
         );
       }
     }
   };
 
-  const handleOrderDeleted = (data) => {
-    const existingOrder = orders.find(order => order._id === data.id);
-    if (existingOrder) {
-      setOrders(prev => prev.filter(order => order._id !== data.id));
-      showNotification(`Order #${data.id.substring(0, 8)} has been cancelled`, "warning");
-    }
-  };
-
   useOrderSocket({
-    onOrderCreated: handleOrderCreated,
-    onOrderUpdated: handleOrderUpdated,
-    onOrderDeleted: handleOrderDeleted,
+    onOrdersUpdated: handleOrderUpdated,
   });
 
   return (
-    <Box sx={{ 
-      bgcolor: 'background.default',
-      minHeight: '100vh',
-      py: 4
-    }}>
-      <Container maxWidth="lg">
-        <MyOrders orders={orders} loading={loading} error={error} />
-      </Container>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{ mb: 3, fontWeight: 500, color: "primary.main" }}
+        >
+          My Orders
+        </Typography>
+        <Divider sx={{ mb: 3 }} />
+        {loading ? (
+          <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+            <CircularProgress />
+          </Box>
+        ) : error ? (
+          <Alert severity="error" sx={{ my: 3 }}>
+            {error}
+          </Alert>
+        ) : orders.length === 0 ? (
+          <Typography
+            sx={{ textAlign: "center", color: "text.secondary", my: 4 }}
+          >
+            No orders found.
+          </Typography>
+        ) : (
+          <MyOrders orders={orders} />
+        )}
+      </Paper>
 
       <Snackbar
         open={notification.open}
         autoHideDuration={5000}
-        onClose={() => setNotification(prev => ({ ...prev, open: false }))}
+        onClose={() => setNotification((prev) => ({ ...prev, open: false }))}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        sx={{ 
-          '& .MuiAlert-root': {
-            width: '100%',
+        sx={{
+          "& .MuiAlert-root": {
+            width: "100%",
             maxWidth: 400,
-          }
+          },
         }}
       >
         <Alert
-          onClose={() => setNotification(prev => ({ ...prev, open: false }))}
+          onClose={() => setNotification((prev) => ({ ...prev, open: false }))}
           severity={notification.type}
-          sx={{ 
-            width: '100%',
-            boxShadow: 3
+          sx={{
+            width: "100%",
+            boxShadow: 3,
           }}
         >
           {notification.message}
         </Alert>
       </Snackbar>
-    </Box>
+    </Container>
   );
 };
 

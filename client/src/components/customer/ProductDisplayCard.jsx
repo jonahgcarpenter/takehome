@@ -1,17 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
   CardActions,
   Typography,
-  Button,
   TextField,
   Box,
-  Chip,
   IconButton,
   Paper,
-} from '@mui/material';
-import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+} from "@mui/material";
+import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 
 const ProductDisplayCard = ({ product, onAddToCart }) => {
   const [quantity, setQuantity] = useState(1);
@@ -26,39 +24,58 @@ const ProductDisplayCard = ({ product, onAddToCart }) => {
     <Paper elevation={2}>
       <Card>
         <CardContent>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+            }}
+          >
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
               {product.name}
             </Typography>
-            <Typography 
-              variant="body2" 
+            <Typography
+              variant="body2"
               color={product.quantity > 0 ? "success.main" : "error.main"}
-              sx={{ fontWeight: 'medium' }}
+              sx={{ fontWeight: "medium" }}
             >
-              {product.quantity > 0 ? `In Stock: ${product.quantity}` : 'Out of Stock'}
+              {product.quantity > 0
+                ? `In Stock: ${product.quantity}`
+                : "Out of Stock"}
             </Typography>
           </Box>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
             {product.description}
           </Typography>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
-            <Typography variant="h5" color="primary" sx={{ fontWeight: 'bold' }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mt: 2,
+            }}
+          >
+            <Typography
+              variant="h5"
+              color="primary"
+              sx={{ fontWeight: "bold" }}
+            >
               ${product.price.toFixed(2)}
             </Typography>
           </Box>
         </CardContent>
-        <CardActions sx={{ p: 2, pt: 0, justifyContent: 'space-between' }}>
+        <CardActions sx={{ p: 2, pt: 0, justifyContent: "space-between" }}>
           <TextField
             type="number"
             label="Quantity"
             size="small"
             value={quantity}
             onChange={handleQuantityChange}
-            sx={{ width: '100px' }}
-            inputProps={{ 
-              min: 1, 
+            sx={{ width: "100px" }}
+            inputProps={{
+              min: 1,
               max: product.quantity,
-              'aria-label': 'Quantity'
+              "aria-label": "Quantity",
             }}
             helperText={`Max: ${product.quantity}`}
           />
@@ -70,10 +87,10 @@ const ProductDisplayCard = ({ product, onAddToCart }) => {
               setQuantity(1);
             }}
             sx={{
-              backgroundColor: 'primary.main',
-              color: 'white',
-              '&.Mui-disabled': {
-                backgroundColor: 'action.disabledBackground',
+              backgroundColor: "primary.main",
+              color: "white",
+              "&.Mui-disabled": {
+                backgroundColor: "action.disabledBackground",
               },
             }}
           >

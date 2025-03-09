@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Card,
   CardContent,
@@ -8,38 +8,57 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-} from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 const LogEntry = ({ log }) => {
   const timestamp = new Date(log.timestamp).toLocaleString();
-  
+
   // Convert status code to severity
   const getStatusColor = (status) => {
-    if (status >= 500) return 'error';
-    if (status >= 400) return 'warning';
-    if (status >= 200 && status < 300) return 'success';
-    return 'default';
+    if (status >= 500) return "error";
+    if (status >= 400) return "warning";
+    if (status >= 200 && status < 300) return "success";
+    return "default";
   };
 
   const formatDetails = (details) => {
     try {
-      if (typeof details === 'string') {
-        details = JSON.parse(details);
+      if (typeof details === "string") {
+        const trimmed = details.trim();
+        // Only parse if the string looks like JSON
+        if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+          details = JSON.parse(trimmed);
+        } else {
+          return trimmed;
+        }
       }
-      
+
       // Handle nested JSON strings (common in responseData)
-      if (details.responseData && typeof details.responseData === 'string') {
-        details = {
-          ...details,
-          responseData: JSON.parse(details.responseData)
-        };
+      if (
+        details &&
+        details.responseData &&
+        typeof details.responseData === "string"
+      ) {
+        const trimmedResponse = details.responseData.trim();
+        if (
+          trimmedResponse.startsWith("{") ||
+          trimmedResponse.startsWith("[")
+        ) {
+          details = {
+            ...details,
+            responseData: JSON.parse(trimmedResponse),
+          };
+        }
       }
-      
+
       return JSON.stringify(details, null, 2);
     } catch (error) {
-      console.error('Error formatting details:', error);
-      return JSON.stringify(details, null, 2); // Fallback to basic formatting
+      console.error("Error formatting details:", error);
+      // Fallback: if details is a string, return it as-is, otherwise stringify it
+      return typeof details === "string"
+        ? details
+        : JSON.stringify(details, null, 2);
     }
   };
 
@@ -54,20 +73,20 @@ const LogEntry = ({ log }) => {
   return (
     <Card sx={{ mb: 2 }}>
       <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
           <Typography variant="body2" color="text.secondary">
             {timestamp}
           </Typography>
           <Box>
-            <Chip 
-              label={log.method} 
-              size="small" 
-              color="primary" 
+            <Chip
+              label={log.method}
+              size="small"
+              color="primary"
               sx={{ mr: 1 }}
             />
-            <Chip 
-              label={`${log.responseStatus}`} 
-              size="small" 
+            <Chip
+              label={`${log.responseStatus}`}
+              size="small"
               color={getStatusColor(log.responseStatus)}
             />
           </Box>
@@ -77,26 +96,18 @@ const LogEntry = ({ log }) => {
           {log.route}
         </Typography>
 
-        <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
+        <Box sx={{ display: "flex", gap: 1, mb: 1 }}>
           {log.user && (
-            <Chip 
-              label={`User: ${getUserDisplay(log.user)}`} 
-              size="small" 
+            <Chip
+              label={`User: ${getUserDisplay(log.user)}`}
+              size="small"
               variant="outlined"
             />
           )}
           {log.role && (
-            <Chip 
-              label={`Role: ${log.role}`} 
-              size="small" 
-              variant="outlined"
-            />
+            <Chip label={`Role: ${log.role}`} size="small" variant="outlined" />
           )}
-          <Chip 
-            label={`IP: ${log.ip}`} 
-            size="small" 
-            variant="outlined"
-          />
+          <Chip label={`IP: ${log.ip}`} size="small" variant="outlined" />
         </Box>
 
         <Accordion>
@@ -110,7 +121,7 @@ const LogEntry = ({ log }) => {
                 <pre>{JSON.stringify(log.query, null, 2)}</pre>
               </Box>
             )}
-            
+
             {log.body && Object.keys(log.body).length > 0 && (
               <Box sx={{ mb: 2 }}>
                 <Typography variant="subtitle2">Request Body:</Typography>
@@ -121,13 +132,15 @@ const LogEntry = ({ log }) => {
             {log.details && (
               <Box>
                 <Typography variant="subtitle2">Response Data:</Typography>
-                <pre style={{ 
-                  maxHeight: '400px', 
-                  overflow: 'auto', 
-                  backgroundColor: '#f5f5f5', 
-                  padding: '8px',
-                  borderRadius: '4px'
-                }}>
+                <pre
+                  style={{
+                    maxHeight: "400px",
+                    overflow: "auto",
+                    backgroundColor: "#f5f5f5",
+                    padding: "8px",
+                    borderRadius: "4px",
+                  }}
+                >
                   {formatDetails(log.details)}
                 </pre>
               </Box>
