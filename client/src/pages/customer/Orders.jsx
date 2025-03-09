@@ -54,16 +54,27 @@ const Orders = () => {
 
   // WebSocket handlers
   const handleOrderUpdated = (updatedOrder) => {
-    const existingOrder = orders.find(
-      (order) => order._id === updatedOrder._id,
-    );
-    if (existingOrder) {
+    // Check if this event indicates a deletion.
+    if (updatedOrder.deletedOrder) {
+      // Extract orderNumber from deletedOrder, fallback to the id if not available.
+      const orderNumber =
+        updatedOrder.deletedOrder.orderNumber || updatedOrder.id;
+      setOrders((prev) =>
+        prev.filter((order) => order._id !== updatedOrder.id),
+      );
+      showNotification(`${orderNumber} deleted`, "info");
+    } else {
+      // Otherwise, it's an update event.
       setOrders((prev) =>
         prev.map((order) =>
           order._id === updatedOrder._id ? updatedOrder : order,
         ),
       );
-      if (existingOrder.status !== updatedOrder.status) {
+      // Optionally show a notification if the status changed.
+      const existingOrder = orders.find(
+        (order) => order._id === updatedOrder._id,
+      );
+      if (existingOrder && existingOrder.status !== updatedOrder.status) {
         showNotification(
           `${updatedOrder.orderNumber} status changed to ${updatedOrder.status}`,
           "info",

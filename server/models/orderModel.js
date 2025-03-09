@@ -23,9 +23,15 @@ const orderSchema = new mongoose.Schema({
     },
   },
   customer: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
+    id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    displayName: {
+      type: String,
+      required: true,
+    },
   },
   products: [orderItemSchema],
   totalPrice: {

@@ -8,10 +8,8 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  IconButton,
   Typography,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
 
 const OrderForm = ({ order, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -21,18 +19,40 @@ const OrderForm = ({ order, onSubmit, onCancel }) => {
     orderItems: [], // each item: { product: "", quantity: "" }
   });
 
+  // Helper function to recalculate total price based on orderItems.
+  const recalcTotalPrice = (orderItems) => {
+    let total = 0;
+    orderItems.forEach((item) => {
+      const qty = parseFloat(item.quantity) || 0;
+      // If item.product is an object with a price property, use it; otherwise, assume price is 0.
+      const price =
+        typeof item.product === "object" && item.product.price
+          ? parseFloat(item.product.price)
+          : 0;
+      total += qty * price;
+    });
+    return total.toFixed(2);
+  };
+
   useEffect(() => {
     if (order) {
+      const initialOrderItems = order.products
+        ? order.products.map((item) => ({
+            product: item.product, // expecting an object
+            quantity: item.quantity,
+          }))
+        : [];
       setFormData({
-        customer: order.customer || "",
-        totalPrice: order.totalPrice || "",
+        // Use displayName for customer if available.
+        customer:
+          order.customer && order.customer.displayName
+            ? order.customer.displayName
+            : order.customer || "",
+        totalPrice: order.totalPrice
+          ? order.totalPrice.toString()
+          : recalcTotalPrice(initialOrderItems),
         status: order.status || "Pending",
-        orderItems: order.products
-          ? order.products.map((item) => ({
-              product: item.product,
-              quantity: item.quantity,
-            }))
-          : [],
+        orderItems: initialOrderItems,
       });
     } else {
       setFormData({
@@ -46,36 +66,34 @@ const OrderForm = ({ order, onSubmit, onCancel }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    // Only update fields that are editable (status).
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleItemChange = (index, field, value) => {
     const newItems = [...formData.orderItems];
     newItems[index][field] = value;
-    setFormData((prev) => ({ ...prev, orderItems: newItems }));
-  };
-
-  const addOrderItem = () => {
+    // Recalculate the total price based on new order items.
+    const newTotal = recalcTotalPrice(newItems);
     setFormData((prev) => ({
       ...prev,
-      orderItems: [...prev.orderItems, { product: "", quantity: "" }],
-    }));
-  };
-
-  const removeOrderItem = (index) => {
-    setFormData((prev) => ({
-      ...prev,
-      orderItems: prev.orderItems.filter((_, i) => i !== index),
+      orderItems: newItems,
+      totalPrice: newTotal,
     }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const submitData = {
-      ...formData,
+      // Total price is recalculated on the frontend.
       totalPrice: parseFloat(formData.totalPrice),
+      status: formData.status,
       products: formData.orderItems.map((item) => ({
-        product: item.product,
+        // If item.product is an object, send its _id; otherwise, assume it's already an ID.
+        product:
+          typeof item.product === "object" && item.product._id
+            ? item.product._id
+            : item.product,
         quantity: parseInt(item.quantity, 10),
       })),
     };
@@ -84,27 +102,19 @@ const OrderForm = ({ order, onSubmit, onCancel }) => {
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
-      <TextField
-        label="Customer ID"
-        name="customer"
-        variant="outlined"
-        fullWidth
-        margin="normal"
-        value={formData.customer}
-        onChange={handleChange}
-        required
-      />
-      <TextField
-        label="Total Price"
-        name="totalPrice"
-        variant="outlined"
-        fullWidth
-        margin="normal"
-        type="number"
-        value={formData.totalPrice}
-        onChange={handleChange}
-        required
-      />
+      {/* Read-only display fields */}
+      <Box sx={{ my: 1 }}>
+        <Typography variant="subtitle1">
+          <strong>Customer:</strong> {formData.customer}
+        </Typography>
+      </Box>
+      <Box sx={{ my: 1 }}>
+        <Typography variant="subtitle1">
+          <strong>Total Price:</strong> ${formData.totalPrice}
+        </Typography>
+      </Box>
+
+      {/* Editable status field */}
       <FormControl variant="outlined" fullWidth margin="normal">
         <InputLabel id="status-label">Status</InputLabel>
         <Select
@@ -121,6 +131,8 @@ const OrderForm = ({ order, onSubmit, onCancel }) => {
           <MenuItem value="Cancelled">Cancelled</MenuItem>
         </Select>
       </FormControl>
+
+      {/* Order Items */}
       <Box sx={{ mt: 2 }}>
         <Typography variant="h6">Order Items</Typography>
         {formData.orderItems.map((item, index) => (
@@ -131,17 +143,13 @@ const OrderForm = ({ order, onSubmit, onCancel }) => {
             key={index}
             sx={{ mt: 1 }}
           >
-            <Grid item xs={5}>
-              <TextField
-                label="Product ID"
-                variant="outlined"
-                fullWidth
-                value={item.product}
-                onChange={(e) =>
-                  handleItemChange(index, "product", e.target.value)
-                }
-                required
-              />
+            <Grid item xs={7}>
+              {/* Display product name as read-only */}
+              <Typography variant="body1">
+                {typeof item.product === "object" && item.product.name
+                  ? item.product.name
+                  : item.product}
+              </Typography>
             </Grid>
             <Grid item xs={5}>
               <TextField
@@ -156,17 +164,10 @@ const OrderForm = ({ order, onSubmit, onCancel }) => {
                 required
               />
             </Grid>
-            <Grid item xs={2}>
-              <IconButton onClick={() => removeOrderItem(index)} color="error">
-                <DeleteIcon />
-              </IconButton>
-            </Grid>
           </Grid>
         ))}
-        <Button onClick={addOrderItem} variant="outlined" sx={{ mt: 1 }}>
-          Add Order Item
-        </Button>
       </Box>
+
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
         <Button onClick={onCancel} sx={{ mr: 1 }}>
           Cancel

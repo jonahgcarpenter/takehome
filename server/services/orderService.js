@@ -103,48 +103,50 @@ async function updateOrder(orderId, updatedData) {
       throw new Error("Order not found");
     }
 
-    // Build lookup maps for existing and updated products
-    const oldProducts = {};
-    existingOrder.products.forEach((item) => {
-      oldProducts[item.product.toString()] = item.quantity;
-    });
-    const newProducts = {};
-    updatedData.products.forEach((item) => {
-      newProducts[item.product] = item.quantity;
-    });
+    // Only update product stock if updatedData.products is provided
+    if (updatedData.products) {
+      // Build lookup maps for existing and updated products
+      const oldProducts = {};
+      existingOrder.products.forEach((item) => {
+        oldProducts[item.product.toString()] = item.quantity;
+      });
+      const newProducts = {};
+      updatedData.products.forEach((item) => {
+        newProducts[item.product] = item.quantity;
+      });
 
-    // Create a set of all product IDs involved in the change
-    const productIds = new Set([
-      ...Object.keys(oldProducts),
-      ...Object.keys(newProducts),
-    ]);
+      // Create a set of all product IDs involved in the change
+      const productIds = new Set([
+        ...Object.keys(oldProducts),
+        ...Object.keys(newProducts),
+      ]);
 
-    // Adjust product quantities based on differences
-    for (const prodId of productIds) {
-      const product = await Product.findById(prodId).session(session);
-      if (!product) {
-        throw new Error(`Product with id ${prodId} not found`);
-      }
-
-      const oldQty = oldProducts[prodId] || 0;
-      const newQty = newProducts[prodId] || 0;
-      const diff = newQty - oldQty; // positive: additional units required, negative: units to be returned
-
-      if (diff > 0) {
-        // Ensure there is enough stock for the additional units
-        if (product.quantity < diff) {
-          throw new Error(`Not enough stock for product: ${product.name}`);
+      // Adjust product quantities based on differences
+      for (const prodId of productIds) {
+        const product = await Product.findById(prodId).session(session);
+        if (!product) {
+          throw new Error(`Product with id ${prodId} not found`);
         }
-        product.quantity -= diff;
-      } else if (diff < 0) {
-        // Return stock for reduced quantity
-        product.quantity += Math.abs(diff);
+
+        const oldQty = oldProducts[prodId] || 0;
+        const newQty = newProducts[prodId] || 0;
+        const diff = newQty - oldQty; // positive: additional units required, negative: units to be returned
+
+        if (diff > 0) {
+          if (product.quantity < diff) {
+            throw new Error(`Not enough stock for product: ${product.name}`);
+          }
+          product.quantity -= diff;
+        } else if (diff < 0) {
+          product.quantity += Math.abs(diff);
+        }
+        await product.save({ session });
       }
-      await product.save({ session });
+      // Update the order's products field if provided
+      existingOrder.products = updatedData.products;
     }
 
-    // Update order's products and any other fields in updatedData (except products)
-    existingOrder.products = updatedData.products;
+    // Update other fields in updatedData
     for (const key in updatedData) {
       if (key !== "products") {
         existingOrder[key] = updatedData[key];

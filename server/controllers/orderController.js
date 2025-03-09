@@ -42,17 +42,18 @@ exports.getOrderById = async (req, res) => {
 // Create a new order
 exports.createOrder = async (req, res) => {
   try {
-    const customer = req.user?._id;
     const orderData = req.body;
-    if (customer) {
-      orderData.customer = customer;
+    if (req.user) {
+      orderData.customer = {
+        id: req.user._id,
+        displayName: req.user.displayName,
+      };
     }
     const newOrder = await orderService.createOrder(orderData);
 
     // Emit event via WebSocket
     const io = req.app.get("socketio");
     io.emit("orders-updated", newOrder);
-
     io.emit("products-updated");
 
     return res.status(201).json(newOrder);
@@ -120,7 +121,7 @@ exports.deleteOrderById = async (req, res) => {
 exports.getMyOrders = async (req, res) => {
   try {
     // req.user is assumed to be set by your authentication middleware
-    const orders = await Order.find({ customer: req.user._id }).populate(
+    const orders = await Order.find({ "customer.id": req.user._id }).populate(
       "products.product",
       "name price",
     );

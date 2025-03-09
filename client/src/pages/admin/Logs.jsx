@@ -24,7 +24,15 @@ import {
 } from "@mui/material";
 
 const Logs = () => {
-  const { logs, loading, error, fetchLogs, fetchLogsByUser, fetchLogsByRole, clearLogs } = useLogs();
+  const {
+    logs,
+    loading,
+    error,
+    fetchLogs,
+    fetchLogsByUser,
+    fetchLogsByRole,
+    clearLogs,
+  } = useLogs();
   const [filterUser, setFilterUser] = useState("All");
   const [filterRole, setFilterRole] = useState("All");
   const [isFiltered, setIsFiltered] = useState(false);
@@ -34,7 +42,7 @@ const Logs = () => {
   const handleRoleChange = (e) => {
     const newRole = e.target.value;
     setFilterRole(newRole);
-    
+
     if (newRole === "All") {
       resetFilters();
     } else {
@@ -46,7 +54,7 @@ const Logs = () => {
   const handleUserChange = (e) => {
     const userId = e.target.value;
     setFilterUser(userId);
-    
+
     if (userId === "All") {
       resetFilters();
     } else {
@@ -79,27 +87,39 @@ const Logs = () => {
   };
 
   useEffect(() => {
-    const uniqueUsers = [...new Set(logs.map(log => {
-      if (log.user && typeof log.user === 'object') {
-        return JSON.stringify({ id: log.user.id, displayName: log.user.displayName });
-      }
-      return null;
-    }).filter(Boolean))].map(userStr => JSON.parse(userStr));
+    const uniqueUsers = [
+      ...new Set(
+        logs
+          .map((log) => {
+            if (log.user && typeof log.user === "object") {
+              return JSON.stringify({
+                id: log.user.id,
+                displayName: log.user.displayName,
+              });
+            }
+            return null;
+          })
+          .filter(Boolean),
+      ),
+    ].map((userStr) => JSON.parse(userStr));
 
     setAvailableUsers(uniqueUsers);
   }, [logs]);
 
   // Handle real-time log updates
-  const handleLogsUpdated = useCallback((newLog) => {
-    if (!isFiltered) {
-      fetchLogs();
-    } else if (
-      (filterRole !== "All" && newLog.role === filterRole) ||
-      (filterUser !== "All" && newLog.user?.id === filterUser)
-    ) {
-      fetchLogsByUser(filterUser);
-    }
-  }, [isFiltered, filterRole, filterUser, fetchLogs, fetchLogsByUser]);
+  const handleLogsUpdated = useCallback(
+    (newLog) => {
+      if (!isFiltered) {
+        fetchLogs();
+      } else if (
+        (filterRole !== "All" && newLog.role === filterRole) ||
+        (filterUser !== "All" && newLog.user?.id === filterUser)
+      ) {
+        fetchLogsByUser(filterUser);
+      }
+    },
+    [isFiltered, filterRole, filterUser, fetchLogs, fetchLogsByUser],
+  );
 
   // Initialize websocket connection
   useLogSocket({
@@ -109,10 +129,15 @@ const Logs = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
-        <Typography variant="h4" gutterBottom sx={{ mb: 3, fontWeight: 500 }}>
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{ mb: 3, fontWeight: 500, color: "primary.main" }}
+        >
           Logs
         </Typography>
-        
+        <Divider sx={{ mb: 3 }} />
+
         <Box sx={{ mb: 4 }}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={4}>
@@ -149,12 +174,17 @@ const Logs = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={4} sx={{ display: 'flex', alignItems: 'center' }}>
+            <Grid
+              item
+              xs={12}
+              md={4}
+              sx={{ display: "flex", alignItems: "center" }}
+            >
               <Button
                 fullWidth
                 variant="outlined"
                 onClick={resetFilters}
-                sx={{ height: '56px' }}
+                sx={{ height: "56px" }}
               >
                 Reset All Filters
               </Button>
@@ -163,14 +193,14 @@ const Logs = () => {
         </Box>
 
         <Box sx={{ mb: 3 }}>
-          <Button 
-            variant="contained" 
-            color="error" 
+          <Button
+            variant="contained"
+            color="error"
             onClick={handleClearClick}
             sx={{
               px: 4,
               py: 1,
-              borderRadius: 2
+              borderRadius: 2,
             }}
           >
             Clear All Logs
@@ -184,24 +214,28 @@ const Logs = () => {
             <CircularProgress />
           </Box>
         )}
-        
+
         {error && (
           <Alert severity="error" sx={{ my: 3 }}>
             {error}
           </Alert>
         )}
-        
+
         {!loading && logs.length === 0 && !error && (
-          <Typography sx={{ textAlign: 'center', color: 'text.secondary', my: 4 }}>
+          <Typography
+            sx={{ textAlign: "center", color: "text.secondary", my: 4 }}
+          >
             No logs found.
           </Typography>
         )}
-        
-        <Box sx={{ 
-          backgroundColor: 'background.default', 
-          borderRadius: 1,
-          py: 2
-        }}>
+
+        <Box
+          sx={{
+            backgroundColor: "background.default",
+            borderRadius: 1,
+            py: 2,
+          }}
+        >
           {logs.map((log) => (
             <LogEntry key={log._id || log.id} log={log} />
           ))}
@@ -214,12 +248,11 @@ const Logs = () => {
         aria-labelledby="clear-dialog-title"
         aria-describedby="clear-dialog-description"
       >
-        <DialogTitle id="clear-dialog-title">
-          Confirm Clear Logs
-        </DialogTitle>
+        <DialogTitle id="clear-dialog-title">Confirm Clear Logs</DialogTitle>
         <DialogContent>
           <DialogContentText id="clear-dialog-description">
-            Are you sure you want to clear all logs? This action cannot be undone.
+            Are you sure you want to clear all logs? This action cannot be
+            undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>

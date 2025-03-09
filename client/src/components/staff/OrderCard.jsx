@@ -6,67 +6,141 @@ import {
   CardActions,
   Typography,
   Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
+  Grid,
+  Box,
+  Chip,
 } from "@mui/material";
 
-const OrderCard = ({ order, onUpdateStatus, onDelete, onEdit }) => {
-  const handleStatusChange = (e) => {
-    onUpdateStatus(order._id || order.id, e.target.value);
+const getStatusColor = (status) => {
+  const statusMap = {
+    pending: "warning",
+    processing: "info",
+    shipped: "primary",
+    delivered: "success",
+    cancelled: "error",
+    default: "default",
   };
+  return statusMap[status?.toLowerCase()] || statusMap.default;
+};
 
+const formatPrice = (price) => {
+  return typeof price === "number" ? price.toFixed(2) : "0.00";
+};
+
+const formatDate = (dateString) => {
+  const options = {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  };
+  try {
+    return new Date(dateString).toLocaleString("en-US", options);
+  } catch (e) {
+    return dateString;
+  }
+};
+
+const OrderCard = ({ order, onDelete, onEdit }) => {
   return (
-    <Card sx={{ marginBottom: 2 }}>
+    <Card
+      sx={{
+        borderRadius: 2,
+        boxShadow: 2,
+        "&:hover": { boxShadow: 3 },
+        transition: "box-shadow 0.3s ease-in-out",
+        mb: 2,
+      }}
+    >
       <CardHeader
-        title={`Order ${order.orderNumber || `#${order._id || order.id}`}`}
-        subheader={`Placed on ${new Date(order.createdAt).toLocaleString()}`}
-      />
-      <CardContent>
-        <Typography variant="body2">
-          <strong>Customer:</strong> {order.customer}
-        </Typography>
-        <Typography variant="body2">
-          <strong>Total Price:</strong> ${order.totalPrice}
-        </Typography>
-        <Typography variant="body2">
-          <strong>Status:</strong> {order.status}
-        </Typography>
-        {order.products && order.products.length > 0 && (
-          <div>
-            <Typography variant="subtitle2" sx={{ mt: 1 }}>
-              Products:
+        title={
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <Typography variant="h6">{order.orderNumber}</Typography>
+            <Chip
+              label={order.status}
+              color={getStatusColor(order.status)}
+              size="small"
+              sx={{ fontWeight: "medium" }}
+            />
+          </Box>
+        }
+        subheader={
+          <>
+            <Typography variant="body2" color="text.secondary">
+              Created: {formatDate(order.createdAt)}
             </Typography>
-            {order.products.map((item, idx) => (
-              <Typography variant="body2" key={idx}>
-                - {item.product.name} (x{item.quantity})
-              </Typography>
-            ))}
-          </div>
-        )}
-        <Typography variant="body2" sx={{ mt: 1 }}>
-          <strong>Last Updated:</strong>{" "}
-          {new Date(order.updatedAt).toLocaleString()}
+            <Typography variant="body2" color="text.secondary">
+              Updated: {formatDate(order.updatedAt)}
+            </Typography>
+          </>
+        }
+        sx={{
+          bgcolor: "background.paper",
+          borderBottom: 1,
+          borderColor: "divider",
+        }}
+      />
+
+      <CardContent sx={{ pt: 3 }}>
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          <strong>Customer:</strong>{" "}
+          {order.customer && order.customer.displayName
+            ? order.customer.displayName
+            : order.customer}
         </Typography>
+        <Grid container spacing={2}>
+          {order.products?.map((item, idx) => (
+            <Grid item xs={12} key={idx}>
+              <Box
+                sx={{
+                  p: 2,
+                  bgcolor: "background.default",
+                  borderRadius: 1,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Box>
+                  <Typography variant="subtitle2">
+                    {item.product.name}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Quantity: {item.quantity} <br />
+                    Price per unit: ${item.product.price}
+                  </Typography>
+                </Box>
+                <Typography variant="subtitle2" color="primary.main">
+                  Cost: ${formatPrice(item.product.price * item.quantity)}
+                </Typography>
+              </Box>
+            </Grid>
+          ))}
+        </Grid>
+        <Box
+          sx={{
+            mt: 3,
+            pt: 2,
+            borderTop: 1,
+            borderColor: "divider",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Typography variant="subtitle1">Total Amount:</Typography>
+          <Typography
+            variant="h6"
+            color="primary.main"
+            sx={{ fontWeight: "bold" }}
+          >
+            ${formatPrice(order.totalPrice)}
+          </Typography>
+        </Box>
       </CardContent>
       <CardActions>
-        <FormControl variant="outlined" size="small">
-          <InputLabel id={`order-status-label-${order._id || order.id}`}>
-            Status
-          </InputLabel>
-          <Select
-            labelId={`order-status-label-${order._id || order.id}`}
-            value={order.status}
-            onChange={handleStatusChange}
-            label="Status"
-          >
-            <MenuItem value="Pending">Pending</MenuItem>
-            <MenuItem value="Processing">Processing</MenuItem>
-            <MenuItem value="Completed">Completed</MenuItem>
-            <MenuItem value="Cancelled">Cancelled</MenuItem>
-          </Select>
-        </FormControl>
         <Button size="small" onClick={onEdit}>
           Edit
         </Button>

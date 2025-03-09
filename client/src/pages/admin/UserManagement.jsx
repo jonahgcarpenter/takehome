@@ -16,6 +16,7 @@ import {
   DialogContentText,
   Button,
   Paper,
+  Divider,
 } from "@mui/material";
 
 const UserManagement = () => {
@@ -102,10 +103,14 @@ const UserManagement = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
-        <Typography variant="h4" gutterBottom sx={{ mb: 3, fontWeight: 500 }}>
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{ mb: 3, fontWeight: 500, color: "primary.main" }}
+        >
           User Management
         </Typography>
-
+        <Divider sx={{ mb: 3 }} />
         {loading && (
           <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
             <CircularProgress />
