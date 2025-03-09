@@ -11,8 +11,11 @@ const logSchema = new mongoose.Schema({
     required: true,
   },
   user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    displayName: String,
   },
   role: {
     type: String,

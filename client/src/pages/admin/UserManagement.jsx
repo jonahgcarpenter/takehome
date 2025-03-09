@@ -15,6 +15,7 @@ import {
   DialogActions,
   DialogContentText,
   Button,
+  Paper,
 } from "@mui/material";
 
 const UserManagement = () => {
@@ -93,34 +94,44 @@ const UserManagement = () => {
   };
 
   return (
-    <Container sx={{ marginTop: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        User Management
-      </Typography>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
+        <Typography variant="h4" gutterBottom sx={{ mb: 3, fontWeight: 500 }}>
+          User Management
+        </Typography>
 
-      {loading && (
-        <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
-          <CircularProgress />
+        {loading && (
+          <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+            <CircularProgress />
+          </Box>
+        )}
+        {error && (
+          <Alert severity="error" sx={{ my: 3 }}>
+            {error}
+          </Alert>
+        )}
+        {!loading && !error && users.length === 0 && (
+          <Typography sx={{ textAlign: 'center', color: 'text.secondary', my: 4 }}>
+            No users found.
+          </Typography>
+        )}
+        <Box sx={{ 
+          backgroundColor: 'background.default',
+          borderRadius: 1,
+          py: 2,
+          '& > *': { mb: 2 },
+          '& > *:last-child': { mb: 0 }
+        }}>
+          {users.map((user) => (
+            <UserCard
+              key={user._id || user.id}
+              user={user}
+              onUpdateRole={handleUpdateRole}
+              onDelete={handleDeleteClick}
+            />
+          ))}
         </Box>
-      )}
-      {error && (
-        <Alert severity="error" sx={{ my: 2 }}>
-          {error}
-        </Alert>
-      )}
-      {!loading && !error && users.length === 0 && (
-        <Typography>No users found.</Typography>
-      )}
-      <Box>
-        {users.map((user) => (
-          <UserCard
-            key={user._id || user.id}
-            user={user}
-            onUpdateRole={handleUpdateRole}
-            onDelete={handleDeleteClick}
-          />
-        ))}
-      </Box>
+      </Paper>
 
       <Dialog
         open={deleteDialog.open}

@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import LogEntry from "../../components/admin/LogEntry";
 import useLogs from "../../hooks/api/useLogs";
 import useLogSocket from "../../hooks/websockets/useLogSockets";
 import {
   Container,
   Typography,
-  TextField,
   Button,
   Grid,
   Box,
@@ -15,40 +14,22 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Snackbar,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Divider,
+  Paper,
 } from "@mui/material";
 
 const Logs = () => {
-  const [filterUser, setFilterUser] = useState("");
+  const { logs, loading, error, fetchLogs, fetchLogsByUser, fetchLogsByRole, clearLogs } = useLogs();
+  const [filterUser, setFilterUser] = useState("All");
   const [filterRole, setFilterRole] = useState("All");
   const [isFiltered, setIsFiltered] = useState(false);
-  const [notification, setNotification] = useState({
-    open: false,
-    message: "",
-    type: "info",
-  });
-
-  const {
-    logs,
-    setLogs,
-    loading,
-    error,
-    fetchLogs,
-    fetchLogsByUser,
-    fetchLogsByRole,
-    clearLogs,
-  } = useLogs();
-
-  const {
-    notification: socketNotification,
-    handleCloseNotification: handleCloseSocketNotification,
-  } = useLogSocket({
-    logs,
-    setLogs,
-    isFiltered,
-    filterUser,
-    filterRole,
-  });
+  const [availableUsers, setAvailableUsers] = useState([]);
+  const [clearDialog, setClearDialog] = useState(false);
 
   const handleRoleChange = (e) => {
     const newRole = e.target.value;
@@ -62,123 +43,194 @@ const Logs = () => {
     }
   };
 
-  const handleUserFilterSubmit = (e) => {
-    e.preventDefault();
-    if (filterUser) {
-      fetchLogsByUser(filterUser);
+  const handleUserChange = (e) => {
+    const userId = e.target.value;
+    setFilterUser(userId);
+    
+    if (userId === "All") {
+      resetFilters();
+    } else {
+      fetchLogsByUser(userId);
       setIsFiltered(true);
     }
   };
 
   const resetFilters = () => {
-    setFilterUser("");
+    setFilterUser("All");
     setFilterRole("All");
     setIsFiltered(false);
     fetchLogs();
   };
 
-  const handleClearLogs = async () => {
-    if (!window.confirm("Are you sure you want to clear all logs?")) return;
-    await clearLogs();
+  const handleClearClick = () => {
+    setClearDialog(true);
   };
 
+  const handleClearCancel = () => {
+    setClearDialog(false);
+  };
+
+  const handleClearConfirm = async () => {
+    try {
+      await clearLogs();
+    } finally {
+      setClearDialog(false);
+    }
+  };
+
+  useEffect(() => {
+    const uniqueUsers = [...new Set(logs.map(log => {
+      if (log.user && typeof log.user === 'object') {
+        return JSON.stringify({ id: log.user.id, displayName: log.user.displayName });
+      }
+      return null;
+    }).filter(Boolean))].map(userStr => JSON.parse(userStr));
+
+    setAvailableUsers(uniqueUsers);
+  }, [logs]);
+
+  // Handle real-time log updates
+  const handleLogsUpdated = useCallback((newLog) => {
+    if (!isFiltered) {
+      fetchLogs();
+    } else if (
+      (filterRole !== "All" && newLog.role === filterRole) ||
+      (filterUser !== "All" && newLog.user?.id === filterUser)
+    ) {
+      fetchLogsByUser(filterUser);
+    }
+  }, [isFiltered, filterRole, filterUser, fetchLogs, fetchLogsByUser]);
+
+  // Initialize websocket connection
+  useLogSocket({
+    onLogsUpdated: handleLogsUpdated,
+  });
+
   return (
-    <Container sx={{ marginTop: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        Logs
-      </Typography>
-      <Box sx={{ mb: 2 }}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} sm={6}>
-            <FormControl fullWidth variant="outlined">
-              <InputLabel id="filter-role-label">Filter by Role</InputLabel>
-              <Select
-                labelId="filter-role-label"
-                label="Filter by Role"
-                value={filterRole}
-                onChange={handleRoleChange}
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
+        <Typography variant="h4" gutterBottom sx={{ mb: 3, fontWeight: 500 }}>
+          Logs
+        </Typography>
+        
+        <Box sx={{ mb: 4 }}>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={4}>
+              <FormControl fullWidth variant="outlined">
+                <InputLabel id="filter-role-label">Filter by Role</InputLabel>
+                <Select
+                  labelId="filter-role-label"
+                  label="Filter by Role"
+                  value={filterRole}
+                  onChange={handleRoleChange}
+                >
+                  <MenuItem value="All">All</MenuItem>
+                  <MenuItem value="Admin">Admin</MenuItem>
+                  <MenuItem value="Staff">Staff</MenuItem>
+                  <MenuItem value="Customer">Customer</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <FormControl fullWidth variant="outlined">
+                <InputLabel id="filter-user-label">Filter by User</InputLabel>
+                <Select
+                  labelId="filter-user-label"
+                  label="Filter by User"
+                  value={filterUser}
+                  onChange={handleUserChange}
+                >
+                  <MenuItem value="All">All Users</MenuItem>
+                  {availableUsers.map((user) => (
+                    <MenuItem key={user.id} value={user.id}>
+                      {user.displayName}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={4} sx={{ display: 'flex', alignItems: 'center' }}>
+              <Button
+                fullWidth
+                variant="outlined"
+                onClick={resetFilters}
+                sx={{ height: '56px' }}
               >
-                <MenuItem value="All">All</MenuItem>
-                <MenuItem value="Admin">Admin</MenuItem>
-                <MenuItem value="Staff">Staff</MenuItem>
-                <MenuItem value="Customer">Customer</MenuItem>
-              </Select>
-            </FormControl>
+                Reset All Filters
+              </Button>
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <Button
-              type="button"
-              variant="outlined"
-              onClick={resetFilters}
-            >
-              Reset All Filters
-            </Button>
-          </Grid>
-        </Grid>
-      </Box>
-
-      <Box component="form" onSubmit={handleUserFilterSubmit} sx={{ mb: 2 }}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} sm={6}>
-            <TextField
-              label="Filter by User ID"
-              variant="outlined"
-              fullWidth
-              value={filterUser}
-              onChange={(e) => setFilterUser(e.target.value)}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              disabled={!filterUser}
-            >
-              Apply User Filter
-            </Button>
-          </Grid>
-        </Grid>
-      </Box>
-      <Box sx={{ mb: 2 }}>
-        <Button variant="contained" color="error" onClick={handleClearLogs}>
-          Clear All Logs
-        </Button>
-      </Box>
-      {loading && (
-        <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
-          <CircularProgress />
         </Box>
-      )}
-      {error && (
-        <Alert severity="error" sx={{ my: 2 }}>
-          {error}
-        </Alert>
-      )}
-      {!loading && logs.length === 0 && !error && (
-        <Typography>No logs found.</Typography>
-      )}
-      <Box>
-        {logs.map((log) => (
-          <LogEntry key={log._id || log.id} log={log} />
-        ))}
-      </Box>
 
-      {/* Notification for real-time updates */}
-      <Snackbar
-        open={notification.open}
-        autoHideDuration={5000}
-        onClose={handleCloseSocketNotification}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        <Box sx={{ mb: 3 }}>
+          <Button 
+            variant="contained" 
+            color="error" 
+            onClick={handleClearClick}
+            sx={{
+              px: 4,
+              py: 1,
+              borderRadius: 2
+            }}
+          >
+            Clear All Logs
+          </Button>
+        </Box>
+
+        <Divider sx={{ mb: 4 }} />
+
+        {loading && (
+          <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+            <CircularProgress />
+          </Box>
+        )}
+        
+        {error && (
+          <Alert severity="error" sx={{ my: 3 }}>
+            {error}
+          </Alert>
+        )}
+        
+        {!loading && logs.length === 0 && !error && (
+          <Typography sx={{ textAlign: 'center', color: 'text.secondary', my: 4 }}>
+            No logs found.
+          </Typography>
+        )}
+        
+        <Box sx={{ 
+          backgroundColor: 'background.default', 
+          borderRadius: 1,
+          py: 2
+        }}>
+          {logs.map((log) => (
+            <LogEntry key={log._id || log.id} log={log} />
+          ))}
+        </Box>
+      </Paper>
+
+      <Dialog
+        open={clearDialog}
+        onClose={handleClearCancel}
+        aria-labelledby="clear-dialog-title"
+        aria-describedby="clear-dialog-description"
       >
-        <Alert
-          onClose={handleCloseSocketNotification}
-          severity={notification.type}
-          sx={{ width: "100%" }}
-        >
-          {notification.message}
-        </Alert>
-      </Snackbar>
+        <DialogTitle id="clear-dialog-title">
+          Confirm Clear Logs
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="clear-dialog-description">
+            Are you sure you want to clear all logs? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClearCancel} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleClearConfirm} color="error" autoFocus>
+            Clear All Logs
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

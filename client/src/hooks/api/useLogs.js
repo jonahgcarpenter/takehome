@@ -5,9 +5,6 @@ const useLogs = () => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [filterUser, setFilterUser] = useState("");
-  const [filterRole, setFilterRole] = useState("All");
-  const [isFiltered, setIsFiltered] = useState(false);
 
   // Fetch all logs (Admin only)
   const fetchLogs = async () => {
@@ -65,47 +62,18 @@ const useLogs = () => {
     }
   };
 
-  const applyFilters = useCallback((filterData) => {
-    const { user, role } = filterData;
-    if (user) {
-      fetchLogsByUser(user);
-      setIsFiltered(true);
-    } else if (role !== "All") {
-      fetchLogsByRole(role);
-      setIsFiltered(true);
-    } else {
-      fetchLogs();
-      setIsFiltered(false);
-    }
-  }, []);
-
-  const resetFilters = useCallback(() => {
-    setFilterUser("");
-    setFilterRole("All");
-    setIsFiltered(false);
-    fetchLogs();
-  }, []);
-
   useEffect(() => {
     fetchLogs();
   }, []);
 
   return {
     logs,
-    setLogs,
     loading,
     error,
-    filterUser,
-    setFilterUser,
-    filterRole,
-    setFilterRole,
-    isFiltered,
     fetchLogs: useCallback(fetchLogs, []),
     fetchLogsByUser: useCallback(fetchLogsByUser, []),
     fetchLogsByRole: useCallback(fetchLogsByRole, []),
     clearLogs: useCallback(clearLogs, []),
-    applyFilters,
-    resetFilters,
   };
 };
 

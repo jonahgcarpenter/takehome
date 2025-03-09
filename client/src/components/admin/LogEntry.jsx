@@ -43,6 +43,14 @@ const LogEntry = ({ log }) => {
     }
   };
 
+  const getUserDisplay = (user) => {
+    if (!user) return "Unknown User";
+    if (typeof user === "object" && user.displayName) {
+      return user.displayName;
+    }
+    return user;
+  };
+
   return (
     <Card sx={{ mb: 2 }}>
       <CardContent>
@@ -72,7 +80,7 @@ const LogEntry = ({ log }) => {
         <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
           {log.user && (
             <Chip 
-              label={`User: ${log.user}`} 
+              label={`User: ${getUserDisplay(log.user)}`} 
               size="small" 
               variant="outlined"
             />

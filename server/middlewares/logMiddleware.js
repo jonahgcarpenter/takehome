@@ -11,9 +11,11 @@ const logMiddleware = async (req, res, next) => {
   const logEntry = new Log({
     method: req.method,
     route: req.originalUrl,
-    user: req.user ? req.user._id : null,
-    role:
-      req.user && req.user.role ? req.user.role.name || req.user.role : null,
+    user: req.user ? {
+      id: req.user._id,
+      displayName: req.user.displayName
+    } : null,
+    role: req.user && req.user.role ? req.user.role.name || req.user.role : null,
     ip: req.ip,
     headers: req.headers,
     query: req.query,
@@ -33,8 +35,8 @@ const logMiddleware = async (req, res, next) => {
         // Access the Socket.io instance from the app
         const io = req.app.get("socketio");
         if (io) {
-          // Emit the 'log-created' event with the new log entry
-          io.emit("log-created", savedLog);
+          // Emit via websocket
+          io.emit("logs-updated", savedLog);
         }
       })
       .catch((err) => console.error("Error saving log entry:", err));

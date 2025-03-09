@@ -18,8 +18,8 @@ exports.getLogs = async (req, res) => {
 exports.getLogsByUser = async (req, res) => {
   try {
     const userId = req.params.id;
-    // Find logs where the 'user' field matches the provided user ID.
-    const logs = await Log.find({ user: userId }).sort({ timestamp: -1 });
+    // Find logs where the 'user.id' field matches the provided user ID.
+    const logs = await Log.find({ 'user.id': userId }).sort({ timestamp: -1 });
     res.status(200).json(logs);
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
@@ -49,7 +49,7 @@ exports.clearLogs = async (req, res) => {
 
     // Emit event via WebSocket
     const io = req.app.get("socketio");
-    io.emit("logs-cleared", { message: "All logs cleared" });
+    io.emit("logs-updated", { message: "All logs cleared" });
 
     res.status(200).json({ message: "All logs cleared" });
   } catch (error) {
