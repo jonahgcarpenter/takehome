@@ -128,7 +128,15 @@ const Logs = () => {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
+      <Paper
+        elevation={2}
+        sx={{
+          p: 3,
+          mb: 4,
+          backgroundColor: "#2C2C2C",
+          color: "#eee",
+        }}
+      >
         <Typography
           variant="h4"
           gutterBottom
@@ -136,18 +144,30 @@ const Logs = () => {
         >
           Logs
         </Typography>
-        <Divider sx={{ mb: 3 }} />
+        <Divider sx={{ mb: 3, borderColor: "#444" }} />
 
         <Box sx={{ mb: 4 }}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={4}>
-              <FormControl fullWidth variant="outlined">
-                <InputLabel id="filter-role-label">Filter by Role</InputLabel>
+              <FormControl
+                fullWidth
+                variant="outlined"
+                sx={{ backgroundColor: "#333", borderRadius: 1 }}
+              >
+                <InputLabel id="filter-role-label" sx={{ color: "#eee" }}>
+                  Filter by Role
+                </InputLabel>
                 <Select
                   labelId="filter-role-label"
                   label="Filter by Role"
                   value={filterRole}
                   onChange={handleRoleChange}
+                  sx={{
+                    color: "#eee",
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#444",
+                    },
+                  }}
                 >
                   <MenuItem value="All">All</MenuItem>
                   <MenuItem value="Admin">Admin</MenuItem>
@@ -157,13 +177,25 @@ const Logs = () => {
               </FormControl>
             </Grid>
             <Grid item xs={12} md={4}>
-              <FormControl fullWidth variant="outlined">
-                <InputLabel id="filter-user-label">Filter by User</InputLabel>
+              <FormControl
+                fullWidth
+                variant="outlined"
+                sx={{ backgroundColor: "#333", borderRadius: 1 }}
+              >
+                <InputLabel id="filter-user-label" sx={{ color: "#eee" }}>
+                  Filter by User
+                </InputLabel>
                 <Select
                   labelId="filter-user-label"
                   label="Filter by User"
                   value={filterUser}
                   onChange={handleUserChange}
+                  sx={{
+                    color: "#eee",
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#444",
+                    },
+                  }}
                 >
                   <MenuItem value="All">All Users</MenuItem>
                   {availableUsers.map((user) => (
@@ -184,7 +216,15 @@ const Logs = () => {
                 fullWidth
                 variant="outlined"
                 onClick={resetFilters}
-                sx={{ height: "56px" }}
+                sx={{
+                  height: "56px",
+                  borderColor: "#444",
+                  color: "#eee",
+                  "&:hover": {
+                    borderColor: "primary.main",
+                    color: "primary.main",
+                  },
+                }}
               >
                 Reset All Filters
               </Button>
@@ -207,11 +247,11 @@ const Logs = () => {
           </Button>
         </Box>
 
-        <Divider sx={{ mb: 4 }} />
+        <Divider sx={{ mb: 4, borderColor: "#444" }} />
 
         {loading && (
           <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
-            <CircularProgress />
+            <CircularProgress color="primary" />
           </Box>
         )}
 
@@ -222,20 +262,12 @@ const Logs = () => {
         )}
 
         {!loading && logs.length === 0 && !error && (
-          <Typography
-            sx={{ textAlign: "center", color: "text.secondary", my: 4 }}
-          >
+          <Typography sx={{ textAlign: "center", color: "#ccc", my: 4 }}>
             No logs found.
           </Typography>
         )}
 
-        <Box
-          sx={{
-            backgroundColor: "background.default",
-            borderRadius: 1,
-            py: 2,
-          }}
-        >
+        <Box sx={{ backgroundColor: "#2C2C2C", borderRadius: 1, py: 2 }}>
           {logs.map((log) => (
             <LogEntry key={log._id || log.id} log={log} />
           ))}
@@ -247,10 +279,19 @@ const Logs = () => {
         onClose={handleClearCancel}
         aria-labelledby="clear-dialog-title"
         aria-describedby="clear-dialog-description"
+        PaperProps={{
+          sx: {
+            backgroundColor: "#2C2C2C",
+            color: "#eee",
+          },
+        }}
       >
         <DialogTitle id="clear-dialog-title">Confirm Clear Logs</DialogTitle>
         <DialogContent>
-          <DialogContentText id="clear-dialog-description">
+          <DialogContentText
+            id="clear-dialog-description"
+            sx={{ color: "#fff" }}
+          >
             Are you sure you want to clear all logs? This action cannot be
             undone.
           </DialogContentText>

@@ -12,7 +12,14 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 const LogEntry = ({ log }) => {
-  const timestamp = new Date(log.timestamp).toLocaleString();
+  // Format timestamp without seconds for a cleaner look
+  const timestamp = new Date(log.timestamp).toLocaleString("en-US", {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+  });
 
   // Convert status code to severity
   const getStatusColor = (status) => {
@@ -26,15 +33,12 @@ const LogEntry = ({ log }) => {
     try {
       if (typeof details === "string") {
         const trimmed = details.trim();
-        // Only parse if the string looks like JSON
         if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
           details = JSON.parse(trimmed);
         } else {
           return trimmed;
         }
       }
-
-      // Handle nested JSON strings (common in responseData)
       if (
         details &&
         details.responseData &&
@@ -51,11 +55,9 @@ const LogEntry = ({ log }) => {
           };
         }
       }
-
       return JSON.stringify(details, null, 2);
     } catch (error) {
       console.error("Error formatting details:", error);
-      // Fallback: if details is a string, return it as-is, otherwise stringify it
       return typeof details === "string"
         ? details
         : JSON.stringify(details, null, 2);
@@ -71,10 +73,10 @@ const LogEntry = ({ log }) => {
   };
 
   return (
-    <Card sx={{ mb: 2 }}>
+    <Card sx={{ mb: 2, backgroundColor: "#333", color: "#eee" }}>
       <CardContent>
         <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="primary.main">
             {timestamp}
           </Typography>
           <Box>
@@ -92,7 +94,7 @@ const LogEntry = ({ log }) => {
           </Box>
         </Box>
 
-        <Typography variant="subtitle1" sx={{ mb: 1 }}>
+        <Typography variant="subtitle1" sx={{ mb: 1, color: "primary.main" }}>
           {log.route}
         </Typography>
 
@@ -102,30 +104,70 @@ const LogEntry = ({ log }) => {
               label={`User: ${getUserDisplay(log.user)}`}
               size="small"
               variant="outlined"
+              sx={{
+                borderColor: "#555",
+                color: "#eee",
+              }}
             />
           )}
           {log.role && (
-            <Chip label={`Role: ${log.role}`} size="small" variant="outlined" />
+            <Chip
+              label={`Role: ${log.role}`}
+              size="small"
+              variant="outlined"
+              sx={{
+                borderColor: "#555",
+                color: "#eee",
+              }}
+            />
           )}
-          <Chip label={`IP: ${log.ip}`} size="small" variant="outlined" />
+          <Chip
+            label={`IP: ${log.ip}`}
+            size="small"
+            variant="outlined"
+            sx={{
+              borderColor: "#555",
+              color: "#eee",
+            }}
+          />
         </Box>
 
-        <Accordion>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+        <Accordion sx={{ backgroundColor: "#444", color: "#eee" }}>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon sx={{ color: "#eee" }} />}
+          >
             <Typography>Details</Typography>
           </AccordionSummary>
           <AccordionDetails>
             {log.query && Object.keys(log.query).length > 0 && (
               <Box sx={{ mb: 2 }}>
                 <Typography variant="subtitle2">Query Parameters:</Typography>
-                <pre>{JSON.stringify(log.query, null, 2)}</pre>
+                <pre
+                  style={{
+                    backgroundColor: "#555",
+                    padding: "8px",
+                    borderRadius: "4px",
+                    color: "#eee",
+                  }}
+                >
+                  {JSON.stringify(log.query, null, 2)}
+                </pre>
               </Box>
             )}
 
             {log.body && Object.keys(log.body).length > 0 && (
               <Box sx={{ mb: 2 }}>
                 <Typography variant="subtitle2">Request Body:</Typography>
-                <pre>{JSON.stringify(log.body, null, 2)}</pre>
+                <pre
+                  style={{
+                    backgroundColor: "#555",
+                    padding: "8px",
+                    borderRadius: "4px",
+                    color: "#eee",
+                  }}
+                >
+                  {JSON.stringify(log.body, null, 2)}
+                </pre>
               </Box>
             )}
 
@@ -136,9 +178,10 @@ const LogEntry = ({ log }) => {
                   style={{
                     maxHeight: "400px",
                     overflow: "auto",
-                    backgroundColor: "#f5f5f5",
+                    backgroundColor: "#555",
                     padding: "8px",
                     borderRadius: "4px",
+                    color: "#eee",
                   }}
                 >
                   {formatDetails(log.details)}

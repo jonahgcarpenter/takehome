@@ -40,7 +40,7 @@ const InventoryManagement = () => {
   const [productToDelete, setProductToDelete] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-  // Use the product socket hook to refresh products when an update occurs.
+  // Socket: refresh products on update
   useProductSocket({
     onProductsUpdated: () => {
       fetchProducts();
@@ -66,7 +66,6 @@ const InventoryManagement = () => {
     setOpenForm(false);
   };
 
-  // Use the hook's createProduct and updateProduct methods
   const handleFormSubmit = async (productData) => {
     try {
       if (editingProduct) {
@@ -89,7 +88,6 @@ const InventoryManagement = () => {
     }
   };
 
-  // Use the hook's deleteProduct method
   const handleDeleteProduct = async (productId) => {
     setProductToDelete(productId);
     setDeleteDialogOpen(true);
@@ -124,7 +122,15 @@ const InventoryManagement = () => {
 
   return (
     <Container sx={{ marginTop: 4 }}>
-      <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
+      <Paper
+        elevation={2}
+        sx={{
+          p: 3,
+          mb: 4,
+          backgroundColor: "#2C2C2C",
+          color: "#eee",
+        }}
+      >
         <Typography
           variant="h4"
           gutterBottom
@@ -132,7 +138,7 @@ const InventoryManagement = () => {
         >
           Inventory Management
         </Typography>
-        <Divider sx={{ mb: 3 }} />
+        <Divider sx={{ mb: 3, borderColor: "#444" }} />
         <Box sx={{ mb: 2 }}>
           <Button
             variant="contained"
@@ -144,16 +150,19 @@ const InventoryManagement = () => {
         </Box>
         {loading && (
           <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
-            <CircularProgress />
+            <CircularProgress color="primary" />
           </Box>
         )}
         {error && (
-          <Alert severity="error" sx={{ my: 2 }}>
+          <Alert
+            severity="error"
+            sx={{ my: 2, backgroundColor: "#333", color: "#fff" }}
+          >
             {error}
           </Alert>
         )}
         {!loading && products.length === 0 && !error && (
-          <Typography>No products found.</Typography>
+          <Typography sx={{ color: "#ccc" }}>No products found.</Typography>
         )}
         <Box>
           {products.map((product) => (
@@ -168,8 +177,16 @@ const InventoryManagement = () => {
         </Box>
       </Paper>
 
-      <Dialog open={openForm} onClose={handleCloseForm} fullWidth maxWidth="sm">
-        <DialogTitle>
+      <Dialog
+        open={openForm}
+        onClose={handleCloseForm}
+        fullWidth
+        maxWidth="sm"
+        PaperProps={{
+          sx: { backgroundColor: "#2C2C2C", color: "#eee" },
+        }}
+      >
+        <DialogTitle sx={{ color: "#eee" }}>
           {editingProduct ? "Edit Product" : "Add New Product"}
         </DialogTitle>
         <DialogContent>
@@ -186,12 +203,18 @@ const InventoryManagement = () => {
         onClose={handleDeleteCancel}
         aria-labelledby="delete-dialog-title"
         aria-describedby="delete-dialog-description"
+        PaperProps={{
+          sx: { backgroundColor: "#2C2C2C", color: "#eee" },
+        }}
       >
-        <DialogTitle id="delete-dialog-title">
+        <DialogTitle id="delete-dialog-title" sx={{ color: "#eee" }}>
           Confirm Delete Product
         </DialogTitle>
         <DialogContent>
-          <DialogContentText id="delete-dialog-description">
+          <DialogContentText
+            id="delete-dialog-description"
+            sx={{ color: "#fff" }}
+          >
             Are you sure you want to delete this product? This action cannot be
             undone.
           </DialogContentText>
@@ -215,14 +238,12 @@ const InventoryManagement = () => {
           "& .MuiAlert-root": {
             width: "100%",
             maxWidth: 400,
+            backgroundColor: "#333",
+            color: "#fff",
           },
         }}
       >
-        <Alert
-          onClose={handleCloseNotification}
-          severity={notification.type}
-          sx={{ width: "100%" }}
-        >
+        <Alert onClose={handleCloseNotification} severity={notification.type}>
           {notification.message}
         </Alert>
       </Snackbar>

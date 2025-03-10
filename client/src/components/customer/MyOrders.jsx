@@ -36,7 +36,6 @@ const formatDate = (dateString) => {
     hour: "2-digit",
     minute: "2-digit",
   };
-
   try {
     return new Date(dateString).toLocaleString("en-US", options);
   } catch (e) {
@@ -49,7 +48,7 @@ const MyOrders = ({ orders, loading, error }) => {
     <Box>
       {loading && (
         <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
-          <CircularProgress size={40} />
+          <CircularProgress size={40} color="primary" />
         </Box>
       )}
 
@@ -60,6 +59,8 @@ const MyOrders = ({ orders, loading, error }) => {
             my: 2,
             boxShadow: 1,
             borderRadius: 2,
+            backgroundColor: "#333",
+            color: "#fff",
           }}
         >
           {error}
@@ -73,6 +74,8 @@ const MyOrders = ({ orders, loading, error }) => {
             my: 2,
             boxShadow: 1,
             borderRadius: 2,
+            backgroundColor: "#2C2C2C",
+            color: "#fff",
           }}
         >
           You haven't placed any orders yet.
@@ -88,12 +91,19 @@ const MyOrders = ({ orders, loading, error }) => {
                 boxShadow: 2,
                 "&:hover": { boxShadow: 3 },
                 transition: "box-shadow 0.3s ease-in-out",
+                backgroundColor: "#333",
+                color: "#eee",
               }}
             >
               <CardHeader
                 title={
                   <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                    <Typography variant="h6">{order.orderNumber}</Typography>
+                    <Typography
+                      variant="h6"
+                      sx={{ color: "#fff", fontWeight: "bold" }}
+                    >
+                      {order.orderNumber}
+                    </Typography>
                     <Chip
                       label={order.status}
                       color={getStatusColor(order.status)}
@@ -104,19 +114,21 @@ const MyOrders = ({ orders, loading, error }) => {
                 }
                 subheader={formatDate(order.createdAt)}
                 sx={{
-                  bgcolor: "background.paper",
-                  borderBottom: 1,
-                  borderColor: "divider",
+                  bgcolor: "primary.main",
+                  borderBottom: "1px solid #444",
+                  px: 2,
+                  py: 1,
                 }}
               />
-              <CardContent sx={{ pt: 3 }}>
+
+              <CardContent sx={{ pt: 3, px: 2 }}>
                 <Grid container spacing={2}>
                   {order.products?.map((item, idx) => (
                     <Grid item xs={12} key={idx}>
                       <Box
                         sx={{
                           p: 2,
-                          bgcolor: "background.default",
+                          bgcolor: "#2C2C2C",
                           borderRadius: 1,
                           display: "flex",
                           justifyContent: "space-between",
@@ -126,25 +138,34 @@ const MyOrders = ({ orders, loading, error }) => {
                         <Box>
                           {typeof item.product === "object" ? (
                             <>
-                              <Typography variant="subtitle2">
+                              <Typography
+                                variant="subtitle2"
+                                sx={{ color: "#fff" }}
+                              >
                                 {item.product.name}
                               </Typography>
                               <Typography
                                 variant="body2"
-                                color="text.secondary"
+                                sx={{ color: "#ccc" }}
                               >
                                 Quantity: {item.quantity} <br />
-                                Price per unit: ${item.product.price}
+                                Price per unit:{" "}
+                                <span style={{ color: "#4caf50" }}>
+                                  ${item.product.price}
+                                </span>
                               </Typography>
                             </>
                           ) : (
                             <>
-                              <Typography variant="subtitle2">
+                              <Typography
+                                variant="subtitle2"
+                                sx={{ color: "#fff" }}
+                              >
                                 {item.product}
                               </Typography>
                               <Typography
                                 variant="body2"
-                                color="text.secondary"
+                                sx={{ color: "#ccc" }}
                               >
                                 Quantity: {item.quantity} <br />
                                 Price per unit: N/A
@@ -171,14 +192,15 @@ const MyOrders = ({ orders, loading, error }) => {
                   sx={{
                     mt: 3,
                     pt: 2,
-                    borderTop: 1,
-                    borderColor: "divider",
+                    borderTop: "1px solid #444",
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
                   }}
                 >
-                  <Typography variant="subtitle1">Total Amount:</Typography>
+                  <Typography variant="subtitle1" sx={{ color: "#fff" }}>
+                    Total Amount:
+                  </Typography>
                   <Typography
                     variant="h6"
                     color="primary.main"

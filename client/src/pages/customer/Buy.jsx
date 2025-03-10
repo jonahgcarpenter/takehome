@@ -66,12 +66,58 @@ const Buy = () => {
     }
   };
 
+  const handleRemove = (productId) => {
+    setCartItems((prev) =>
+      prev.filter((item) => item.product._id !== productId),
+    );
+  };
+
+  const handlePlaceOrder = async () => {
+    setOrderLoading(true);
+    try {
+      const orderData = {
+        products: cartItems.map((item) => ({
+          product: item.product._id,
+          quantity: item.quantity,
+        })),
+        totalPrice,
+      };
+      const response = await axios.post("/api/orders", orderData);
+      setNotification({
+        open: true,
+        message: `${response.data.orderNumber} placed successfully!`,
+        type: "success",
+      });
+      setCartItems([]);
+    } catch (err) {
+      setNotification({
+        open: true,
+        message:
+          err.response?.data?.message ||
+          "Failed to place order. Please try again.",
+        type: "error",
+      });
+    } finally {
+      setOrderLoading(false);
+    }
+  };
+
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container
+      maxWidth="xl" // Make the container wider
+      sx={{ py: 4, backgroundColor: "#222", minHeight: "100vh" }}
+    >
       <Grid container spacing={3}>
-        {/* Products Section */}
-        <Grid item xs={12} md={8}>
-          <Paper elevation={2} sx={{ p: 3 }}>
+        {/* Left Column (wider): Products */}
+        <Grid item xs={12} md={9}>
+          <Paper
+            elevation={2}
+            sx={{
+              p: 3,
+              backgroundColor: "#2C2C2C",
+              color: "#eee",
+            }}
+          >
             <Typography
               variant="h4"
               gutterBottom
@@ -79,14 +125,20 @@ const Buy = () => {
             >
               Buy Products
             </Typography>
-            <Divider sx={{ mb: 3 }} />
+            <Divider sx={{ mb: 3, borderColor: "#444" }} />
             {productsLoading && (
               <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
-                <CircularProgress />
+                <CircularProgress color="primary" />
               </Box>
             )}
-            {productsError && <Alert severity="error">{productsError}</Alert>}
-
+            {productsError && (
+              <Alert
+                severity="error"
+                sx={{ backgroundColor: "#333", color: "#fff", mb: 2 }}
+              >
+                {productsError}
+              </Alert>
+            )}
             <Box>
               {products.map((product) => (
                 <Box key={product._id} sx={{ mb: 2 }}>
@@ -100,47 +152,14 @@ const Buy = () => {
           </Paper>
         </Grid>
 
-        {/* Cart Section */}
-        <Grid item xs={12} md={4}>
-          {/* The Cart component already has its own Paper styling */}
+        {/* Right Column (narrower): Cart */}
+        <Grid item xs={12} md={3}>
           <Cart
             cartItems={cartItems}
             totalPrice={totalPrice}
             loading={orderLoading}
-            onRemove={(productId) =>
-              setCartItems(
-                cartItems.filter((item) => item.product._id !== productId),
-              )
-            }
-            onPlaceOrder={async () => {
-              setOrderLoading(true);
-              try {
-                const orderData = {
-                  products: cartItems.map((item) => ({
-                    product: item.product._id,
-                    quantity: item.quantity,
-                  })),
-                  totalPrice: totalPrice,
-                };
-                const response = await axios.post("/api/orders", orderData);
-                setNotification({
-                  open: true,
-                  message: `${response.data.orderNumber} placed successfully!`,
-                  type: "success",
-                });
-                setCartItems([]);
-              } catch (err) {
-                setNotification({
-                  open: true,
-                  message:
-                    err.response?.data?.message ||
-                    "Failed to place order. Please try again.",
-                  type: "error",
-                });
-              } finally {
-                setOrderLoading(false);
-              }
-            }}
+            onRemove={handleRemove}
+            onPlaceOrder={handlePlaceOrder}
           />
         </Grid>
       </Grid>
@@ -154,7 +173,7 @@ const Buy = () => {
         <Alert
           onClose={() => setNotification((prev) => ({ ...prev, open: false }))}
           severity={notification.type}
-          sx={{ width: "100%" }}
+          sx={{ width: "100%", backgroundColor: "#333", color: "#fff" }}
         >
           {notification.message}
         </Alert>

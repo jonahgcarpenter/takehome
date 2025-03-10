@@ -24,11 +24,7 @@ const Orders = () => {
   });
 
   const showNotification = (message, type = "info") => {
-    setNotification({
-      open: true,
-      message,
-      type,
-    });
+    setNotification({ open: true, message, type });
   };
 
   const fetchOrders = async () => {
@@ -63,15 +59,12 @@ const Orders = () => {
 
   // WebSocket handlers
   const handleOrderUpdated = (updatedOrder) => {
-    // If no payload was provided, simply refresh all orders.
     if (!updatedOrder || Object.keys(updatedOrder).length === 0) {
       fetchOrders();
       return;
     }
 
-    // Check if this event indicates a deletion.
     if (updatedOrder.deletedOrder) {
-      // Extract orderNumber from deletedOrder, fallback to the id if not available.
       const orderNumber =
         updatedOrder.deletedOrder.orderNumber || updatedOrder.id;
       setOrders((prev) =>
@@ -79,13 +72,11 @@ const Orders = () => {
       );
       showNotification(`${orderNumber} deleted`, "info");
     } else {
-      // Otherwise, it's an update event.
       setOrders((prev) =>
         prev.map((order) =>
           order._id === updatedOrder._id ? updatedOrder : order,
         ),
       );
-      // Optionally show a notification if the status changed.
       const existingOrder = orders.find(
         (order) => order._id === updatedOrder._id,
       );
@@ -103,8 +94,25 @@ const Orders = () => {
   });
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
+    <Container
+      maxWidth="xl"
+      sx={{
+        py: 4,
+        backgroundColor: "#222",
+        minHeight: "100vh",
+        color: "#eee",
+      }}
+    >
+      <Paper
+        elevation={2}
+        sx={{
+          p: 3,
+          mb: 4,
+          backgroundColor: "#2C2C2C",
+          color: "#eee",
+          border: "1px solid #444",
+        }}
+      >
         <Typography
           variant="h4"
           gutterBottom
@@ -112,19 +120,20 @@ const Orders = () => {
         >
           My Orders
         </Typography>
-        <Divider sx={{ mb: 3 }} />
+        <Divider sx={{ mb: 3, borderColor: "#444" }} />
         {loading ? (
           <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
-            <CircularProgress />
+            <CircularProgress color="primary" />
           </Box>
         ) : error ? (
-          <Alert severity="error" sx={{ my: 3 }}>
+          <Alert
+            severity="error"
+            sx={{ my: 3, backgroundColor: "#333", color: "#fff" }}
+          >
             {error}
           </Alert>
         ) : orders.length === 0 ? (
-          <Typography
-            sx={{ textAlign: "center", color: "text.secondary", my: 4 }}
-          >
+          <Typography sx={{ textAlign: "center", color: "#fff", my: 4 }}>
             No orders found.
           </Typography>
         ) : (
@@ -141,16 +150,15 @@ const Orders = () => {
           "& .MuiAlert-root": {
             width: "100%",
             maxWidth: 400,
+            backgroundColor: "#333",
+            color: "#fff",
           },
         }}
       >
         <Alert
           onClose={() => setNotification((prev) => ({ ...prev, open: false }))}
           severity={notification.type}
-          sx={{
-            width: "100%",
-            boxShadow: 3,
-          }}
+          sx={{ width: "100%", boxShadow: 3 }}
         >
           {notification.message}
         </Alert>

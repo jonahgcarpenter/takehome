@@ -16,15 +16,16 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
         borderRadius: 2,
         boxShadow: 3,
         overflow: "hidden",
+        backgroundColor: "#333",
+        color: "#eee",
       }}
     >
-      <CardContent sx={{ backgroundColor: "background.paper", p: 2 }}>
+      <CardContent sx={{ p: 2 }}>
         <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>
           {product.name}
         </Typography>
         <Typography
           variant="body2"
-          color="text.secondary"
           sx={{
             mb: 2,
             whiteSpace: "normal",
@@ -40,14 +41,15 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
             mb: 1,
           }}
         >
-          <Typography variant="body1">
-            <strong>Price:</strong> ${product.price}
+          <Typography variant="body1" sx={{ color: "green" }}>
+            <strong>Price Per:</strong> ${product.price}
           </Typography>
+
           <Typography variant="body1">
             <strong>Quantity:</strong> {product.quantity}
           </Typography>
         </Box>
-        <Divider sx={{ my: 1 }} />
+        <Divider sx={{ my: 1, borderColor: "#444" }} />
       </CardContent>
       <Box
         sx={{
@@ -56,10 +58,9 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
           alignItems: "center",
           px: 2,
           py: 1,
-          backgroundColor: "background.paper",
         }}
       >
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" sx={{ color: "#ccc" }}>
           Created:{" "}
           {product.createdAt
             ? new Date(product.createdAt).toLocaleString()
@@ -74,7 +75,7 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
             size="small"
             variant="outlined"
             onClick={onEdit}
-            sx={{ mr: 1 }}
+            sx={{ mr: 1, borderColor: "#555", color: "#eee" }}
           >
             Edit
           </Button>

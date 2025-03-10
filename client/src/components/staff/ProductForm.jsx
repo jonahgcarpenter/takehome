@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, TextField, Button } from "@mui/material";
+import { Box, TextField, Button, InputAdornment } from "@mui/material";
 
 const ProductForm = ({ product, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -18,7 +18,6 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
         quantity: product.quantity || "",
       });
     } else {
-      // Reset form if no product is provided
       setFormData({
         name: "",
         description: "",
@@ -35,7 +34,6 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Convert price and quantity to numeric values
     const submitData = {
       ...formData,
       price: parseFloat(formData.price),
@@ -45,7 +43,17 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{
+        mt: 2,
+        backgroundColor: "#2C2C2C",
+        p: 2,
+        borderRadius: 1,
+        color: "#eee",
+      }}
+    >
       <TextField
         label="Name"
         name="name"
@@ -55,6 +63,8 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
         value={formData.name}
         onChange={handleChange}
         required
+        InputProps={{ sx: { color: "#eee", backgroundColor: "#333" } }}
+        InputLabelProps={{ sx: { color: "#ccc" } }}
       />
       <TextField
         label="Description"
@@ -65,6 +75,8 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
         value={formData.description}
         onChange={handleChange}
         required
+        InputProps={{ sx: { color: "#eee", backgroundColor: "#333" } }}
+        InputLabelProps={{ sx: { color: "#ccc" } }}
       />
       <TextField
         label="Price"
@@ -76,6 +88,11 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
         value={formData.price}
         onChange={handleChange}
         required
+        InputProps={{
+          startAdornment: <InputAdornment position="start">$</InputAdornment>,
+          sx: { color: "#eee", backgroundColor: "#333" },
+        }}
+        InputLabelProps={{ sx: { color: "#ccc" } }}
       />
       <TextField
         label="Quantity"
@@ -87,9 +104,11 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
         value={formData.quantity}
         onChange={handleChange}
         required
+        InputProps={{ sx: { color: "#eee", backgroundColor: "#333" } }}
+        InputLabelProps={{ sx: { color: "#ccc" } }}
       />
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-        <Button onClick={onCancel} sx={{ mr: 1 }}>
+        <Button onClick={onCancel} sx={{ mr: 1, color: "#eee" }}>
           Cancel
         </Button>
         <Button type="submit" variant="contained" color="primary">

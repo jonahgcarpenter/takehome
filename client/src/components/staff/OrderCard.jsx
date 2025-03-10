@@ -52,12 +52,16 @@ const OrderCard = ({ order, onDelete, onEdit }) => {
         "&:hover": { boxShadow: 3 },
         transition: "box-shadow 0.3s ease-in-out",
         mb: 2,
+        backgroundColor: "#333",
+        color: "#eee",
       }}
     >
       <CardHeader
         title={
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Typography variant="h6">{order.orderNumber}</Typography>
+            <Typography variant="h6" sx={{ color: "#fff", fontWeight: "bold" }}>
+              {order.orderNumber}
+            </Typography>
             <Chip
               label={order.status}
               color={getStatusColor(order.status)}
@@ -68,22 +72,24 @@ const OrderCard = ({ order, onDelete, onEdit }) => {
         }
         subheader={
           <>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" sx={{ color: "#000" }}>
               Created: {formatDate(order.createdAt)}
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" sx={{ color: "#000" }}>
               Updated: {formatDate(order.updatedAt)}
             </Typography>
           </>
         }
         sx={{
-          bgcolor: "background.paper",
+          bgcolor: "primary.main",
           borderBottom: 1,
-          borderColor: "divider",
+          borderColor: "#444",
+          px: 2,
+          py: 1,
         }}
       />
 
-      <CardContent sx={{ pt: 3 }}>
+      <CardContent sx={{ pt: 3, px: 2 }}>
         <Typography variant="body2" sx={{ mb: 1 }}>
           <strong>Customer:</strong>{" "}
           {order.customer && order.customer.displayName
@@ -96,7 +102,7 @@ const OrderCard = ({ order, onDelete, onEdit }) => {
               <Box
                 sx={{
                   p: 2,
-                  bgcolor: "background.default",
+                  bgcolor: "#2C2C2C",
                   borderRadius: 1,
                   display: "flex",
                   justifyContent: "space-between",
@@ -109,9 +115,12 @@ const OrderCard = ({ order, onDelete, onEdit }) => {
                       <Typography variant="subtitle2">
                         {item.product.name}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography variant="body2" sx={{ color: "#ccc" }}>
                         Quantity: {item.quantity} <br />
-                        Price per unit: ${item.product.price}
+                        Price per unit:{" "}
+                        <span style={{ color: "#4caf50" }}>
+                          ${item.product.price}
+                        </span>
                       </Typography>
                     </>
                   ) : (
@@ -119,7 +128,7 @@ const OrderCard = ({ order, onDelete, onEdit }) => {
                       <Typography variant="subtitle2">
                         {item.product}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography variant="body2" sx={{ color: "#ccc" }}>
                         Quantity: {item.quantity} <br />
                         Price per unit: N/A
                       </Typography>
@@ -144,7 +153,7 @@ const OrderCard = ({ order, onDelete, onEdit }) => {
             mt: 3,
             pt: 2,
             borderTop: 1,
-            borderColor: "divider",
+            borderColor: "#444",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
@@ -160,7 +169,7 @@ const OrderCard = ({ order, onDelete, onEdit }) => {
           </Typography>
         </Box>
       </CardContent>
-      <CardActions>
+      <CardActions sx={{ px: 2, py: 1, justifyContent: "flex-end" }}>
         <Button size="small" onClick={onEdit}>
           Edit
         </Button>

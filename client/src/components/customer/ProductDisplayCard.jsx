@@ -21,8 +21,11 @@ const ProductDisplayCard = ({ product, onAddToCart }) => {
   };
 
   return (
-    <Paper elevation={2}>
-      <Card>
+    <Paper
+      elevation={2}
+      sx={{ backgroundColor: "#2C2C2C", color: "#eee", borderRadius: 2 }}
+    >
+      <Card sx={{ backgroundColor: "transparent", boxShadow: "none" }}>
         <CardContent>
           <Box
             sx={{
@@ -31,20 +34,27 @@ const ProductDisplayCard = ({ product, onAddToCart }) => {
               alignItems: "flex-start",
             }}
           >
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
+            <Typography
+              variant="h6"
+              gutterBottom
+              sx={{ fontWeight: "bold", color: "#fff" }}
+            >
               {product.name}
             </Typography>
+
             <Typography
               variant="body2"
-              color={product.quantity > 0 ? "success.main" : "error.main"}
-              sx={{ fontWeight: "medium" }}
+              sx={{
+                fontWeight: "medium",
+                color: product.quantity > 0 ? "success.main" : "error.main",
+              }}
             >
               {product.quantity > 0
                 ? `In Stock: ${product.quantity}`
                 : "Out of Stock"}
             </Typography>
           </Box>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          <Typography variant="body2" sx={{ mb: 2, color: "#ccc" }}>
             {product.description}
           </Typography>
           <Box
@@ -57,8 +67,7 @@ const ProductDisplayCard = ({ product, onAddToCart }) => {
           >
             <Typography
               variant="h5"
-              color="primary"
-              sx={{ fontWeight: "bold" }}
+              sx={{ fontWeight: "bold", color: "primary.main" }}
             >
               ${product.price.toFixed(2)}
             </Typography>
@@ -71,14 +80,26 @@ const ProductDisplayCard = ({ product, onAddToCart }) => {
             size="small"
             value={quantity}
             onChange={handleQuantityChange}
-            sx={{ width: "100px" }}
+            sx={{
+              width: "100px",
+              backgroundColor: "#333",
+              borderRadius: 1,
+            }}
             inputProps={{
               min: 1,
               max: product.quantity,
               "aria-label": "Quantity",
             }}
             helperText={`Max: ${product.quantity}`}
+            InputLabelProps={{ sx: { color: "#ccc" } }}
+            FormHelperTextProps={{ sx: { color: "red" } }}
+            InputProps={{
+              sx: {
+                color: "#fff", // ensures the input text is white
+              },
+            }}
           />
+
           <IconButton
             color="primary"
             disabled={product.quantity === 0}
@@ -88,9 +109,9 @@ const ProductDisplayCard = ({ product, onAddToCart }) => {
             }}
             sx={{
               backgroundColor: "primary.main",
-              color: "white",
+              color: "#fff",
               "&.Mui-disabled": {
-                backgroundColor: "action.disabledBackground",
+                backgroundColor: "red",
               },
             }}
           >

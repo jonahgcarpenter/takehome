@@ -73,7 +73,6 @@ const OrderManagement = () => {
     try {
       if (editingOrder) {
         await updateOrder(editingOrder._id || editingOrder.id, orderData);
-        // UI will update via the socket event.
         handleCloseForm();
       }
     } catch (err) {
@@ -87,7 +86,6 @@ const OrderManagement = () => {
   const handleUpdateStatus = async (orderId, newStatus) => {
     try {
       await updateOrder(orderId, { status: newStatus });
-      // UI update will come via the socket event.
     } catch (err) {
       showNotification(
         "Error updating order status: " +
@@ -97,7 +95,6 @@ const OrderManagement = () => {
     }
   };
 
-  // Instead of window.confirm, open a dialog to confirm deletion
   const handleDeleteClick = (orderId) => {
     setOrderToDelete(orderId);
     setDeleteDialogOpen(true);
@@ -125,7 +122,15 @@ const OrderManagement = () => {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
+      <Paper
+        elevation={2}
+        sx={{
+          p: 3,
+          mb: 4,
+          backgroundColor: "#2C2C2C",
+          color: "#eee",
+        }}
+      >
         <Typography
           variant="h4"
           gutterBottom
@@ -133,19 +138,20 @@ const OrderManagement = () => {
         >
           Order Management
         </Typography>
-        <Divider sx={{ mb: 3 }} />
+        <Divider sx={{ mb: 3, borderColor: "#444" }} />
         {loading ? (
           <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
-            <CircularProgress />
+            <CircularProgress color="primary" />
           </Box>
         ) : error ? (
-          <Alert severity="error" sx={{ my: 3 }}>
+          <Alert
+            severity="error"
+            sx={{ my: 3, backgroundColor: "#333", color: "#fff" }}
+          >
             {error}
           </Alert>
         ) : orders.length === 0 ? (
-          <Typography
-            sx={{ textAlign: "center", color: "text.secondary", my: 4 }}
-          >
+          <Typography sx={{ textAlign: "center", color: "#ccc", my: 4 }}>
             No orders found.
           </Typography>
         ) : (
@@ -164,8 +170,14 @@ const OrderManagement = () => {
         )}
       </Paper>
 
-      <Dialog open={openForm} onClose={handleCloseForm} fullWidth maxWidth="sm">
-        <DialogTitle>Edit Order</DialogTitle>
+      <Dialog
+        open={openForm}
+        onClose={handleCloseForm}
+        fullWidth
+        maxWidth="sm"
+        PaperProps={{ sx: { backgroundColor: "#2C2C2C", color: "#eee" } }}
+      >
+        <DialogTitle sx={{ color: "#eee" }}>Edit Order</DialogTitle>
         <DialogContent>
           <OrderForm
             order={editingOrder}
@@ -180,10 +192,16 @@ const OrderManagement = () => {
         onClose={handleDeleteCancel}
         aria-labelledby="delete-dialog-title"
         aria-describedby="delete-dialog-description"
+        PaperProps={{ sx: { backgroundColor: "#2C2C2C", color: "#eee" } }}
       >
-        <DialogTitle id="delete-dialog-title">Confirm Delete Order</DialogTitle>
+        <DialogTitle id="delete-dialog-title" sx={{ color: "#eee" }}>
+          Confirm Delete Order
+        </DialogTitle>
         <DialogContent>
-          <DialogContentText id="delete-dialog-description">
+          <DialogContentText
+            id="delete-dialog-description"
+            sx={{ color: "#fff" }}
+          >
             Are you sure you want to delete this order? This action cannot be
             undone.
           </DialogContentText>
@@ -207,6 +225,8 @@ const OrderManagement = () => {
           "& .MuiAlert-root": {
             width: "100%",
             maxWidth: 400,
+            backgroundColor: "#333",
+            color: "#fff",
           },
         }}
       >

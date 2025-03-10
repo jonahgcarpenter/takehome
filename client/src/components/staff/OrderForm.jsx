@@ -38,12 +38,11 @@ const OrderForm = ({ order, onSubmit, onCancel }) => {
     if (order) {
       const initialOrderItems = order.products
         ? order.products.map((item) => ({
-            product: item.product, // expecting an object
+            product: item.product,
             quantity: item.quantity,
           }))
         : [];
       setFormData({
-        // Use displayName for customer if available.
         customer:
           order.customer && order.customer.displayName
             ? order.customer.displayName
@@ -66,14 +65,12 @@ const OrderForm = ({ order, onSubmit, onCancel }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    // Only update fields that are editable (status).
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleItemChange = (index, field, value) => {
     const newItems = [...formData.orderItems];
     newItems[index][field] = value;
-    // Recalculate the total price based on new order items.
     const newTotal = recalcTotalPrice(newItems);
     setFormData((prev) => ({
       ...prev,
@@ -85,11 +82,9 @@ const OrderForm = ({ order, onSubmit, onCancel }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const submitData = {
-      // Total price is recalculated on the frontend.
       totalPrice: parseFloat(formData.totalPrice),
       status: formData.status,
       products: formData.orderItems.map((item) => ({
-        // If item.product is an object, send its _id; otherwise, assume it's already an ID.
         product:
           typeof item.product === "object" && item.product._id
             ? item.product._id
@@ -101,8 +96,17 @@ const OrderForm = ({ order, onSubmit, onCancel }) => {
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
-      {/* Read-only display fields */}
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{
+        mt: 2,
+        backgroundColor: "#2C2C2C",
+        p: 2,
+        borderRadius: 1,
+        color: "#eee",
+      }}
+    >
       <Box sx={{ my: 1 }}>
         <Typography variant="subtitle1">
           <strong>Customer:</strong> {formData.customer}
@@ -114,9 +118,10 @@ const OrderForm = ({ order, onSubmit, onCancel }) => {
         </Typography>
       </Box>
 
-      {/* Editable status field */}
       <FormControl variant="outlined" fullWidth margin="normal">
-        <InputLabel id="status-label">Status</InputLabel>
+        <InputLabel id="status-label" sx={{ color: "#ccc" }}>
+          Status
+        </InputLabel>
         <Select
           labelId="status-label"
           name="status"
@@ -124,6 +129,10 @@ const OrderForm = ({ order, onSubmit, onCancel }) => {
           onChange={handleChange}
           label="Status"
           required
+          sx={{
+            color: "#eee",
+            "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" },
+          }}
         >
           <MenuItem value="Pending">Pending</MenuItem>
           <MenuItem value="Processing">Processing</MenuItem>
@@ -132,7 +141,6 @@ const OrderForm = ({ order, onSubmit, onCancel }) => {
         </Select>
       </FormControl>
 
-      {/* Order Items */}
       <Box sx={{ mt: 2 }}>
         <Typography variant="h6">Order Items</Typography>
         {formData.orderItems.map((item, index) => (
@@ -144,7 +152,6 @@ const OrderForm = ({ order, onSubmit, onCancel }) => {
             sx={{ mt: 1 }}
           >
             <Grid item xs={7}>
-              {/* Display product name as read-only */}
               <Typography variant="body1">
                 {typeof item.product === "object" && item.product.name
                   ? item.product.name
@@ -162,6 +169,10 @@ const OrderForm = ({ order, onSubmit, onCancel }) => {
                   handleItemChange(index, "quantity", e.target.value)
                 }
                 required
+                InputProps={{
+                  sx: { color: "#eee", backgroundColor: "#333" },
+                }}
+                InputLabelProps={{ sx: { color: "#ccc" } }}
               />
             </Grid>
           </Grid>
@@ -169,7 +180,7 @@ const OrderForm = ({ order, onSubmit, onCancel }) => {
       </Box>
 
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-        <Button onClick={onCancel} sx={{ mr: 1 }}>
+        <Button onClick={onCancel} sx={{ mr: 1, color: "#eee" }}>
           Cancel
         </Button>
         <Button type="submit" variant="contained" color="primary">

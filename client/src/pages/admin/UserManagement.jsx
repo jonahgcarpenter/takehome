@@ -102,7 +102,15 @@ const UserManagement = () => {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
+      <Paper
+        elevation={2}
+        sx={{
+          p: 3,
+          mb: 4,
+          backgroundColor: "#2C2C2C",
+          color: "#eee",
+        }}
+      >
         <Typography
           variant="h4"
           gutterBottom
@@ -110,27 +118,28 @@ const UserManagement = () => {
         >
           User Management
         </Typography>
-        <Divider sx={{ mb: 3 }} />
+        <Divider sx={{ mb: 3, borderColor: "#444" }} />
         {loading && (
           <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
-            <CircularProgress />
+            <CircularProgress color="primary" />
           </Box>
         )}
         {error && (
-          <Alert severity="error" sx={{ my: 3 }}>
+          <Alert
+            severity="error"
+            sx={{ my: 3, backgroundColor: "#333", color: "#fff" }}
+          >
             {error}
           </Alert>
         )}
         {!loading && !error && users.length === 0 && (
-          <Typography
-            sx={{ textAlign: "center", color: "text.secondary", my: 4 }}
-          >
+          <Typography sx={{ textAlign: "center", color: "#ccc", my: 4 }}>
             No users found.
           </Typography>
         )}
         <Box
           sx={{
-            backgroundColor: "background.default",
+            backgroundColor: "#2C2C2C",
             borderRadius: 1,
             py: 2,
             "& > *": { mb: 2 },
@@ -153,10 +162,19 @@ const UserManagement = () => {
         onClose={handleDeleteCancel}
         aria-labelledby="delete-dialog-title"
         aria-describedby="delete-dialog-description"
+        PaperProps={{
+          sx: {
+            backgroundColor: "#2C2C2C",
+            color: "#eee",
+          },
+        }}
       >
         <DialogTitle id="delete-dialog-title">Confirm Delete</DialogTitle>
         <DialogContent>
-          <DialogContentText id="delete-dialog-description">
+          <DialogContentText
+            id="delete-dialog-description"
+            sx={{ color: "#fff" }}
+          >
             Are you sure you want to delete this user? This action cannot be
             undone.
           </DialogContentText>
@@ -180,7 +198,7 @@ const UserManagement = () => {
         <Alert
           onClose={handleCloseNotification}
           severity={notification.type}
-          sx={{ width: "100%" }}
+          sx={{ width: "100%", backgroundColor: "#333", color: "#fff" }}
         >
           {notification.message}
         </Alert>
