@@ -42,7 +42,7 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
           }}
         >
           <Typography variant="body1" sx={{ color: "green" }}>
-            <strong>Price Per:</strong> ${product.price}
+            <strong>Est per unit:</strong> ${product.price}
           </Typography>
 
           <Typography variant="body1">
