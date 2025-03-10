@@ -1,6 +1,10 @@
 import React from "react";
 import { Button, Container, Typography, Box, Paper } from "@mui/material";
 
+/**
+ * Login Component - Provides Google OAuth login functionality
+ * Displays a simple login page with Google authentication option
+ */
 export default function Login() {
   return (
     <Container
@@ -12,6 +16,7 @@ export default function Login() {
         height: "100vh",
       }}
     >
+      {/* Login Form Container */}
       <Paper
         elevation={3}
         sx={{
@@ -24,6 +29,7 @@ export default function Login() {
           maxWidth: 400,
         }}
       >
+        {/* Page Title */}
         <Typography
           variant="h4"
           gutterBottom
@@ -31,6 +37,8 @@ export default function Login() {
         >
           Login
         </Typography>
+
+        {/* Google Login Button */}
         <Button
           variant="contained"
           color="primary"

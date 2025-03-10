@@ -13,6 +13,10 @@ import {
 } from "@mui/material";
 import useOrderSocket from "../../hooks/websockets/useOrderSockets";
 
+/**
+ * Orders Component - Customer page for viewing and managing their orders
+ * Provides real-time order updates and quantity modification functionality
+ */
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -23,10 +27,18 @@ const Orders = () => {
     type: "info",
   });
 
+  /**
+   * Shows notification message
+   * @param {string} message - Message to display
+   * @param {string} type - Type of notification (success, error, info)
+   */
   const showNotification = (message, type = "info") => {
     setNotification({ open: true, message, type });
   };
 
+  /**
+   * Fetches user's orders from the server
+   */
   const fetchOrders = async () => {
     setLoading(true);
     setError(null);
@@ -57,7 +69,10 @@ const Orders = () => {
     fetchOrders();
   }, []);
 
-  // WebSocket handlers
+  /**
+   * Handles real-time order updates from WebSocket
+   * @param {Object} updatedOrder - Updated order information
+   */
   const handleOrderUpdated = (updatedOrder) => {
     if (!updatedOrder || Object.keys(updatedOrder).length === 0) {
       fetchOrders();
@@ -89,6 +104,12 @@ const Orders = () => {
     }
   };
 
+  /**
+   * Updates order item quantity
+   * @param {string} orderId - Order identifier
+   * @param {string} productId - Product identifier
+   * @param {number} quantity - New quantity
+   */
   const handleUpdateQuantity = async (orderId, productId, quantity) => {
     try {
       const updatedProducts = orders
@@ -111,12 +132,14 @@ const Orders = () => {
     }
   };
 
+  // Initialize WebSocket connection
   useOrderSocket({
     onOrdersUpdated: handleOrderUpdated,
   });
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
+      {/* Main Content Paper */}
       <Paper
         elevation={2}
         sx={{
@@ -126,6 +149,7 @@ const Orders = () => {
           color: "#eee",
         }}
       >
+        {/* Header Section */}
         <Typography
           variant="h4"
           gutterBottom
@@ -154,6 +178,7 @@ const Orders = () => {
         )}
       </Paper>
 
+      {/* Notification System */}
       <Snackbar
         open={notification.open}
         autoHideDuration={5000}

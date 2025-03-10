@@ -13,18 +13,41 @@ import {
   Box,
 } from "@mui/material";
 
+/**
+ * UserCard Component - Displays user information with role management capabilities
+ * @param {Object} props
+ * @param {Object} props.user - User object containing user details
+ * @param {string} props.user._id - Unique identifier for the user
+ * @param {string} props.user.firstName - User's first name (optional)
+ * @param {string} props.user.lastName - User's last name (optional)
+ * @param {string} props.user.displayName - User's display name
+ * @param {string} props.user.email - User's email address
+ * @param {string} props.user.profilePhoto - URL to user's profile photo
+ * @param {string} props.user.role - User's current role
+ * @param {string} props.user.lastLogin - Timestamp of last login
+ * @param {string} props.user.updatedAt - Timestamp of last update
+ * @param {Function} props.onDelete - Callback function for user deletion
+ * @param {Function} props.onUpdateRole - Callback function for role updates
+ */
 const UserCard = ({ user, onDelete, onUpdateRole }) => {
+  /**
+   * Handles role change events and triggers update callback
+   * @param {Object} e - Event object from role select
+   */
   const handleRoleChange = (e) => {
     if (e.target.value === user.role) return;
     onUpdateRole(user._id || user.id, e.target.value);
   };
 
-  // Use firstName and lastName if available; otherwise, fallback to displayName
+  /**
+   * Constructs full name from firstName and lastName, falls back to displayName
+   */
   const fullName =
     (user.firstName || "") + " " + (user.lastName || "") || user.displayName;
 
   return (
     <Card sx={{ marginBottom: 2, backgroundColor: "#333", color: "#eee" }}>
+      {/* User Profile Header Section */}
       <CardHeader
         avatar={
           <Avatar
@@ -49,7 +72,7 @@ const UserCard = ({ user, onDelete, onUpdateRole }) => {
       <CardActions
         sx={{ justifyContent: "space-between", alignItems: "center" }}
       >
-        {/* Left side: Timestamps */}
+        {/* User Activity Timestamps Section */}
         <Box>
           <Typography variant="body2" sx={{ color: "#eee", lineHeight: 1.2 }}>
             <strong>Last Login:</strong>{" "}
@@ -61,8 +84,9 @@ const UserCard = ({ user, onDelete, onUpdateRole }) => {
           </Typography>
         </Box>
 
-        {/* Right side: Controls */}
+        {/* User Management Controls Section */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {/* Role Selection Dropdown */}
           <FormControl
             variant="outlined"
             size="small"
@@ -89,6 +113,8 @@ const UserCard = ({ user, onDelete, onUpdateRole }) => {
               <MenuItem value="Customer">Customer</MenuItem>
             </Select>
           </FormControl>
+
+          {/* Delete User Button */}
           <Button
             size="small"
             color="error"

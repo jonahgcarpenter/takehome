@@ -8,6 +8,19 @@ import {
   Box,
 } from "@mui/material";
 
+/**
+ * ProductCard Component - Displays product information with edit and delete capabilities
+ * @param {Object} props
+ * @param {Object} props.product - Product information
+ * @param {string} props.product.name - Product name
+ * @param {string} props.product.description - Product description
+ * @param {number} props.product.price - Product price
+ * @param {number} props.product.quantity - Available quantity
+ * @param {string} [props.product.createdAt] - Creation timestamp
+ * @param {string} [props.product.updatedAt] - Last update timestamp
+ * @param {Function} props.onEdit - Callback when edit is clicked
+ * @param {Function} props.onDelete - Callback when delete is clicked
+ */
 const ProductCard = ({ product, onEdit, onDelete }) => {
   return (
     <Card
@@ -20,7 +33,9 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
         color: "#eee",
       }}
     >
+      {/* Product Information Section */}
       <CardContent sx={{ p: 2 }}>
+        {/* Product Name and Description */}
         <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>
           {product.name}
         </Typography>
@@ -34,6 +49,8 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
         >
           {product.description}
         </Typography>
+
+        {/* Product Details */}
         <Box
           sx={{
             display: "flex",
@@ -51,6 +68,8 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
         </Box>
         <Divider sx={{ my: 1, borderColor: "#444" }} />
       </CardContent>
+
+      {/* Card Footer - Timestamps and Actions */}
       <Box
         sx={{
           display: "flex",
@@ -60,6 +79,7 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
           py: 1,
         }}
       >
+        {/* Timestamps */}
         <Typography variant="caption" sx={{ color: "#ccc" }}>
           Created:{" "}
           {product.createdAt
@@ -70,6 +90,8 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
             ? new Date(product.updatedAt).toLocaleString()
             : "N/A"}
         </Typography>
+
+        {/* Action Buttons */}
         <Box>
           <Button
             size="small"

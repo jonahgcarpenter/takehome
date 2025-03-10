@@ -14,7 +14,7 @@ router.post(
 // Retrieve your orders (Customers only)
 router.get("/myorders", hasRole(["Customer"]), orderController.getMyOrders);
 
-// Update your order by ID (Customers only)
+// Update your order by ID, only allows updating product quantities (Customers only)
 router.put(
   "/myorders/:id",
   hasRole(["Customer"]),

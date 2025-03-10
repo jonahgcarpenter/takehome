@@ -11,9 +11,22 @@ import {
 } from "@mui/material";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 
+/**
+ * ProductDisplayCard Component - Displays individual product with add to cart functionality
+ * @param {Object} props
+ * @param {Object} props.product - Product information object
+ * @param {string} props.product.name - Name of the product
+ * @param {string} props.product.description - Product description
+ * @param {number} props.product.price - Product price
+ * @param {Function} props.onAddToCart - Callback function when adding to cart
+ */
 const ProductDisplayCard = ({ product, onAddToCart }) => {
   const [quantity, setQuantity] = useState(1);
 
+  /**
+   * Handles quantity input changes with validation
+   * @param {Object} e - Event object from input change
+   */
   const handleQuantityChange = (e) => {
     const newValue = parseInt(e.target.value) || 0;
     const validValue = Math.max(1, newValue);
@@ -26,6 +39,7 @@ const ProductDisplayCard = ({ product, onAddToCart }) => {
       sx={{ backgroundColor: "#2C2C2C", color: "#eee", borderRadius: 2 }}
     >
       <Card sx={{ backgroundColor: "transparent", boxShadow: "none" }}>
+        {/* Product Information Section */}
         <CardContent>
           <Box
             sx={{
@@ -61,6 +75,8 @@ const ProductDisplayCard = ({ product, onAddToCart }) => {
             </Typography>
           </Box>
         </CardContent>
+
+        {/* Cart Controls Section */}
         <CardActions sx={{ p: 2, pt: 0, justifyContent: "space-between" }}>
           <TextField
             type="number"

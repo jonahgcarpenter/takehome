@@ -11,8 +11,25 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
+/**
+ * LogEntry Component - Displays a single log entry with expandable details
+ * @param {Object} props
+ * @param {Object} props.log - The log entry object containing all log information
+ * @param {string} props.log.timestamp - ISO timestamp of the log entry
+ * @param {string} props.log.method - HTTP method used (GET, POST, etc.)
+ * @param {number} props.log.responseStatus - HTTP response status code
+ * @param {string} props.log.route - API route that was accessed
+ * @param {Object|string} props.log.user - User information
+ * @param {string} props.log.role - User's role
+ * @param {string} props.log.ip - IP address of the request
+ * @param {Object} [props.log.query] - Query parameters if present
+ * @param {Object} [props.log.body] - Request body if present
+ * @param {Object|string} [props.log.details] - Response details/data
+ */
 const LogEntry = ({ log }) => {
-  // Format timestamp without seconds for a cleaner look
+  /**
+   * Formats the timestamp to a more readable format without seconds
+   */
   const timestamp = new Date(log.timestamp).toLocaleString("en-US", {
     year: "numeric",
     month: "numeric",
@@ -21,7 +38,11 @@ const LogEntry = ({ log }) => {
     minute: "numeric",
   });
 
-  // Convert status code to severity
+  /**
+   * Determines the severity color based on HTTP status code
+   * @param {number} status - HTTP status code
+   * @returns {string} MUI color designation
+   */
   const getStatusColor = (status) => {
     if (status >= 500) return "error";
     if (status >= 400) return "warning";
@@ -29,8 +50,15 @@ const LogEntry = ({ log }) => {
     return "default";
   };
 
+  /**
+   * Formats and parses the details object/string for display
+   * Handles nested JSON strings and complex object structures
+   * @param {Object|string} details - The details to format
+   * @returns {string} Formatted string representation of the details
+   */
   const formatDetails = (details) => {
     try {
+      // Check if details is a string and parse it if it looks like JSON
       if (typeof details === "string") {
         const trimmed = details.trim();
         if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
@@ -39,16 +67,19 @@ const LogEntry = ({ log }) => {
           return trimmed;
         }
       }
+      // If details is an object, check if responseData is a string and parse it
       if (
         details &&
         details.responseData &&
         typeof details.responseData === "string"
       ) {
         const trimmedResponse = details.responseData.trim();
+        // Check if the responseData is a JSON string
         if (
           trimmedResponse.startsWith("{") ||
           trimmedResponse.startsWith("[")
         ) {
+          // Parse the JSON string and update details
           details = {
             ...details,
             responseData: JSON.parse(trimmedResponse),
@@ -57,6 +88,7 @@ const LogEntry = ({ log }) => {
       }
       return JSON.stringify(details, null, 2);
     } catch (error) {
+      // Handle any errors during parsing
       console.error("Error formatting details:", error);
       return typeof details === "string"
         ? details
@@ -64,6 +96,11 @@ const LogEntry = ({ log }) => {
     }
   };
 
+  /**
+   * Extracts user display name from user object or string
+   * @param {Object|string} user - User information
+   * @returns {string} User display name
+   */
   const getUserDisplay = (user) => {
     if (!user) return "Unknown User";
     if (typeof user === "object" && user.displayName) {
@@ -75,10 +112,14 @@ const LogEntry = ({ log }) => {
   return (
     <Card sx={{ mb: 2, backgroundColor: "#333", color: "#eee" }}>
       <CardContent>
+        {/* Header Section - Timestamp and Request Info */}
         <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+          {/* Display timestamp */}
           <Typography variant="body2" color="primary.main">
             {timestamp}
           </Typography>
+
+          {/* Display method and status code */}
           <Box>
             <Chip
               label={log.method}
@@ -94,10 +135,12 @@ const LogEntry = ({ log }) => {
           </Box>
         </Box>
 
+        {/* Route Information */}
         <Typography variant="subtitle1" sx={{ mb: 1, color: "primary.main" }}>
           {log.route}
         </Typography>
 
+        {/* User Information Section */}
         <Box sx={{ display: "flex", gap: 1, mb: 1 }}>
           {log.user && (
             <Chip
@@ -132,6 +175,7 @@ const LogEntry = ({ log }) => {
           />
         </Box>
 
+        {/* Expandable Details Section */}
         <Accordion sx={{ backgroundColor: "#444", color: "#eee" }}>
           <AccordionSummary
             expandIcon={<ExpandMoreIcon sx={{ color: "#eee" }} />}

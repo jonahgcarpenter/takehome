@@ -9,19 +9,38 @@ import {
   MenuItem,
 } from "@mui/material";
 
+/**
+ * Navigation Bar Component - Displays top navigation with user avatar and navigation links
+ * @param {Object} props
+ * @param {string} props.photo - URL of user's profile photo
+ * @param {Array<Object>} props.links - Array of navigation link objects
+ * @param {string} props.links[].key - Unique identifier for the link
+ * @param {string} props.links[].label - Display text for the link
+ * @param {string} props.activeLink - Key of the currently active link
+ * @param {Function} props.onLinkChange - Callback function when link is clicked
+ */
 const Navbar = ({ photo, links, activeLink, onLinkChange }) => {
   const [anchorEl, setAnchorEl] = useState(null);
 
+  /**
+   * Handles click event on avatar to open menu
+   * @param {Object} event - Click event object
+   */
   const handleAvatarClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
+  /**
+   * Closes the user menu
+   */
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
 
+  /**
+   * Handles user logout action
+   */
   const handleLogout = () => {
-    // Perform logout action (e.g., redirect to logout endpoint)
     window.location.href = "/api/auth/logout";
   };
 
@@ -34,6 +53,7 @@ const Navbar = ({ photo, links, activeLink, onLinkChange }) => {
       }}
     >
       <Toolbar sx={{ minHeight: "64px" }}>
+        {/* User Avatar Section */}
         <Avatar
           src={photo}
           alt="Profile Photo"
@@ -44,6 +64,7 @@ const Navbar = ({ photo, links, activeLink, onLinkChange }) => {
           }}
           onClick={handleAvatarClick}
         />
+        {/* Navigation Links Section */}
         <Box sx={{ flexGrow: 1 }} />
         {links.map((link) => (
           <Button
@@ -63,6 +84,7 @@ const Navbar = ({ photo, links, activeLink, onLinkChange }) => {
             {link.label}
           </Button>
         ))}
+        {/* User Menu Section */}
         <Menu
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}

@@ -20,9 +20,17 @@ import {
   Button,
 } from "@mui/material";
 
+/**
+ * OrderManagement Component - Staff page for managing customer orders
+ * Provides functionality for viewing, editing, and deleting orders
+ */
 const OrderManagement = () => {
   const { orders, loading, error, fetchOrders, updateOrder, deleteOrder } =
     useOrders();
+  
+  /**
+   * State Management
+   */
   const [openForm, setOpenForm] = useState(false);
   const [editingOrder, setEditingOrder] = useState(null);
   const [notification, setNotification] = useState({
@@ -33,7 +41,9 @@ const OrderManagement = () => {
   const [orderToDelete, setOrderToDelete] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-  // Listen for live updates using the existing hook
+  /**
+   * WebSocket handler for real-time order updates
+   */
   useOrderSocket({
     onOrdersUpdated: (payload) => {
       fetchOrders();
@@ -55,6 +65,9 @@ const OrderManagement = () => {
     },
   });
 
+  /**
+   * Handler Functions
+   */
   const showNotification = (message, type = "info") => {
     setNotification({ open: true, message, type });
   };
@@ -122,6 +135,7 @@ const OrderManagement = () => {
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
+      {/* Main Content Paper */}
       <Paper
         elevation={2}
         sx={{
@@ -131,6 +145,7 @@ const OrderManagement = () => {
           color: "#eee",
         }}
       >
+        {/* Header Section */}
         <Typography
           variant="h4"
           gutterBottom
@@ -139,6 +154,7 @@ const OrderManagement = () => {
           Order Management
         </Typography>
         <Divider sx={{ mb: 3, borderColor: "#444" }} />
+        {/* Orders List */}
         {loading ? (
           <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
             <CircularProgress color="primary" />
@@ -163,6 +179,7 @@ const OrderManagement = () => {
         )}
       </Paper>
 
+      {/* Edit Order Dialog */}
       <Dialog
         open={openForm}
         onClose={handleCloseForm}
@@ -180,6 +197,7 @@ const OrderManagement = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Delete Confirmation Dialog */}
       <Dialog
         open={deleteDialogOpen}
         onClose={handleDeleteCancel}
@@ -209,6 +227,7 @@ const OrderManagement = () => {
         </DialogActions>
       </Dialog>
 
+      {/* Notification System */}
       <Snackbar
         open={notification.open}
         autoHideDuration={5000}

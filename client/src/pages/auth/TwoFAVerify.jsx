@@ -10,11 +10,19 @@ import {
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+/**
+ * TwoFAVerify Component - Handles two-factor authentication verification
+ * Allows users to input and verify their 2FA token
+ */
 export default function TwoFAVerify() {
   const [token, setToken] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
+  /**
+   * Handles 2FA token verification
+   * @param {Object} e - Form submission event
+   */
   const handleVerify = async (e) => {
     e.preventDefault();
     try {
@@ -42,6 +50,7 @@ export default function TwoFAVerify() {
         height: "100vh",
       }}
     >
+      {/* Verification Form Container */}
       <Paper
         elevation={3}
         sx={{
@@ -54,6 +63,7 @@ export default function TwoFAVerify() {
           maxWidth: 400,
         }}
       >
+        {/* Page Title */}
         <Typography
           variant="h4"
           gutterBottom
@@ -61,6 +71,8 @@ export default function TwoFAVerify() {
         >
           2FA Verification
         </Typography>
+
+        {/* Verification Form */}
         <form onSubmit={handleVerify}>
           <TextField
             label="Enter 2FA Code"
@@ -87,6 +99,8 @@ export default function TwoFAVerify() {
             Verify
           </Button>
         </form>
+
+        {/* Error Message Display */}
         {message && (
           <Typography variant="body1" color="error" mt={2}>
             {message}

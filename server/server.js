@@ -9,7 +9,7 @@ const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const passport = require("./config/oauth");
 
-// Import the routes
+// Import the routes from files
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const productRoutes = require("./routes/productRoutes");
@@ -65,7 +65,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/logs", logRoutes);
 
-// Serve the static files from Vite
+// Serve the static files from Vite in production
 app.use(express.static(path.join(__dirname, "dist")));
 
 app.get("*", (_req, res) => {

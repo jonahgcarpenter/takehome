@@ -12,6 +12,7 @@ export default defineConfig({
   },
   plugins: [react(), tailwindcss()],
   build: {
+    // npm run build directory
     outDir: "../server/dist",
     emptyOutDir: true,
   },

@@ -10,11 +10,18 @@ import {
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+/**
+ * TwoFASetup Component - Handles initial two-factor authentication setup
+ * Displays QR code for users to scan with their authenticator app
+ */
 export default function TwoFASetup() {
   const [qrCode, setQrCode] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  /**
+   * Fetches QR code for 2FA setup on component mount
+   */
   useEffect(() => {
     async function fetchQRCode() {
       try {
@@ -31,6 +38,7 @@ export default function TwoFASetup() {
     fetchQRCode();
   }, []);
 
+  // Loading state
   if (loading)
     return (
       <Container
@@ -56,6 +64,7 @@ export default function TwoFASetup() {
         height: "100vh",
       }}
     >
+      {/* Setup Form Container */}
       <Paper
         elevation={3}
         sx={{
@@ -68,6 +77,7 @@ export default function TwoFASetup() {
           maxWidth: 400,
         }}
       >
+        {/* Page Title */}
         <Typography
           variant="h4"
           gutterBottom
@@ -75,6 +85,8 @@ export default function TwoFASetup() {
         >
           Set Up 2FA
         </Typography>
+
+        {/* QR Code Display Section */}
         {qrCode ? (
           <>
             <Typography variant="body1" sx={{ color: "#ccc" }}>

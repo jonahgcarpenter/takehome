@@ -19,21 +19,38 @@ import {
   Divider,
 } from "@mui/material";
 
+/**
+ * UserManagement Component - Admin page for managing user accounts
+ * Provides functionality for viewing, updating roles, and deleting users
+ */
 const UserManagement = () => {
   const { users, loading, error, updateUser, deleteUser, fetchUsers } =
     useUsers();
+  
+  /**
+   * State for managing notifications and delete confirmations
+   * @type {{ open: boolean, message: string, type: string }}
+   */
   const [notification, setNotification] = useState({
     open: false,
     message: "",
     type: "info",
   });
 
+  /**
+   * State for managing delete confirmation dialog
+   * @type {{ open: boolean, userId: string|null }}
+   */
   const [deleteDialog, setDeleteDialog] = useState({
     open: false,
     userId: null,
   });
 
-  // Display notification
+  /**
+   * Displays a notification message
+   * @param {string} message - Message to display
+   * @param {string} type - Type of notification (success, error, info)
+   */
   const showNotification = (message, type = "info") => {
     setNotification({
       open: true,
@@ -47,7 +64,9 @@ const UserManagement = () => {
     setNotification((prev) => ({ ...prev, open: false }));
   };
 
-  // Handle WebSocket user updates
+  /**
+   * Handles WebSocket user updates
+   */
   const handleUserUpdated = useCallback(
     (updatedUser) => {
       // Refresh the users list when we receive a WebSocket update
@@ -65,7 +84,11 @@ const UserManagement = () => {
     onUsersUpdated: handleUserUpdated,
   });
 
-  // Handler functions with improved error messages
+  /**
+   * Updates user role with error handling
+   * @param {string} userId - ID of user to update
+   * @param {string} newRole - New role to assign
+   */
   const handleUpdateRole = async (userId, newRole) => {
     try {
       // Ensure the first letter is uppercase for the role
@@ -79,6 +102,10 @@ const UserManagement = () => {
     }
   };
 
+  /**
+   * Opens delete confirmation dialog
+   * @param {string} userId - ID of user to delete
+   */
   const handleDeleteClick = (userId) => {
     setDeleteDialog({ open: true, userId });
   };
@@ -102,6 +129,7 @@ const UserManagement = () => {
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
+      {/* Main Content Paper */}
       <Paper
         elevation={2}
         sx={{
@@ -111,6 +139,7 @@ const UserManagement = () => {
           color: "#eee",
         }}
       >
+        {/* Header Section */}
         <Typography
           variant="h4"
           gutterBottom
@@ -119,6 +148,7 @@ const UserManagement = () => {
           User Management
         </Typography>
         <Divider sx={{ mb: 3, borderColor: "#444" }} />
+        {/* Loading and Error States */}
         {loading && (
           <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
             <CircularProgress color="primary" />
@@ -137,6 +167,7 @@ const UserManagement = () => {
             No users found.
           </Typography>
         )}
+        {/* User Cards Grid */}
         <Box
           sx={{
             backgroundColor: "#2C2C2C",
@@ -157,6 +188,7 @@ const UserManagement = () => {
         </Box>
       </Paper>
 
+      {/* Delete Confirmation Dialog */}
       <Dialog
         open={deleteDialog.open}
         onClose={handleDeleteCancel}
@@ -189,6 +221,7 @@ const UserManagement = () => {
         </DialogActions>
       </Dialog>
 
+      {/* Notification Snackbar */}
       <Snackbar
         open={notification.open}
         autoHideDuration={5000}

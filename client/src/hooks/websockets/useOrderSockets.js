@@ -3,7 +3,7 @@ import { socket } from "../../services/socketService";
 
 const useOrderSocket = ({ onOrdersUpdated }) => {
   useEffect(() => {
-    // Listen to product-related events
+    // Listen to order events
     socket.on("orders-updated", onOrdersUpdated);
 
     // Cleanup listeners when component unmounts

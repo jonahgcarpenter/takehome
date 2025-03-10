@@ -24,6 +24,10 @@ import {
   TextField,
 } from "@mui/material";
 
+/**
+ * Logs Component - Admin page for viewing and managing system logs
+ * Provides functionality for filtering, searching, and clearing logs
+ */
 const Logs = () => {
   const {
     logs,
@@ -34,12 +38,20 @@ const Logs = () => {
     fetchLogsByRole,
     clearLogs,
   } = useLogs();
+  
+  /**
+   * State for managing filters and dialogs
+   */
   const [filterUser, setFilterUser] = useState("");
   const [filterRole, setFilterRole] = useState("All");
   const [isFiltered, setIsFiltered] = useState(false);
   const [clearDialog, setClearDialog] = useState(false);
   const [noUserAlert, setNoUserAlert] = useState(false);
 
+  /**
+   * Handles role filter changes
+   * @param {Object} e - Event object from role select
+   */
   const handleRoleChange = (e) => {
     const newRole = e.target.value;
     setFilterRole(newRole);
@@ -52,6 +64,10 @@ const Logs = () => {
     }
   };
 
+  /**
+   * Handles user search with enter key
+   * @param {Object} e - Keyboard event object
+   */
   const handleUserSearch = (e) => {
     if (e.key === 'Enter') {
       const searchTerm = e.target.value.trim();
@@ -79,6 +95,9 @@ const Logs = () => {
     }
   };
 
+  /**
+   * Resets all filters to default values
+   */
   const resetFilters = () => {
     setFilterUser("");
     setFilterRole("All");
@@ -102,7 +121,9 @@ const Logs = () => {
     }
   };
 
-  // Handle real-time log updates
+  /**
+   * Handles real-time log updates from WebSocket
+   */
   const handleLogsUpdated = useCallback(
     (newLog) => {
       if (!isFiltered) {
@@ -124,6 +145,7 @@ const Logs = () => {
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
+      {/* Main Content Paper */}
       <Paper
         elevation={2}
         sx={{
@@ -133,6 +155,7 @@ const Logs = () => {
           color: "#eee",
         }}
       >
+        {/* Header Section */}
         <Typography
           variant="h4"
           gutterBottom
@@ -142,8 +165,10 @@ const Logs = () => {
         </Typography>
         <Divider sx={{ mb: 3, borderColor: "#444" }} />
 
+        {/* Filter Controls */}
         <Box sx={{ mb: 4 }}>
           <Grid container spacing={3}>
+            {/* Role Filter */}
             <Grid item xs={12} md={4}>
               <FormControl
                 fullWidth
@@ -172,6 +197,7 @@ const Logs = () => {
                 </Select>
               </FormControl>
             </Grid>
+            {/* User Search */}
             <Grid item xs={12} md={4}>
               <TextField
                 fullWidth
@@ -198,6 +224,7 @@ const Logs = () => {
                 }}
               />
             </Grid>
+            {/* Reset Filters */}
             <Grid
               item
               xs={12}
@@ -224,6 +251,7 @@ const Logs = () => {
           </Grid>
         </Box>
 
+        {/* Clear Logs Button */}
         <Box sx={{ mb: 3 }}>
           <Button
             variant="contained"
@@ -265,6 +293,7 @@ const Logs = () => {
           </Typography>
         )}
 
+        {/* Logs Display Section */}
         <Box sx={{ backgroundColor: "#2C2C2C", borderRadius: 1, py: 2 }}>
           {logs.map((log) => (
             <LogEntry key={log._id || log.id} log={log} />
@@ -272,6 +301,7 @@ const Logs = () => {
         </Box>
       </Paper>
 
+      {/* Clear Logs Confirmation Dialog */}
       <Dialog
         open={clearDialog}
         onClose={handleClearCancel}

@@ -19,6 +19,11 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 
+/**
+ * Maps order status to Material-UI color
+ * @param {string} status - Order status
+ * @returns {string} Material-UI color name
+ */
 const getStatusColor = (status) => {
   const statusMap = {
     pending: "warning",
@@ -31,10 +36,20 @@ const getStatusColor = (status) => {
   return statusMap[status?.toLowerCase()] || statusMap.default;
 };
 
+/**
+ * Formats price to 2 decimal places
+ * @param {number} price - Price to format
+ * @returns {string} Formatted price
+ */
 const formatPrice = (price) => {
   return typeof price === "number" ? price.toFixed(2) : "0.00";
 };
 
+/**
+ * Formats date string to localized format
+ * @param {string} dateString - ISO date string
+ * @returns {string} Formatted date string
+ */
 const formatDate = (dateString) => {
   const options = {
     weekday: "long",
@@ -51,6 +66,14 @@ const formatDate = (dateString) => {
   }
 };
 
+/**
+ * EditQuantityDialog Component - Dialog for editing order item quantity
+ * @param {Object} props
+ * @param {boolean} props.open - Dialog open state
+ * @param {Function} props.onClose - Close dialog callback
+ * @param {Object} props.product - Product being edited
+ * @param {Function} props.onSubmit - Submit edit callback
+ */
 const EditQuantityDialog = ({ open, onClose, product, onSubmit }) => {
   // Use useEffect to update quantity when product changes
   React.useEffect(() => {
@@ -103,6 +126,14 @@ const EditQuantityDialog = ({ open, onClose, product, onSubmit }) => {
   );
 };
 
+/**
+ * MyOrders Component - Displays user's order history
+ * @param {Object} props
+ * @param {Array} props.orders - Array of order objects
+ * @param {boolean} props.loading - Loading state
+ * @param {string} props.error - Error message if any
+ * @param {Function} props.onUpdateQuantity - Callback for updating order quantity
+ */
 const MyOrders = ({ orders, loading, error, onUpdateQuantity }) => {
   const [editDialog, setEditDialog] = useState({ open: false, product: null });
 

@@ -13,11 +13,19 @@ import Orders from "../pages/customer/Orders";
 import InventoryManagement from "../pages/staff/InventoryManagement";
 import OrderManagement from "../pages/staff/OrderManagement";
 
+/**
+ * DashboardLayout Component - Main layout component for the dashboard
+ * Handles routing, user authentication, and role-based access control
+ */
 export default function DashboardLayout() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  /**
+   * Handles user updates from websocket
+   * @param {Object} updatedUser - Updated user information
+   */
   const handleUserUpdate = useCallback(
     (updatedUser) => {
       if (updatedUser._id === user?._id) {
@@ -30,10 +38,12 @@ export default function DashboardLayout() {
     [user, navigate],
   );
 
-  // Initialize websocket listener
+  // Initialize websocket connection
   useUserSocket({ onUsersUpdated: handleUserUpdate });
 
-  // Fetch user details from the backend using axios
+  /**
+   * Fetches user information on component mount
+   */
   useEffect(() => {
     axios
       .get("/api/users/me", { withCredentials: true })
@@ -50,13 +60,36 @@ export default function DashboardLayout() {
       });
   }, [navigate]);
 
+  /**
+   * Determines default route based on user role
+   * @param {string} role - User role
+   * @returns {string} Default route path
+   */
+  const getDefaultRoute = (role) => {
+    switch (role) {
+      case "Admin":
+        return "usermanagement";
+      case "Customer":
+        return "buy";
+      case "Staff":
+        return "inventorymanagement";
+      default:
+        return "";
+    }
+  };
+
+  // Show loading state
   if (loading) {
     return <div>Loading user info...</div>;
   }
 
-  // Conditionally define routes based on the user's role.
+  /**
+   * Configure role-based routing
+   */
   let roleRoutes;
   let navLinks = [];
+  
+  // Admin Routes
   if (user.role === "Admin") {
     navLinks = [
       { key: "usermanagement", label: "User Management" },
@@ -75,7 +108,9 @@ export default function DashboardLayout() {
         <Route index element={<Navigate to="usermanagement" replace />} />
       </>
     );
-  } else if (user.role === "Customer") {
+  } 
+  // Customer Routes
+  else if (user.role === "Customer") {
     navLinks = [
       { key: "buy", label: "Buy" },
       { key: "orders", label: "Orders" },
@@ -88,7 +123,9 @@ export default function DashboardLayout() {
         <Route index element={<Navigate to="buy" replace />} />
       </>
     );
-  } else if (user.role === "Staff") {
+  } 
+  // Staff Routes
+  else if (user.role === "Staff") {
     navLinks = [
       { key: "inventorymanagement", label: "Inventory Management" },
       { key: "ordermanagement", label: "Order Management" },
@@ -101,37 +138,32 @@ export default function DashboardLayout() {
         <Route index element={<Navigate to="inventorymanagement" replace />} />
       </>
     );
-  } else {
+  } 
+  // Fallback Routes
+  else {
     // Fallback in case user role is unknown
     roleRoutes = (
       <Route index element={<div>No dashboard available for your role.</div>} />
     );
   }
 
-  const getDefaultRoute = (role) => {
-    switch (role) {
-      case "Admin":
-        return "usermanagement";
-      case "Customer":
-        return "buy";
-      case "Staff":
-        return "inventorymanagement";
-      default:
-        return "";
-    }
-  };
-
   return (
     <div>
+      {/* Navigation Bar */}
       <Navbar
         photo={user.profilePhoto}
         links={navLinks}
         activeLink={window.location.pathname.split("/").pop()}
         onLinkChange={(link) => navigate(`/dashboard/${link}`)}
       />
+
+      {/* Main Content Area */}
       <div style={{ padding: "20px" }}>
         <Routes>
+          {/* Role-based Routes */}
           {roleRoutes}
+
+          {/* 404 Route */}
           <Route
             path="*"
             element={

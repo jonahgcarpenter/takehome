@@ -20,6 +20,10 @@ import useProductSocket from "../../hooks/websockets/useProductSocket";
 import ProductCard from "../../components/staff/ProductCard";
 import ProductForm from "../../components/staff/ProductForm";
 
+/**
+ * InventoryManagement Component - Staff page for managing product inventory
+ * Provides functionality for creating, editing, and deleting products
+ */
 const InventoryManagement = () => {
   const {
     products,
@@ -30,6 +34,10 @@ const InventoryManagement = () => {
     updateProduct,
     deleteProduct,
   } = useProducts();
+  
+  /**
+   * State Management
+   */
   const [openForm, setOpenForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [notification, setNotification] = useState({
@@ -40,7 +48,9 @@ const InventoryManagement = () => {
   const [productToDelete, setProductToDelete] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-  // Socket: refresh products on update
+  /**
+   * WebSocket handler for real-time product updates
+   */
   useProductSocket({
     onProductsUpdated: () => {
       fetchProducts();
@@ -52,6 +62,9 @@ const InventoryManagement = () => {
     },
   });
 
+  /**
+   * Handler Functions
+   */
   const handleCloseNotification = () => {
     setNotification((prev) => ({ ...prev, open: false }));
   };
@@ -122,6 +135,7 @@ const InventoryManagement = () => {
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
+      {/* Main Content Paper */}
       <Paper
         elevation={2}
         sx={{
@@ -131,6 +145,7 @@ const InventoryManagement = () => {
           color: "#eee",
         }}
       >
+        {/* Header Section */}
         <Typography
           variant="h4"
           gutterBottom
@@ -139,6 +154,7 @@ const InventoryManagement = () => {
           Inventory Management
         </Typography>
         <Divider sx={{ mb: 3, borderColor: "#444" }} />
+        {/* Add Product Button */}
         <Box sx={{ mb: 2 }}>
           <Button
             variant="contained"
@@ -148,6 +164,7 @@ const InventoryManagement = () => {
             Add New Product
           </Button>
         </Box>
+        {/* Products List */}
         {loading && (
           <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
             <CircularProgress color="primary" />
@@ -177,6 +194,7 @@ const InventoryManagement = () => {
         </Box>
       </Paper>
 
+      {/* Product Form Dialog */}
       <Dialog
         open={openForm}
         onClose={handleCloseForm}
@@ -198,6 +216,7 @@ const InventoryManagement = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Delete Confirmation Dialog */}
       <Dialog
         open={deleteDialogOpen}
         onClose={handleDeleteCancel}
@@ -229,6 +248,7 @@ const InventoryManagement = () => {
         </DialogActions>
       </Dialog>
 
+      {/* Notification System */}
       <Snackbar
         open={notification.open}
         autoHideDuration={5000}

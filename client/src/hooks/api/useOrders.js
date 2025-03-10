@@ -6,7 +6,7 @@ const useOrders = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Helper function to transform an order by replacing any null product field
+  // Helper function to transform an order by replacing any null product field when a product is deleted
   const transformOrder = (order) => {
     if (order.products && Array.isArray(order.products)) {
       order.products = order.products.map((item) => {

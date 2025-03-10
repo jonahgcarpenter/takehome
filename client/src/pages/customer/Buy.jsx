@@ -16,6 +16,10 @@ import useProductSocket from "../../hooks/websockets/useProductSocket";
 import ProductDisplayCard from "../../components/customer/ProductDisplayCard";
 import Cart from "../../components/customer/Cart";
 
+/**
+ * Buy Component - Customer page for browsing products and creating orders
+ * Provides product browsing, cart management, and order placement functionality
+ */
 const Buy = () => {
   const {
     products,
@@ -31,10 +35,16 @@ const Buy = () => {
   });
   const [orderLoading, setOrderLoading] = useState(false);
 
+  // Initialize WebSocket connection
   useProductSocket({
     onProductsUpdated: fetchProducts,
   });
 
+  /**
+   * Adds or updates product quantity in cart
+   * @param {Object} product - Product to add
+   * @param {number} qty - Quantity to add
+   */
   const addToCart = (product, qty) => {
     const existing = cartItems.find((item) => item.product._id === product._id);
 
@@ -52,12 +62,20 @@ const Buy = () => {
     }
   };
 
+  /**
+   * Removes product from cart
+   * @param {string} productId - ID of product to remove
+   */
   const handleRemove = (productId) => {
     setCartItems((prev) =>
       prev.filter((item) => item.product._id !== productId),
     );
   };
 
+  /**
+   * Handles order placement
+   * Submits cart items to create new order
+   */
   const handlePlaceOrder = async () => {
     setOrderLoading(true);
     try {
@@ -93,7 +111,7 @@ const Buy = () => {
       sx={{ py: 4, backgroundColor: "#222", minHeight: "100vh" }}
     >
       <Grid container spacing={3}>
-        {/* Left Column (wider): Products */}
+        {/* Products Section */}
         <Grid item xs={12} md={9}>
           <Paper
             elevation={2}
@@ -103,6 +121,7 @@ const Buy = () => {
               color: "#eee",
             }}
           >
+            {/* Header */}
             <Typography
               variant="h4"
               gutterBottom
@@ -111,6 +130,8 @@ const Buy = () => {
               Request a Quote
             </Typography>
             <Divider sx={{ mb: 3, borderColor: "#444" }} />
+
+            {/* Loading and Error States */}
             {productsLoading && (
               <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
                 <CircularProgress color="primary" />
@@ -124,6 +145,8 @@ const Buy = () => {
                 {productsError}
               </Alert>
             )}
+
+            {/* Products Grid */}
             <Box>
               {products.map((product) => (
                 <Box key={product._id} sx={{ mb: 2 }}>
@@ -137,7 +160,7 @@ const Buy = () => {
           </Paper>
         </Grid>
 
-        {/* Right Column (narrower): Cart */}
+        {/* Cart Section */}
         <Grid item xs={12} md={3}>
           <Cart
             cartItems={cartItems}
@@ -148,6 +171,7 @@ const Buy = () => {
         </Grid>
       </Grid>
 
+      {/* Notification System */}
       <Snackbar
         open={notification.open}
         autoHideDuration={5000}

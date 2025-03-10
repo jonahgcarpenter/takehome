@@ -11,6 +11,11 @@ import {
   Chip,
 } from "@mui/material";
 
+/**
+ * Maps order status to Material-UI color
+ * @param {string} status - Order status
+ * @returns {string} Material-UI color name
+ */
 const getStatusColor = (status) => {
   const statusMap = {
     pending: "warning",
@@ -23,10 +28,20 @@ const getStatusColor = (status) => {
   return statusMap[status?.toLowerCase()] || statusMap.default;
 };
 
+/**
+ * Formats price to 2 decimal places
+ * @param {number} price - Price to format
+ * @returns {string} Formatted price string
+ */
 const formatPrice = (price) => {
   return typeof price === "number" ? price.toFixed(2) : "0.00";
 };
 
+/**
+ * Formats date string to localized format
+ * @param {string} dateString - ISO date string
+ * @returns {string} Formatted date string
+ */
 const formatDate = (dateString) => {
   const options = {
     weekday: "long",
@@ -43,6 +58,20 @@ const formatDate = (dateString) => {
   }
 };
 
+/**
+ * OrderCard Component - Displays order information with edit and delete capabilities
+ * @param {Object} props
+ * @param {Object} props.order - Order information
+ * @param {string} props.order.orderNumber - Unique order identifier
+ * @param {string} props.order.status - Current order status
+ * @param {string} props.order.createdAt - Creation timestamp
+ * @param {string} props.order.updatedAt - Last update timestamp
+ * @param {Object|string} props.order.customer - Customer information
+ * @param {Array} props.order.products - Array of ordered products
+ * @param {number} props.order.totalPrice - Total order price
+ * @param {Function} props.onDelete - Callback when delete is clicked
+ * @param {Function} props.onEdit - Callback when edit is clicked
+ */
 const OrderCard = ({ order, onDelete, onEdit }) => {
   return (
     <Card
@@ -56,6 +85,7 @@ const OrderCard = ({ order, onDelete, onEdit }) => {
         color: "#eee",
       }}
     >
+      {/* Order Header with Status */}
       <CardHeader
         title={
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -89,13 +119,17 @@ const OrderCard = ({ order, onDelete, onEdit }) => {
         }}
       />
 
+      {/* Order Content Section */}
       <CardContent sx={{ pt: 3, px: 2 }}>
+        {/* Customer Information */}
         <Typography variant="body2" sx={{ mb: 1 }}>
           <strong>Customer:</strong>{" "}
           {order.customer && order.customer.displayName
             ? order.customer.displayName
             : order.customer}
         </Typography>
+
+        {/* Order Items Grid */}
         <Grid container spacing={2}>
           {order.products?.map((item, idx) => (
             <Grid item xs={12} key={idx}>
@@ -148,6 +182,8 @@ const OrderCard = ({ order, onDelete, onEdit }) => {
             </Grid>
           ))}
         </Grid>
+
+        {/* Order Total Section */}
         <Box
           sx={{
             mt: 3,
@@ -171,6 +207,8 @@ const OrderCard = ({ order, onDelete, onEdit }) => {
           </Typography>
         </Box>
       </CardContent>
+
+      {/* Action Buttons */}
       <CardActions sx={{ px: 2, py: 1, justifyContent: "flex-end" }}>
         <Button size="small" onClick={onEdit}>
           Edit

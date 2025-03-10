@@ -12,6 +12,13 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
+/**
+ * Cart Component - Displays shopping cart with items and checkout functionality
+ * @param {Object} props
+ * @param {Array} props.cartItems - Array of items in cart
+ * @param {Function} props.onRemove - Callback function to remove item from cart
+ * @param {Function} props.onPlaceOrder - Callback function to place order
+ */
 const Cart = ({ cartItems, onRemove, onPlaceOrder }) => {
   return (
     <Paper
@@ -25,6 +32,7 @@ const Cart = ({ cartItems, onRemove, onPlaceOrder }) => {
         color: "#eee",
       }}
     >
+      {/* Cart Header */}
       <Typography
         variant="h5"
         gutterBottom
@@ -32,12 +40,16 @@ const Cart = ({ cartItems, onRemove, onPlaceOrder }) => {
       >
         Your Cart
       </Typography>
+
+      {/* Cart Contents Section */}
       {cartItems.length === 0 ? (
+        // Empty Cart Message
         <Typography variant="body1" sx={{ color: "#ccc" }}>
           Your cart is empty.
         </Typography>
       ) : (
         <>
+          {/* Cart Items List */}
           <List sx={{ maxHeight: "60vh", overflowY: "auto" }}>
             {cartItems.map((item) => (
               <React.Fragment key={item.product._id}>
@@ -72,7 +84,11 @@ const Cart = ({ cartItems, onRemove, onPlaceOrder }) => {
               </React.Fragment>
             ))}
           </List>
+
+          {/* Cart Actions Section */}
           <Divider sx={{ my: 2, borderColor: "#444" }} />
+
+          {/* Button to request quote */}
           <Button
             variant="contained"
             fullWidth
