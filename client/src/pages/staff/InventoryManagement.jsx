@@ -121,7 +121,7 @@ const InventoryManagement = () => {
   };
 
   return (
-    <Container sx={{ marginTop: 4 }}>
+    <Container maxWidth="xl" sx={{ py: 4 }}>
       <Paper
         elevation={2}
         sx={{

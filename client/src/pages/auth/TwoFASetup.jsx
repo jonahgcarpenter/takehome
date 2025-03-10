@@ -5,6 +5,7 @@ import {
   Typography,
   CircularProgress,
   Button,
+  Paper,
 } from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -30,24 +31,65 @@ export default function TwoFASetup() {
     fetchQRCode();
   }, []);
 
-  if (loading) return <CircularProgress />;
+  if (loading)
+    return (
+      <Container
+        maxWidth="sm"
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <CircularProgress color="primary" />
+      </Container>
+    );
 
   return (
-    <Container maxWidth="sm">
-      <Box mt={5} textAlign="center">
-        <Typography variant="h4" gutterBottom>
+    <Container
+      maxWidth="sm"
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+      }}
+    >
+      <Paper
+        elevation={3}
+        sx={{
+          p: 4,
+          textAlign: "center",
+          backgroundColor: "#2C2C2C",
+          color: "#eee",
+          borderRadius: 2,
+          width: "100%",
+          maxWidth: 400,
+        }}
+      >
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{ color: "primary.main", fontWeight: "bold" }}
+        >
           Set Up 2FA
         </Typography>
         {qrCode ? (
           <>
-            <Typography variant="body1">
+            <Typography variant="body1" sx={{ color: "#ccc" }}>
               Scan the QR code below using your authenticator app:
             </Typography>
             <Box mt={2} display="flex" justifyContent="center">
               <img
                 src={qrCode}
                 alt="TOTP QR Code"
-                style={{ maxWidth: "100%" }}
+                style={{
+                  maxWidth: "100%",
+                  backgroundColor: "#fff",
+                  padding: "10px",
+                  borderRadius: "5px",
+                }}
               />
             </Box>
             <Box mt={2}>
@@ -55,17 +97,18 @@ export default function TwoFASetup() {
                 variant="contained"
                 color="primary"
                 onClick={() => navigate("/2fa/verify")}
+                sx={{ mt: 2 }}
               >
                 Verify 2FA Code
               </Button>
             </Box>
           </>
         ) : (
-          <Typography variant="body1">
+          <Typography variant="body1" sx={{ color: "#f44336" }}>
             Unable to load QR Code. Please try again.
           </Typography>
         )}
-      </Box>
+      </Paper>
     </Container>
   );
 }

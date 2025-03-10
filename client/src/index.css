@@ -2,4 +2,9 @@
 
 body {
   background-color: rgba(107, 114, 128, 1);
+  background-image: url("/background.png");
+  background-repeat: repeat;
+  background-size: auto;
+  background-position: center;
+  background-attachment: fixed; /* Keeps the background static */
 }

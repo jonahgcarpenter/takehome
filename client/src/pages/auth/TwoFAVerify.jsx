@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { Container, Box, Typography, TextField, Button } from "@mui/material";
+import {
+  Container,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Paper,
+} from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -26,9 +33,32 @@ export default function TwoFAVerify() {
   };
 
   return (
-    <Container maxWidth="sm">
-      <Box mt={5} textAlign="center">
-        <Typography variant="h4" gutterBottom>
+    <Container
+      maxWidth="sm"
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+      }}
+    >
+      <Paper
+        elevation={3}
+        sx={{
+          p: 4,
+          textAlign: "center",
+          backgroundColor: "#2C2C2C",
+          color: "#eee",
+          borderRadius: 2,
+          width: "100%",
+          maxWidth: 400,
+        }}
+      >
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{ color: "primary.main", fontWeight: "bold" }}
+        >
           2FA Verification
         </Typography>
         <form onSubmit={handleVerify}>
@@ -40,8 +70,20 @@ export default function TwoFAVerify() {
             value={token}
             onChange={(e) => setToken(e.target.value)}
             inputProps={{ maxLength: 6 }}
+            sx={{
+              backgroundColor: "#333",
+              borderRadius: 1,
+              input: { color: "#fff" },
+              label: { color: "#ccc" },
+            }}
           />
-          <Button type="submit" variant="contained" color="primary">
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ mt: 2 }}
+          >
             Verify
           </Button>
         </form>
@@ -50,7 +92,7 @@ export default function TwoFAVerify() {
             {message}
           </Typography>
         )}
-      </Box>
+      </Paper>
     </Container>
   );
 }
