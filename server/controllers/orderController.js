@@ -49,12 +49,11 @@ exports.createOrder = async (req, res) => {
         displayName: req.user.displayName,
       };
     }
+    // Status will default to Pending, no quantity updates needed
     const newOrder = await orderService.createOrder(orderData);
 
-    // Emit event via WebSocket
     const io = req.app.get("socketio");
     io.emit("orders-updated", newOrder);
-    io.emit("products-updated");
 
     return res.status(201).json(newOrder);
   } catch (error) {
@@ -68,20 +67,14 @@ exports.createOrder = async (req, res) => {
 // Update an existing order (Admin/Staff only)
 exports.updateOrderById = async (req, res) => {
   try {
-    // Call the service function with the order ID and updated data
-    let updatedOrder = await orderService.updateOrder(req.params.id, req.body);
-
+    const updatedOrder = await orderService.updateOrder(req.params.id, req.body);
+    
     if (!updatedOrder) {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    // Optionally, populate the products field for better readability
-    updatedOrder = await updatedOrder.populate(
-      "products.product",
-      "name price",
-    );
+    await updatedOrder.populate("products.product", "name price");
 
-    // Emit event via WebSocket
     const io = req.app.get("socketio");
     io.emit("orders-updated", updatedOrder);
     io.emit("products-updated");
@@ -90,7 +83,10 @@ exports.updateOrderById = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json({ message: "Server error", error: error.message });
+      .json({ 
+        message: error.message || "Server error", 
+        error: error.message 
+      });
   }
 };
 
