@@ -21,6 +21,7 @@ import {
   DialogActions,
   Divider,
   Paper,
+  TextField,
 } from "@mui/material";
 
 const Logs = () => {
@@ -33,11 +34,11 @@ const Logs = () => {
     fetchLogsByRole,
     clearLogs,
   } = useLogs();
-  const [filterUser, setFilterUser] = useState("All");
+  const [filterUser, setFilterUser] = useState("");
   const [filterRole, setFilterRole] = useState("All");
   const [isFiltered, setIsFiltered] = useState(false);
-  const [availableUsers, setAvailableUsers] = useState([]);
   const [clearDialog, setClearDialog] = useState(false);
+  const [noUserAlert, setNoUserAlert] = useState(false);
 
   const handleRoleChange = (e) => {
     const newRole = e.target.value;
@@ -51,20 +52,35 @@ const Logs = () => {
     }
   };
 
-  const handleUserChange = (e) => {
-    const userId = e.target.value;
-    setFilterUser(userId);
+  const handleUserSearch = (e) => {
+    if (e.key === 'Enter') {
+      const searchTerm = e.target.value.trim();
+      if (!searchTerm) {
+        resetFilters();
+        return;
+      }
 
-    if (userId === "All") {
-      resetFilters();
-    } else {
-      fetchLogsByUser(userId);
-      setIsFiltered(true);
+      const matchingUser = logs.find(log => 
+        log.user?.displayName?.toLowerCase() === searchTerm.toLowerCase()
+      )?.user;
+
+      if (matchingUser) {
+        setFilterUser(searchTerm);
+        setIsFiltered(true);
+        setNoUserAlert(false);
+        fetchLogsByUser(matchingUser.id);
+      } else {
+        setNoUserAlert(true);
+        setTimeout(() => {
+          setNoUserAlert(false);
+          resetFilters();
+        }, 3000);
+      }
     }
   };
 
   const resetFilters = () => {
-    setFilterUser("All");
+    setFilterUser("");
     setFilterRole("All");
     setIsFiltered(false);
     fetchLogs();
@@ -86,26 +102,6 @@ const Logs = () => {
     }
   };
 
-  useEffect(() => {
-    const uniqueUsers = [
-      ...new Set(
-        logs
-          .map((log) => {
-            if (log.user && typeof log.user === "object") {
-              return JSON.stringify({
-                id: log.user.id,
-                displayName: log.user.displayName,
-              });
-            }
-            return null;
-          })
-          .filter(Boolean),
-      ),
-    ].map((userStr) => JSON.parse(userStr));
-
-    setAvailableUsers(uniqueUsers);
-  }, [logs]);
-
   // Handle real-time log updates
   const handleLogsUpdated = useCallback(
     (newLog) => {
@@ -113,12 +109,12 @@ const Logs = () => {
         fetchLogs();
       } else if (
         (filterRole !== "All" && newLog.role === filterRole) ||
-        (filterUser !== "All" && newLog.user?.id === filterUser)
+        (filterUser && newLog.user?.displayName?.toLowerCase() === filterUser.toLowerCase())
       ) {
-        fetchLogsByUser(filterUser);
+        fetchLogs();
       }
     },
-    [isFiltered, filterRole, filterUser, fetchLogs, fetchLogsByUser],
+    [isFiltered, filterRole, filterUser, fetchLogs]
   );
 
   // Initialize websocket connection
@@ -177,34 +173,30 @@ const Logs = () => {
               </FormControl>
             </Grid>
             <Grid item xs={12} md={4}>
-              <FormControl
+              <TextField
                 fullWidth
+                label="Search by User"
                 variant="outlined"
-                sx={{ backgroundColor: "#333", borderRadius: 1 }}
-              >
-                <InputLabel id="filter-user-label" sx={{ color: "#eee" }}>
-                  Filter by User
-                </InputLabel>
-                <Select
-                  labelId="filter-user-label"
-                  label="Filter by User"
-                  value={filterUser}
-                  onChange={handleUserChange}
-                  sx={{
-                    color: "#eee",
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#444",
+                value={filterUser}
+                onChange={(e) => setFilterUser(e.target.value)}
+                onKeyPress={handleUserSearch}
+                placeholder="Press Enter to search"
+                sx={{
+                  backgroundColor: "#333",
+                  borderRadius: 1,
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: '#444',
                     },
-                  }}
-                >
-                  <MenuItem value="All">All Users</MenuItem>
-                  {availableUsers.map((user) => (
-                    <MenuItem key={user.id} value={user.id}>
-                      {user.displayName}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: '#eee',
+                  },
+                  '& .MuiInputBase-input': {
+                    color: '#eee',
+                  },
+                }}
+              />
             </Grid>
             <Grid
               item
@@ -248,6 +240,12 @@ const Logs = () => {
         </Box>
 
         <Divider sx={{ mb: 4, borderColor: "#444" }} />
+
+        {noUserAlert && (
+          <Alert severity="info" sx={{ my: 3 }}>
+            No user found with that name. Filters will reset in 3 seconds.
+          </Alert>
+        )}
 
         {loading && (
           <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
