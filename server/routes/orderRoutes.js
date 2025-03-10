@@ -14,6 +14,13 @@ router.post(
 // Retrieve your orders (Customers only)
 router.get("/myorders", hasRole(["Customer"]), orderController.getMyOrders);
 
+// Update your order by ID (Customers only)
+router.put(
+  "/myorders/:id",
+  hasRole(["Customer"]),
+  orderController.updateMyOrderById,
+);
+
 // Retrieve all orders (Admin/Staff only)
 router.get("/", hasRole(["Admin", "Staff"]), orderController.getAllOrders);
 

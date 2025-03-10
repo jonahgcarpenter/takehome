@@ -128,3 +128,56 @@ exports.getMyOrders = async (req, res) => {
       .json({ message: "Server error", error: error.message });
   }
 };
+
+// PUT /api/orders/myorders/:id
+// Update an order placed by the authenticated customer
+exports.updateMyOrderById = async (req, res) => {
+  try {
+    // Find the order and verify ownership
+    const order = await Order.findOne({
+      _id: req.params.id,
+      "customer.id": req.user._id
+    });
+
+    if (!order) {
+      return res.status(404).json({ 
+        message: "Order not found or you don't have permission to update it" 
+      });
+    }
+
+    // Only allow updates if order is in 'Pending' status
+    if (order.status !== 'Pending') {
+      return res.status(400).json({ 
+        message: "Can only modify orders that are in 'Pending' status" 
+      });
+    }
+
+    // Only allow quantity updates for existing products
+    const updatedProducts = order.products.map(orderProduct => {
+      const updatedProduct = req.body.products?.find(p => 
+        p.product.toString() === orderProduct.product.toString()
+      );
+      return {
+        product: orderProduct.product,
+        quantity: updatedProduct?.quantity || orderProduct.quantity
+      };
+    });
+
+    const allowedUpdates = {
+      products: updatedProducts
+    };
+
+    const updatedOrder = await orderService.updateOrder(req.params.id, allowedUpdates);
+    await updatedOrder.populate("products.product", "name price");
+
+    const io = req.app.get("socketio");
+    io.emit("orders-updated", updatedOrder);
+
+    return res.status(200).json(updatedOrder);
+  } catch (error) {
+    return res.status(500).json({ 
+      message: "Server error", 
+      error: error.message 
+    });
+  }
+};

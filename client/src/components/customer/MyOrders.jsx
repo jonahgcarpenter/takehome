@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Typography,
   Grid,
@@ -9,7 +9,15 @@ import {
   CardHeader,
   CardContent,
   Chip,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
 
 const getStatusColor = (status) => {
   const statusMap = {
@@ -43,7 +51,59 @@ const formatDate = (dateString) => {
   }
 };
 
-const MyOrders = ({ orders, loading, error }) => {
+const EditQuantityDialog = ({ open, onClose, product, onSubmit }) => {
+  // Use useEffect to update quantity when product changes
+  React.useEffect(() => {
+    if (product) {
+      setQuantity(product.quantity);
+    }
+  }, [product]);
+
+  const [quantity, setQuantity] = useState(0);
+
+  const handleSubmit = () => {
+    onSubmit(product.product._id, parseInt(quantity));
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle sx={{ bgcolor: '#333', color: '#fff' }}>
+        Edit Quantity: {product?.product?.name}
+      </DialogTitle>
+      <DialogContent sx={{ bgcolor: '#333', color: '#fff', pt: 2 }}>
+        <TextField
+          autoFocus
+          margin="dense"
+          label="Quantity"
+          type="number"
+          fullWidth
+          value={quantity}
+          onChange={(e) => setQuantity(e.target.value)}
+          InputProps={{ inputProps: { min: 1 } }}
+          sx={{
+            '& .MuiInputBase-input': { color: '#fff' },
+            '& .MuiInputLabel-root': { color: '#999' },
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': { borderColor: '#666' },
+              '&:hover fieldset': { borderColor: '#999' },
+            }
+          }}
+        />
+      </DialogContent>
+      <DialogActions sx={{ bgcolor: '#333', color: '#fff' }}>
+        <Button onClick={onClose} sx={{ color: '#999' }}>Cancel</Button>
+        <Button onClick={handleSubmit} variant="contained" color="primary">
+          Update
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+const MyOrders = ({ orders, loading, error, onUpdateQuantity }) => {
+  const [editDialog, setEditDialog] = useState({ open: false, product: null });
+
   return (
     <Box>
       {loading && (
@@ -141,7 +201,7 @@ const MyOrders = ({ orders, loading, error }) => {
                           alignItems: "center",
                         }}
                       >
-                        <Box>
+                        <Box sx={{ flex: 1 }}>
                           {typeof item.product === "object" ? (
                             <>
                               <Typography
@@ -179,16 +239,27 @@ const MyOrders = ({ orders, loading, error }) => {
                             </>
                           )}
                         </Box>
-                        {typeof item.product === "object" ? (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                          {order.status === 'Pending' && (
+                            <IconButton
+                              size="small"
+                              onClick={() => setEditDialog({ 
+                                open: true, 
+                                product: item, 
+                                orderId: order._id 
+                              })}
+                              sx={{ color: 'primary.main' }}
+                            >
+                              <EditIcon />
+                            </IconButton>
+                          )}
                           <Typography variant="subtitle2" color="primary.main">
-                            Est Cost: $
-                            {formatPrice(item.product.price * item.quantity)}
+                            {typeof item.product === "object" 
+                              ? `Est Cost: $${formatPrice(item.product.price * item.quantity)}`
+                              : "Est Cost: N/A"
+                            }
                           </Typography>
-                        ) : (
-                          <Typography variant="subtitle2" color="primary.main">
-                            Est Cost: N/A
-                          </Typography>
-                        )}
+                        </Box>
                       </Box>
                     </Grid>
                   ))}
@@ -222,6 +293,15 @@ const MyOrders = ({ orders, loading, error }) => {
           </Grid>
         ))}
       </Grid>
+
+      <EditQuantityDialog
+        open={editDialog.open}
+        product={editDialog.product}
+        onClose={() => setEditDialog({ open: false, product: null })}
+        onSubmit={(productId, quantity) => {
+          onUpdateQuantity(editDialog.orderId, productId, quantity);
+        }}
+      />
     </Box>
   );
 };

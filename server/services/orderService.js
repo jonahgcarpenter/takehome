@@ -13,7 +13,7 @@ const updateProductQuantities = async (products, increase = false) => {
     product.quantity += quantityChange;
     
     if (product.quantity < 0) {
-      throw new Error(`Insufficient quantity for product ${product.name}`);
+      throw new Error(`Insufficient quantity for product ${product.name}, update the inventory before updating the order.`);
     }
     
     await product.save();
