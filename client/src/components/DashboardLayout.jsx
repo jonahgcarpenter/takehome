@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { Paper, Typography, Box, Button } from "@mui/material";
 import axios from "axios";
 import Navbar from "./Navbar";
+import useUserSocket from "../hooks/websockets/useUserSockets";
 
 // Import role-specific dashboard pages:
 import Logs from "../pages/admin/Logs";
@@ -15,6 +17,18 @@ export default function DashboardLayout() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  const handleUserUpdate = useCallback((updatedUser) => {
+    if (updatedUser._id === user?._id) {
+      setUser(updatedUser);
+      // Redirect to new default route if role changed
+      const newDefaultRoute = getDefaultRoute(updatedUser.role);
+      navigate(`/dashboard/${newDefaultRoute}`);
+    }
+  }, [user, navigate]);
+
+  // Initialize websocket listener
+  useUserSocket({ onUsersUpdated: handleUserUpdate });
 
   // Fetch user details from the backend using axios
   useEffect(() => {
@@ -88,6 +102,19 @@ export default function DashboardLayout() {
     );
   }
 
+  const getDefaultRoute = (role) => {
+    switch (role) {
+      case "Admin":
+        return "usermanagement";
+      case "Customer":
+        return "buy";
+      case "Staff":
+        return "inventorymanagement";
+      default:
+        return "";
+    }
+  };
+
   return (
     <div>
       <Navbar
@@ -99,7 +126,35 @@ export default function DashboardLayout() {
       <div style={{ padding: "20px" }}>
         <Routes>
           {roleRoutes}
-          <Route path="*" element={<div>Page not found</div>} />
+          <Route path="*" element={
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+              <Paper 
+                elevation={3}
+                sx={{
+                  padding: 4,
+                  backgroundColor: "#2C2C2C",
+                  color: 'white',
+                  maxWidth: '500px',
+                  width: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 2
+                }}
+              >
+                <Typography variant="h6" align="center">
+                  404 Page not found
+                </Typography>
+                <Button 
+                  variant="contained" 
+                  color="primary"
+                  onClick={() => navigate(`/dashboard/${getDefaultRoute(user.role)}`)}
+                >
+                  Back to where you belong
+                </Button>
+              </Paper>
+            </Box>
+          } />
         </Routes>
       </div>
     </div>
