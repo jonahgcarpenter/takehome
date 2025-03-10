@@ -2,6 +2,23 @@
 
 Please see the [project requirements](REQUIREMENTS.md) for detailed specifications.
 
+## Table of Contents
+
+- [Stack](#stack)
+- [Features](#features)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Environment Setup](#environment-setup)
+- [Running the Application](#running-the-application)
+  - [Development](#development)
+  - [Production](#production)
+- [Application Modules](#application-modules)
+  - [Authentication](#authentication)
+  - [Customer Portal](#customer-portal)
+  - [Staff Dashboard](#staff-dashboard)
+  - [Admin Panel](#admin-panel)
+
 ## Stack
 
 - MongoDB
@@ -16,47 +33,69 @@ Please see the [project requirements](REQUIREMENTS.md) for detailed specificatio
 - Websockets for live updates
 - Role based authentication
 
-## Instructions
+## Getting Started
 
-- Make sure your system has Node and NPM installed
-- Clone this repo to your local machine
-- Make sure to create your own ".env" file  within the root of the server directory based on the example one given
-- Understand the first user created will have Admin role where any subsequent users are given Customer. Ensure you always keep atleast one Admin user so you dont lose admin aceess.
+### Prerequisites
 
-### Developement
+- Node.js
+- NPM
+- MongoDB (local or cloud instance)
 
-- Ensure youre using the proper .env variables for the development enviornment as explained in the env example file
-- Run both frontend and backend servers using the "npm run dev" command in the root of the respecitve server or client directory
+### Installation
+
+1. Clone this repository
+2. Navigate to the project directory
+
+### Environment Setup
+
+- Create a `.env` file in the server directory using the provided example
+- Note: The first user created will be assigned the Admin role
+- Subsequent users will be assigned the Customer role
+- Maintain at least one Admin user to preserve administrative access
+
+## Running the Application
+
+### Development
+
+1. Use development environment variables as specified in the `.env.example`
+2. Start the frontend: `cd client && npm run dev`
+3. Start the backend: `cd server && npm run dev`
 
 ### Production
 
-- Ensure youre using the proper .env variables for the production enviornment as explained in the env example file
-- Set the test prod variable depending on wether your using HTTPS or HTTP to ensure authentication works
-- Navigate to the client directory, and run the "npm run build" command. This will create the static files and place them in the proper directory
-- Navigate to the server directory and run the "node sever.js" command to start the server
-  
-## Authentication
+1. Use production environment variables as specified in the `.env.example`
+2. Configure the HTTPS/HTTP setting using the test prod variable
+3. Build the frontend: `cd client && npm run build`
+4. Start the server: `cd server && node server.js`
+
+## Application Modules
+
+### Authentication
 [View Screenshots](./screenshots/auth)
-- Login/Signup page for creating account or logging in
-- QR code display for scanning to authenticator app (Google Authenticator)
-- Page to input 6 digit code for verification
-  
-## Customer
+- Login/Signup functionality
+- QR code generation for 2FA setup
+- 6-digit verification code input
+- Role based dashboards
+
+### Customer Dashboard
 [View Screenshots](./screenshots/customer)
-- View products, add items to your cart and request a quote
-- Ability to edit your request quantity if the order is in the "Pending" state only
-- Gives an estimated cost per item, where a Staff/Admin will set the "Quoted Price" on their end
-- Popup notifications for changes in order status
+- Product browsing and cart management
+- Quote request system
+- Order quantity modification (Pending state only)
+- Real-time price estimates
+- Status change notifications
 
-## Staff
+### Staff Dashboard
 [View Screenshots](./screenshots/staff)
-- Add/Edit/Delete inventory
-- Ability to updated existing orders
-- Inventory quantity is automaticlly updated appropriatly based on order state.
-- Ensures product amount is updated before allowing order to be processed to ensure proper tracking of inventory
-- Can only update requested quantity in processing state
+- Inventory management (Add/Edit/Delete)
+- Order processing and updates
+- Automatic inventory tracking
+- Quantity verification before order status updates
 
-## Admin
+### Admin Dashboard
 [View Screenshots](./screenshots/admin)
-- Ability to update user roles and delete users, with live updates to end users
-- Access to logs with ability to clear and filter by Role and User display name
+- User role management
+- User deletion capabilities
+- Access to system logs
+- Log filtering by Role and User
+- Real-time user updates
