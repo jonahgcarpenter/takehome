@@ -4,9 +4,15 @@ const Product = require("../models/productModel");
 
 const updateProductQuantities = async (products, increase = false) => {
   for (const item of products) {
+    // Skip if product field is null
+    if (item.product === null) {
+      continue;
+    }
+
     const product = await Product.findById(item.product);
     if (!product) {
-      throw new Error(`Product ${item.product} not found`);
+      console.warn(`Warning: Product ${item.product} not found, skipping quantity update`);
+      continue;
     }
 
     const quantityChange = increase ? item.quantity : -item.quantity;
