@@ -43,9 +43,12 @@ export default function DashboardLayout() {
       })
       .catch((err) => {
         console.error("Failed to fetch user:", err);
+        if (err.response?.status === 401) {
+          navigate('/');
+        }
         setLoading(false);
       });
-  }, []);
+  }, [navigate]);
 
   if (loading) {
     return <div>Loading user info...</div>;
