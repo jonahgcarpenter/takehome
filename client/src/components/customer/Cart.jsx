@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import {
   Box,
   Typography,
@@ -14,21 +14,9 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 const Cart = ({
   cartItems,
-  totalPrice: externalTotalPrice,
   onRemove,
   onPlaceOrder,
 }) => {
-  const calculatedTotalPrice = useMemo(
-    () =>
-      cartItems.reduce(
-        (sum, item) => sum + item.product.price * item.quantity,
-        0,
-      ),
-    [cartItems],
-  );
-
-  const totalPrice = externalTotalPrice ?? calculatedTotalPrice;
-
   return (
     <Paper
       elevation={3}
@@ -69,14 +57,9 @@ const Cart = ({
                     primary={item.product.name}
                     secondary={
                       <Typography variant="body2" sx={{ color: "#ccc" }}>
-                        Price: <b>${item.product.price.toFixed(2)}</b>
+                        Est per unit: <b>${item.product.price.toFixed(2)}</b>
                         <br />
                         Quantity: <b>{item.quantity}</b>
-                        <br />
-                        Total:{" "}
-                        <b>
-                          ${(item.product.price * item.quantity).toFixed(2)}
-                        </b>
                       </Typography>
                     }
                   />
@@ -94,16 +77,6 @@ const Cart = ({
             ))}
           </List>
           <Divider sx={{ my: 2, borderColor: "#444" }} />
-          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-            <Typography variant="h6">Total:</Typography>
-            <Typography
-              variant="h6"
-              color="primary.main"
-              sx={{ fontWeight: "bold" }}
-            >
-              ${totalPrice.toFixed(2)}
-            </Typography>
-          </Box>
           <Button
             variant="contained"
             fullWidth
@@ -116,7 +89,7 @@ const Cart = ({
               "&:hover": { backgroundColor: "success.dark" },
             }}
           >
-            Place Order
+            Request Quote
           </Button>
         </>
       )}

@@ -35,25 +35,11 @@ const Buy = () => {
     onProductsUpdated: fetchProducts,
   });
 
-  const totalPrice = cartItems.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
-    0,
-  );
-
   const addToCart = (product, qty) => {
-    const validQty = Math.min(qty, product.quantity);
     const existing = cartItems.find((item) => item.product._id === product._id);
 
     if (existing) {
-      const newQty = existing.quantity + validQty;
-      if (newQty > product.quantity) {
-        setNotification({
-          open: true,
-          message: `Cannot add more than ${product.quantity} units`,
-          type: "error",
-        });
-        return;
-      }
+      const newQty = existing.quantity + qty;
       setCartItems(
         cartItems.map((item) =>
           item.product._id === product._id
@@ -62,7 +48,7 @@ const Buy = () => {
         ),
       );
     } else {
-      setCartItems([...cartItems, { product, quantity: validQty }]);
+      setCartItems([...cartItems, { product, quantity: qty }]);
     }
   };
 
@@ -80,7 +66,6 @@ const Buy = () => {
           product: item.product._id,
           quantity: item.quantity,
         })),
-        totalPrice,
       };
       const response = await axios.post("/api/orders", orderData);
       setNotification({
@@ -123,7 +108,7 @@ const Buy = () => {
               gutterBottom
               sx={{ mb: 3, fontWeight: 500, color: "primary.main" }}
             >
-              Buy Products
+              Request a Quote
             </Typography>
             <Divider sx={{ mb: 3, borderColor: "#444" }} />
             {productsLoading && (
@@ -156,7 +141,6 @@ const Buy = () => {
         <Grid item xs={12} md={3}>
           <Cart
             cartItems={cartItems}
-            totalPrice={totalPrice}
             loading={orderLoading}
             onRemove={handleRemove}
             onPlaceOrder={handlePlaceOrder}

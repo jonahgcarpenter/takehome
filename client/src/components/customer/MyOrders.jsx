@@ -112,7 +112,13 @@ const MyOrders = ({ orders, loading, error }) => {
                     />
                   </Box>
                 }
-                subheader={formatDate(order.createdAt)}
+                subheader={
+                  <>
+                    Created: {formatDate(order.createdAt)}
+                    <br />
+                    Last Updated: {formatDate(order.updatedAt)}
+                  </>
+                }
                 sx={{
                   bgcolor: "primary.main",
                   borderBottom: "1px solid #444",
@@ -149,7 +155,7 @@ const MyOrders = ({ orders, loading, error }) => {
                                 sx={{ color: "#ccc" }}
                               >
                                 Quantity: {item.quantity} <br />
-                                Price per unit:{" "}
+                                Est per unit:{" "}
                                 <span style={{ color: "#4caf50" }}>
                                   ${item.product.price}
                                 </span>
@@ -168,19 +174,19 @@ const MyOrders = ({ orders, loading, error }) => {
                                 sx={{ color: "#ccc" }}
                               >
                                 Quantity: {item.quantity} <br />
-                                Price per unit: N/A
+                                Est per unit: N/A
                               </Typography>
                             </>
                           )}
                         </Box>
                         {typeof item.product === "object" ? (
                           <Typography variant="subtitle2" color="primary.main">
-                            Cost: $
+                            Est Cost: $
                             {formatPrice(item.product.price * item.quantity)}
                           </Typography>
                         ) : (
                           <Typography variant="subtitle2" color="primary.main">
-                            Cost: N/A
+                            Est Cost: N/A
                           </Typography>
                         )}
                       </Box>
@@ -199,14 +205,16 @@ const MyOrders = ({ orders, loading, error }) => {
                   }}
                 >
                   <Typography variant="subtitle1" sx={{ color: "#fff" }}>
-                    Total Amount:
+                    Quoted Cost:
                   </Typography>
                   <Typography
                     variant="h6"
                     color="primary.main"
                     sx={{ fontWeight: "bold" }}
                   >
-                    ${formatPrice(order.totalPrice)}
+                    {order.totalPrice === 0 || !order.totalPrice
+                      ? "Not Set"
+                      : `$${formatPrice(order.totalPrice)}`}
                   </Typography>
                 </Box>
               </CardContent>

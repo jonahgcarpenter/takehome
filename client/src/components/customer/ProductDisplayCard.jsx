@@ -16,7 +16,7 @@ const ProductDisplayCard = ({ product, onAddToCart }) => {
 
   const handleQuantityChange = (e) => {
     const newValue = parseInt(e.target.value) || 0;
-    const validValue = Math.min(Math.max(1, newValue), product.quantity);
+    const validValue = Math.max(1, newValue);
     setQuantity(validValue);
   };
 
@@ -40,18 +40,6 @@ const ProductDisplayCard = ({ product, onAddToCart }) => {
               sx={{ fontWeight: "bold", color: "#fff" }}
             >
               {product.name}
-            </Typography>
-
-            <Typography
-              variant="body2"
-              sx={{
-                fontWeight: "medium",
-                color: product.quantity > 0 ? "success.main" : "error.main",
-              }}
-            >
-              {product.quantity > 0
-                ? `In Stock: ${product.quantity}`
-                : "Out of Stock"}
             </Typography>
           </Box>
           <Typography variant="body2" sx={{ mb: 2, color: "#ccc" }}>
@@ -87,22 +75,18 @@ const ProductDisplayCard = ({ product, onAddToCart }) => {
             }}
             inputProps={{
               min: 1,
-              max: product.quantity,
               "aria-label": "Quantity",
             }}
-            helperText={`Max: ${product.quantity}`}
             InputLabelProps={{ sx: { color: "#ccc" } }}
-            FormHelperTextProps={{ sx: { color: "red" } }}
             InputProps={{
               sx: {
-                color: "#fff", // ensures the input text is white
+                color: "#fff",
               },
             }}
           />
 
           <IconButton
             color="primary"
-            disabled={product.quantity === 0}
             onClick={() => {
               onAddToCart(product, quantity);
               setQuantity(1);
@@ -110,9 +94,6 @@ const ProductDisplayCard = ({ product, onAddToCart }) => {
             sx={{
               backgroundColor: "primary.main",
               color: "#fff",
-              "&.Mui-disabled": {
-                backgroundColor: "red",
-              },
             }}
           >
             <AddShoppingCartIcon />

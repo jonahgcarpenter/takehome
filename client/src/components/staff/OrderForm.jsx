@@ -19,21 +19,6 @@ const OrderForm = ({ order, onSubmit, onCancel }) => {
     orderItems: [], // each item: { product: "", quantity: "" }
   });
 
-  // Helper function to recalculate total price based on orderItems.
-  const recalcTotalPrice = (orderItems) => {
-    let total = 0;
-    orderItems.forEach((item) => {
-      const qty = parseFloat(item.quantity) || 0;
-      // If item.product is an object with a price property, use it; otherwise, assume price is 0.
-      const price =
-        typeof item.product === "object" && item.product.price
-          ? parseFloat(item.product.price)
-          : 0;
-      total += qty * price;
-    });
-    return total.toFixed(2);
-  };
-
   useEffect(() => {
     if (order) {
       const initialOrderItems = order.products
@@ -47,16 +32,14 @@ const OrderForm = ({ order, onSubmit, onCancel }) => {
           order.customer && order.customer.displayName
             ? order.customer.displayName
             : order.customer || "",
-        totalPrice: order.totalPrice
-          ? order.totalPrice.toString()
-          : recalcTotalPrice(initialOrderItems),
+        totalPrice: order.totalPrice ? order.totalPrice.toString() : "0.00",
         status: order.status || "Pending",
         orderItems: initialOrderItems,
       });
     } else {
       setFormData({
         customer: "",
-        totalPrice: "",
+        totalPrice: "0.00",
         status: "Pending",
         orderItems: [],
       });
@@ -71,11 +54,9 @@ const OrderForm = ({ order, onSubmit, onCancel }) => {
   const handleItemChange = (index, field, value) => {
     const newItems = [...formData.orderItems];
     newItems[index][field] = value;
-    const newTotal = recalcTotalPrice(newItems);
     setFormData((prev) => ({
       ...prev,
       orderItems: newItems,
-      totalPrice: newTotal,
     }));
   };
 
@@ -113,9 +94,20 @@ const OrderForm = ({ order, onSubmit, onCancel }) => {
         </Typography>
       </Box>
       <Box sx={{ my: 1 }}>
-        <Typography variant="subtitle1">
-          <strong>Total Price:</strong> ${formData.totalPrice}
-        </Typography>
+        <TextField
+          label="Total Price"
+          name="totalPrice"
+          type="number"
+          value={formData.totalPrice}
+          onChange={handleChange}
+          fullWidth
+          required
+          InputProps={{
+            startAdornment: "$",
+            sx: { color: "#eee", backgroundColor: "#333" },
+          }}
+          InputLabelProps={{ sx: { color: "#ccc" } }}
+        />
       </Box>
 
       <FormControl variant="outlined" fullWidth margin="normal">

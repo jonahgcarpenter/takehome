@@ -143,13 +143,6 @@ const OrderManagement = () => {
           <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
             <CircularProgress color="primary" />
           </Box>
-        ) : error ? (
-          <Alert
-            severity="error"
-            sx={{ my: 3, backgroundColor: "#333", color: "#fff" }}
-          >
-            {error}
-          </Alert>
         ) : orders.length === 0 ? (
           <Typography sx={{ textAlign: "center", color: "#ccc", my: 4 }}>
             No orders found.

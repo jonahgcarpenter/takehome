@@ -36,7 +36,7 @@ const orderSchema = new mongoose.Schema({
   products: [orderItemSchema],
   totalPrice: {
     type: Number,
-    required: true,
+    required: false,
   },
   status: {
     type: String,

@@ -117,7 +117,7 @@ const OrderCard = ({ order, onDelete, onEdit }) => {
                       </Typography>
                       <Typography variant="body2" sx={{ color: "#ccc" }}>
                         Quantity: {item.quantity} <br />
-                        Price per unit:{" "}
+                        Est per unit:{" "}
                         <span style={{ color: "#4caf50" }}>
                           ${item.product.price}
                         </span>
@@ -130,18 +130,18 @@ const OrderCard = ({ order, onDelete, onEdit }) => {
                       </Typography>
                       <Typography variant="body2" sx={{ color: "#ccc" }}>
                         Quantity: {item.quantity} <br />
-                        Price per unit: N/A
+                        Est per unit: N/A
                       </Typography>
                     </>
                   )}
                 </Box>
                 {typeof item.product === "object" ? (
                   <Typography variant="subtitle2" color="primary.main">
-                    Cost: ${formatPrice(item.product.price * item.quantity)}
+                    Est Cost: ${formatPrice(item.product.price * item.quantity)}
                   </Typography>
                 ) : (
                   <Typography variant="subtitle2" color="primary.main">
-                    Cost: N/A
+                    Est Cost: N/A
                   </Typography>
                 )}
               </Box>
@@ -159,13 +159,15 @@ const OrderCard = ({ order, onDelete, onEdit }) => {
             alignItems: "center",
           }}
         >
-          <Typography variant="subtitle1">Total Amount:</Typography>
+          <Typography variant="subtitle1">Quoted Cost:</Typography>
           <Typography
             variant="h6"
             color="primary.main"
             sx={{ fontWeight: "bold" }}
           >
-            ${formatPrice(order.totalPrice)}
+            {order.totalPrice === 0 || !order.totalPrice
+              ? "Not Set"
+              : `$${formatPrice(order.totalPrice)}`}
           </Typography>
         </Box>
       </CardContent>

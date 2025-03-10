@@ -94,15 +94,7 @@ const Orders = () => {
   });
 
   return (
-    <Container
-      maxWidth="xl"
-      sx={{
-        py: 4,
-        backgroundColor: "#222",
-        minHeight: "100vh",
-        color: "#eee",
-      }}
-    >
+    <Container maxWidth="xl" sx={{ py: 4 }}>
       <Paper
         elevation={2}
         sx={{
@@ -110,7 +102,6 @@ const Orders = () => {
           mb: 4,
           backgroundColor: "#2C2C2C",
           color: "#eee",
-          border: "1px solid #444",
         }}
       >
         <Typography
