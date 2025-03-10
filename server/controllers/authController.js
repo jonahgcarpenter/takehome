@@ -42,8 +42,8 @@ exports.totpSetup = async (req, res) => {
       qrCodeDataURL,
     });
   } catch (error) {
-    console.error("Error in TOTP setup:", error);
-    res.status(500).json({ message: "TOTP setup failed" });
+    console.error("Error in 2FA setup:", error);
+    res.status(500).json({ message: "2FA setup failed" });
   }
 };
 
@@ -67,10 +67,10 @@ exports.verifyTOTP = async (req, res) => {
       return res.redirect(`${BASE_URL}/dashboard`);
     }
     // In case of invalid token, send back to verification page with error
-    res.status(401).json({ message: "Invalid TOTP token" });
+    res.status(401).json({ message: "Invalid 2FA code" });
   } catch (error) {
-    console.error("Error in TOTP verification:", error);
-    res.status(500).json({ message: "TOTP verification failed" });
+    console.error("Error in 2FA verification:", error);
+    res.status(500).json({ message: "2FA verification failed" });
   }
 };
 
