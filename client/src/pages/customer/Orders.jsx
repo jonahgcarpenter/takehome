@@ -92,21 +92,21 @@ const Orders = () => {
   const handleUpdateQuantity = async (orderId, productId, quantity) => {
     try {
       const updatedProducts = orders
-        .find(order => order._id === orderId)
-        .products.map(item => ({
+        .find((order) => order._id === orderId)
+        .products.map((item) => ({
           product: item.product._id,
-          quantity: item.product._id === productId ? quantity : item.quantity
+          quantity: item.product._id === productId ? quantity : item.quantity,
         }));
 
       await axios.put(`/api/orders/myorders/${orderId}`, {
-        products: updatedProducts
+        products: updatedProducts,
       });
-      
+
       showNotification("Quantity updated successfully", "success");
     } catch (error) {
       showNotification(
         error.response?.data?.message || "Failed to update quantity",
-        "error"
+        "error",
       );
     }
   };
@@ -150,10 +150,7 @@ const Orders = () => {
             No orders found.
           </Typography>
         ) : (
-          <MyOrders 
-            orders={orders} 
-            onUpdateQuantity={handleUpdateQuantity}
-          />
+          <MyOrders orders={orders} onUpdateQuantity={handleUpdateQuantity} />
         )}
       </Paper>
 

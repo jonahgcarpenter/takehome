@@ -33,12 +33,14 @@ app.use(
     saveUninitialized: false, // Don't create session until something is stored
     store: MongoStore.create({
       mongoUrl: process.env.MONGODB_URI,
-      collectionName: 'sessions',
+      collectionName: "sessions",
       ttl: 24 * 60 * 60, // Session TTL (1 day)
     }),
     cookie: {
       // Allow override of secure cookie requirement using TEST_PROD env variable
-      secure: process.env.NODE_ENV === "production" && process.env.TEST_PROD !== "true",
+      secure:
+        process.env.NODE_ENV === "production" &&
+        process.env.TEST_PROD !== "true",
       httpOnly: true, // Helps prevent client side JS from reading the cookie
       sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
       maxAge: 1000 * 60 * 60 * 24, // Cookie expiry: 1 day

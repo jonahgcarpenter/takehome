@@ -67,8 +67,11 @@ exports.createOrder = async (req, res) => {
 // Update an existing order (Admin/Staff only)
 exports.updateOrderById = async (req, res) => {
   try {
-    const updatedOrder = await orderService.updateOrder(req.params.id, req.body);
-    
+    const updatedOrder = await orderService.updateOrder(
+      req.params.id,
+      req.body,
+    );
+
     if (!updatedOrder) {
       return res.status(404).json({ message: "Order not found" });
     }
@@ -81,12 +84,10 @@ exports.updateOrderById = async (req, res) => {
 
     return res.status(200).json(updatedOrder);
   } catch (error) {
-    return res
-      .status(500)
-      .json({ 
-        message: error.message || "Server error", 
-        error: error.message 
-      });
+    return res.status(500).json({
+      message: error.message || "Server error",
+      error: error.message,
+    });
   }
 };
 
@@ -136,38 +137,41 @@ exports.updateMyOrderById = async (req, res) => {
     // Find the order and verify ownership
     const order = await Order.findOne({
       _id: req.params.id,
-      "customer.id": req.user._id
+      "customer.id": req.user._id,
     });
 
     if (!order) {
-      return res.status(404).json({ 
-        message: "Order not found or you don't have permission to update it" 
+      return res.status(404).json({
+        message: "Order not found or you don't have permission to update it",
       });
     }
 
     // Only allow updates if order is in 'Pending' status
-    if (order.status !== 'Pending') {
-      return res.status(400).json({ 
-        message: "Can only modify orders that are in 'Pending' status" 
+    if (order.status !== "Pending") {
+      return res.status(400).json({
+        message: "Can only modify orders that are in 'Pending' status",
       });
     }
 
     // Only allow quantity updates for existing products
-    const updatedProducts = order.products.map(orderProduct => {
-      const updatedProduct = req.body.products?.find(p => 
-        p.product.toString() === orderProduct.product.toString()
+    const updatedProducts = order.products.map((orderProduct) => {
+      const updatedProduct = req.body.products?.find(
+        (p) => p.product.toString() === orderProduct.product.toString(),
       );
       return {
         product: orderProduct.product,
-        quantity: updatedProduct?.quantity || orderProduct.quantity
+        quantity: updatedProduct?.quantity || orderProduct.quantity,
       };
     });
 
     const allowedUpdates = {
-      products: updatedProducts
+      products: updatedProducts,
     };
 
-    const updatedOrder = await orderService.updateOrder(req.params.id, allowedUpdates);
+    const updatedOrder = await orderService.updateOrder(
+      req.params.id,
+      allowedUpdates,
+    );
     await updatedOrder.populate("products.product", "name price");
 
     const io = req.app.get("socketio");
@@ -175,9 +179,10 @@ exports.updateMyOrderById = async (req, res) => {
 
     return res.status(200).json(updatedOrder);
   } catch (error) {
-    return res.status(500).json({ 
-      message: "Server error", 
-      error: error.message 
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message,
     });
   }
 };
+

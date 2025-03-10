@@ -11,11 +11,14 @@ const logMiddleware = async (req, res, next) => {
   const logEntry = new Log({
     method: req.method,
     route: req.originalUrl,
-    user: req.user ? {
-      id: req.user._id,
-      displayName: req.user.displayName
-    } : null,
-    role: req.user && req.user.role ? req.user.role.name || req.user.role : null,
+    user: req.user
+      ? {
+          id: req.user._id,
+          displayName: req.user.displayName,
+        }
+      : null,
+    role:
+      req.user && req.user.role ? req.user.role.name || req.user.role : null,
     ip: req.ip,
     headers: req.headers,
     query: req.query,

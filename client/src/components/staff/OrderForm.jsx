@@ -163,12 +163,13 @@ const OrderForm = ({ order, onSubmit, onCancel }) => {
                 required
                 disabled={formData.status !== "Pending"}
                 InputProps={{
-                  sx: { 
-                    color: "#eee", 
-                    backgroundColor: formData.status === "Pending" ? "#333" : "#2a2a2a",
+                  sx: {
+                    color: "#eee",
+                    backgroundColor:
+                      formData.status === "Pending" ? "#333" : "#2a2a2a",
                     "& input:disabled": {
-                      color: "#888"
-                    }
+                      color: "#888",
+                    },
                   },
                 }}
                 InputLabelProps={{ sx: { color: "#ccc" } }}

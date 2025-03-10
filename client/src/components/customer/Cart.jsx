@@ -12,11 +12,7 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-const Cart = ({
-  cartItems,
-  onRemove,
-  onPlaceOrder,
-}) => {
+const Cart = ({ cartItems, onRemove, onPlaceOrder }) => {
   return (
     <Paper
       elevation={3}

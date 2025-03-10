@@ -8,14 +8,16 @@ const updateProductQuantities = async (products, increase = false) => {
     if (!product) {
       throw new Error(`Product ${item.product} not found`);
     }
-    
+
     const quantityChange = increase ? item.quantity : -item.quantity;
     product.quantity += quantityChange;
-    
+
     if (product.quantity < 0) {
-      throw new Error(`Insufficient quantity for product ${product.name}, update the inventory before updating the order.`);
+      throw new Error(
+        `Insufficient quantity for product ${product.name}, update the inventory before updating the order.`,
+      );
     }
-    
+
     await product.save();
   }
 };
@@ -36,16 +38,28 @@ exports.updateOrder = async (orderId, updateData) => {
   const newStatus = updateData.status;
 
   // Handle quantity updates based on status changes
-  if (oldStatus === 'Pending' && ['Processing', 'Completed'].includes(newStatus)) {
+  if (
+    oldStatus === "Pending" &&
+    ["Processing", "Completed"].includes(newStatus)
+  ) {
     // Subtract quantities when moving from Pending to Processing or Completed
     await updateProductQuantities(order.products, false);
-  } else if (['Processing', 'Completed'].includes(oldStatus) && newStatus === 'Cancelled') {
+  } else if (
+    ["Processing", "Completed"].includes(oldStatus) &&
+    newStatus === "Cancelled"
+  ) {
     // Add quantities back when cancelling from Processing or Completed
     await updateProductQuantities(order.products, true);
-  } else if (oldStatus === 'Cancelled' && ['Processing', 'Completed'].includes(newStatus)) {
+  } else if (
+    oldStatus === "Cancelled" &&
+    ["Processing", "Completed"].includes(newStatus)
+  ) {
     // Subtract quantities when reactivating a cancelled order
     await updateProductQuantities(order.products, false);
-  } else if (['Processing', 'Completed'].includes(oldStatus) && newStatus === 'Pending') {
+  } else if (
+    ["Processing", "Completed"].includes(oldStatus) &&
+    newStatus === "Pending"
+  ) {
     // Add quantities back when returning to Pending status
     await updateProductQuantities(order.products, true);
   }
@@ -57,11 +71,11 @@ exports.updateOrder = async (orderId, updateData) => {
 exports.deleteOrder = async (orderId) => {
   const order = await Order.findById(orderId);
   if (!order) {
-    throw new Error('Order not found');
+    throw new Error("Order not found");
   }
 
   // If deleting a Processing or Completed order, return quantities to inventory
-  if (['Processing', 'Completed'].includes(order.status)) {
+  if (["Processing", "Completed"].includes(order.status)) {
     await updateProductQuantities(order.products, true);
   }
 

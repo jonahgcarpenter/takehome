@@ -68,10 +68,10 @@ const EditQuantityDialog = ({ open, onClose, product, onSubmit }) => {
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle sx={{ bgcolor: '#333', color: '#fff' }}>
+      <DialogTitle sx={{ bgcolor: "#333", color: "#fff" }}>
         Edit Quantity: {product?.product?.name}
       </DialogTitle>
-      <DialogContent sx={{ bgcolor: '#333', color: '#fff', pt: 2 }}>
+      <DialogContent sx={{ bgcolor: "#333", color: "#fff", pt: 2 }}>
         <TextField
           autoFocus
           margin="dense"
@@ -82,17 +82,19 @@ const EditQuantityDialog = ({ open, onClose, product, onSubmit }) => {
           onChange={(e) => setQuantity(e.target.value)}
           InputProps={{ inputProps: { min: 1 } }}
           sx={{
-            '& .MuiInputBase-input': { color: '#fff' },
-            '& .MuiInputLabel-root': { color: '#999' },
-            '& .MuiOutlinedInput-root': {
-              '& fieldset': { borderColor: '#666' },
-              '&:hover fieldset': { borderColor: '#999' },
-            }
+            "& .MuiInputBase-input": { color: "#fff" },
+            "& .MuiInputLabel-root": { color: "#999" },
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": { borderColor: "#666" },
+              "&:hover fieldset": { borderColor: "#999" },
+            },
           }}
         />
       </DialogContent>
-      <DialogActions sx={{ bgcolor: '#333', color: '#fff' }}>
-        <Button onClick={onClose} sx={{ color: '#999' }}>Cancel</Button>
+      <DialogActions sx={{ bgcolor: "#333", color: "#fff" }}>
+        <Button onClick={onClose} sx={{ color: "#999" }}>
+          Cancel
+        </Button>
         <Button onClick={handleSubmit} variant="contained" color="primary">
           Update
         </Button>
@@ -239,25 +241,28 @@ const MyOrders = ({ orders, loading, error, onUpdateQuantity }) => {
                             </>
                           )}
                         </Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                          {order.status === 'Pending' && (
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 2 }}
+                        >
+                          {order.status === "Pending" && (
                             <IconButton
                               size="small"
-                              onClick={() => setEditDialog({ 
-                                open: true, 
-                                product: item, 
-                                orderId: order._id 
-                              })}
-                              sx={{ color: 'primary.main' }}
+                              onClick={() =>
+                                setEditDialog({
+                                  open: true,
+                                  product: item,
+                                  orderId: order._id,
+                                })
+                              }
+                              sx={{ color: "primary.main" }}
                             >
                               <EditIcon />
                             </IconButton>
                           )}
                           <Typography variant="subtitle2" color="primary.main">
-                            {typeof item.product === "object" 
+                            {typeof item.product === "object"
                               ? `Est Cost: $${formatPrice(item.product.price * item.quantity)}`
-                              : "Est Cost: N/A"
-                            }
+                              : "Est Cost: N/A"}
                           </Typography>
                         </Box>
                       </Box>

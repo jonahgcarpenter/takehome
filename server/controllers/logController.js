@@ -19,7 +19,7 @@ exports.getLogsByUser = async (req, res) => {
   try {
     const userId = req.params.id;
     // Find logs where the 'user.id' field matches the provided user ID.
-    const logs = await Log.find({ 'user.id': userId }).sort({ timestamp: -1 });
+    const logs = await Log.find({ "user.id": userId }).sort({ timestamp: -1 });
     res.status(200).json(logs);
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
