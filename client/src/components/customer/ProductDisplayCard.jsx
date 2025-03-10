@@ -59,6 +59,14 @@ const ProductDisplayCard = ({ product, onAddToCart }) => {
           <Typography variant="body2" sx={{ mb: 2, color: "#ccc" }}>
             {product.description}
           </Typography>
+          <Typography
+            variant="body2"
+            sx={{ mb: 2, color: product.quantity === 0 ? "red" : "green" }}
+          >
+            {product.quantity === 0
+              ? "Out of Stock"
+              : `Currently Available ${product.quantity}`}
+          </Typography>
           <Box
             sx={{
               display: "flex",

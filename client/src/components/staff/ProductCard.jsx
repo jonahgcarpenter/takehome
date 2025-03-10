@@ -62,8 +62,13 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
             <strong>Est per unit:</strong> ${product.price}
           </Typography>
 
-          <Typography variant="body1">
-            <strong>Quantity:</strong> {product.quantity}
+          <Typography
+            variant="body1"
+            sx={{ color: product.quantity === 0 ? "red" : "body1" }}
+          >
+            {product.quantity === 0
+              ? "Out of Stock"
+              : `Quantity: ${product.quantity}`}
           </Typography>
         </Box>
         <Divider sx={{ my: 1, borderColor: "#444" }} />
