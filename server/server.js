@@ -37,7 +37,8 @@ app.use(
       ttl: 24 * 60 * 60, // Session TTL (1 day)
     }),
     cookie: {
-      secure: process.env.NODE_ENV === "production", // In production, set to true (requires HTTPS)
+      // Allow override of secure cookie requirement using TEST_PROD env variable
+      secure: process.env.NODE_ENV === "production" && process.env.TEST_PROD !== "true",
       httpOnly: true, // Helps prevent client side JS from reading the cookie
       sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
       maxAge: 1000 * 60 * 60 * 24, // Cookie expiry: 1 day
